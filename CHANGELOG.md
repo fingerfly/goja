@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-02-21
+
+
 ### Changed
 - `publish.js` → `deploy.js`, `publish.test.js` → `deploy.test.js`, `npm run publish` → `npm run deploy` (aligned with LangBuilderJS)
 - Deploy now accepts bump type (`build`|`patch`|`minor`|`major`) and runs `upgrade-version` before pushing
@@ -9,6 +12,7 @@
 
 ### Fixed
 - E2E tests: updated selectors to match current DOM (`h1`/`.tagline` → `.top-bar__brand`/`.top-bar__tagline`, `#controls`/`#actions` → `#bottomBar`)
+- Content Security Policy: moved service worker registration from inline script to `app.js` (inline script was blocked by `default-src 'self'`)
 
 ## [2.2.0] - 2026-02-21
 

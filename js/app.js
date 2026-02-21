@@ -105,3 +105,6 @@ enableDragAndDrop(previewGrid, (srcIdx, tgtIdx) => {
   currentLayout.photoOrder = swapOrder(currentLayout.photoOrder, srcIdx, tgtIdx);
   renderGrid(currentLayout);
 });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
