@@ -73,6 +73,32 @@ describe('handleExport', () => {
     }
   });
 
+  it('uses default fitMode cover when options omit it', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(imageProcessor, 'drawPhotoOnCanvas');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, {});
+      expect(spy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        { fitMode: 'cover', backgroundColor: '#ffffff' }
+      );
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
   it('passes fitMode and backgroundColor to drawPhotoOnCanvas', async () => {
     const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
     const layout = makeLayout();

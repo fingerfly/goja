@@ -99,4 +99,21 @@ describe('drawPhotoOnCanvas', () => {
       img, 0, 0, 100, 200, 25, 0, 50, 100
     );
   });
+
+  it('with fitMode contain and landscape image pillars instead of letterboxes', () => {
+    const img = mockImg(200, 100);
+    const cell = { x: 0, y: 0, width: 100, height: 100 };
+    drawPhotoOnCanvas(mockCtx, img, cell, { fitMode: 'contain' });
+    expect(mockCtx.fillRect).toHaveBeenCalledWith(0, 0, 100, 100);
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      img, 0, 0, 200, 100, 0, 25, 100, 50
+    );
+  });
+
+  it('with fitMode contain uses default backgroundColor when not provided', () => {
+    const img = mockImg(100, 100);
+    const cell = { x: 0, y: 0, width: 100, height: 100 };
+    drawPhotoOnCanvas(mockCtx, img, cell, { fitMode: 'contain' });
+    expect(mockCtx.fillStyle).toBe('#ffffff');
+  });
 });
