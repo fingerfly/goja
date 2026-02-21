@@ -5,6 +5,7 @@ package-lock.json
 # Test artifacts
 playwright-report/
 test-results/
+tests/fixtures/*.jpg
 
 # Environment and secrets (never commit)
 .env

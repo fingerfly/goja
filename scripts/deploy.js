@@ -21,7 +21,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { execFileSync, execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(__dirname, '..');
@@ -36,10 +36,11 @@ const EXCLUDE = new Set([
   'test-results', 'package-lock.json',
 ]);
 
-function shouldExclude(name) {
+function shouldExclude(name, parentPath = '') {
   if (EXCLUDE.has(name)) return true;
   if (name.startsWith('.env')) return true;
   if (/\.(pem|key)$/i.test(name) || name.includes('client_secret')) return true;
+  if (parentPath.includes('tests' + path.sep + 'fixtures') && /\.jpg$/i.test(name)) return true;
   return false;
 }
 
@@ -57,7 +58,7 @@ function copyRecursive(src, dest) {
 
   const copied = new Set();
   for (const entry of entries) {
-    if (shouldExclude(entry.name)) continue;
+    if (shouldExclude(entry.name, src)) continue;
     copied.add(entry.name);
     const s = path.join(src, entry.name);
     const d = path.join(dest, entry.name);
@@ -69,7 +70,7 @@ function copyRecursive(src, dest) {
   }
 
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
-    if (shouldExclude(entry.name)) continue;
+    if (shouldExclude(entry.name, dest)) continue;
     if (!copied.has(entry.name)) {
       fs.rmSync(path.join(dest, entry.name), { recursive: true, force: true });
     }
@@ -89,7 +90,7 @@ function getVersionForCommitMessage() {
 function runDeploy(bumpType) {
   // Step 1: Bump version, sync files, update CHANGELOG
   console.log('🚀 Step 1/2: Upgrading version...\n');
-  execSync(`node scripts/upgrade-version.js ${bumpType}`, { cwd: projectRoot, stdio: 'inherit' });
+  execFileSync('node', [path.join(projectRoot, 'scripts/upgrade-version.js'), bumpType], { cwd: projectRoot, stdio: 'inherit' });
 
   // Step 2: Push to GitHub
   console.log('\n🚀 Step 2/2: Pushing to GitHub...\n');
@@ -123,6 +124,12 @@ function runDeploy(bumpType) {
 
   console.log('[2/4] Syncing files...');
   copyRecursive(SOURCE, DEPLOY_DIR);
+
+  try {
+    execFileSync('git', ['rm', '--cached', 'tests/fixtures/landscape.jpg', 'tests/fixtures/portrait.jpg', 'tests/fixtures/square.jpg'], { cwd: DEPLOY_DIR, stdio: 'pipe' });
+  } catch {
+    /* files not tracked or already removed */
+  }
 
   git(['add', '-A']);
 

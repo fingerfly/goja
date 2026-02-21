@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "2.2.2-1",
+  "version": "2.2.3-1",
   "description": "Goja 宫将 — Grid craft. One and only.",
   "type": "module",
   "scripts": {
@@ -8,6 +8,8 @@
     "test:unit": "vitest run tests/unit",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
+    "generate-fixtures": "node scripts/generate-fixtures.js",
+    "pretest:e2e": "node scripts/generate-fixtures.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "sync-version": "node scripts/sync-version.js",
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "http-server": "^14.1.1",
+    "jpeg-js": "^0.4.4",
     "jsdom": "^28.1.0",
     "vitest": "^4.0.18"
   }

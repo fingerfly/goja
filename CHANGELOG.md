@@ -2,8 +2,16 @@
 
 ## [Unreleased]
 
+## [2.2.3] - 2026-02-21
+
+
 ## [2.2.2] - 2026-02-21
 
+### Fixed
+- Resize handles not working: `showUI(true)` now runs before `enableGridResize` so handles get correct dimensions (preview was hidden when `getBoundingClientRect()` ran, returning zeros)
+
+### Added
+- E2E tests for resize: handles exist with usable dimensions; drag changes grid proportions (TDD coverage for resize fix)
 
 ## [2.2.1] - 2026-02-21
 
