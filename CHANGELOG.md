@@ -4,17 +4,20 @@
 
 ## [3.1.0] - 2026-02-21
 
-
-## [3.0.0] - 2026-02-21
-
-
 ### Added
-- Image fit setting (Fill / Full display) in Grid settings; preview and export respect the choice (cover vs contain)
-- TDD unit tests for image fit: cover/contain modes, landscape letterboxing, default fitMode/backgroundColor in export
+- Layout algorithm design doc (`docs/contain-mode-layout-algorithm.md`) defining best grid layout for Cover and Contain
+- Unit tests for contain-mode layout: 3 landscape/portrait, 4 and 6 photos; cover-mode 2 landscape
 
 ### Changed
 - Full display (contain) mode: layout now picks template by aspect-ratio match to minimize letterboxing (e.g. 2 landscape photos → vertical stack 2×1 instead of horizontal 1×2; 2 portrait photos → horizontal 1×2)
 - Fill (cover) mode: unified with same aspect-ratio-matching algorithm to minimize cropping; both modes now share optimal layout selection
+- E2E resize test: use 2 portrait photos (1×2 layout) so column resize handle exists after layout change
+
+## [3.0.0] - 2026-02-21
+
+### Added
+- Image fit setting (Fill / Full display) in Grid settings; preview and export respect the choice (cover vs contain)
+- TDD unit tests for image fit: cover/contain modes, landscape letterboxing, default fitMode/backgroundColor in export
 
 ## [2.2.3] - 2026-02-21
 
