@@ -1,8 +1,8 @@
 # Goja 宫将
 
-**Grid craft. One and only.** 宫格匠，独一个。
+**The grid artisan, one of a kind.** 宫格匠，独一个。
 
-A photo grid collage maker that runs entirely in the browser. Drop your photos, pick a layout, and export a composed image — no uploads, no server, no account.
+Create photo grid collages directly in your browser. Drop in your photos, choose a layout, and export — no uploads, no server, no sign-up required.
 
 ## Features
 

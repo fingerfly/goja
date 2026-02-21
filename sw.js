@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v2.1.1-1';
+const CACHE_NAME = 'goja-v2.2.0-1';
 const ASSETS = [
   './',
   './index.html',
@@ -39,6 +39,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );

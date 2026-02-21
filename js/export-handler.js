@@ -9,10 +9,11 @@ export async function handleExport(photos, layout, options = {}) {
   const canvas = createGridCanvas(layout, { backgroundColor });
   const ctx = canvas.getContext('2d');
 
-  const imgElements = await Promise.all(photos.map(p => {
-    return new Promise((resolve) => {
+  const imgElements = await Promise.all(photos.map((p, i) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load photo ${i + 1}`));
       img.src = p.url;
     });
   }));

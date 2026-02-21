@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { execFileSync } from 'child_process';
 import readline from 'readline';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SOURCE = path.join(__dirname, '..');
-const PUBLISH = path.join(os(), 'goja-publish');
+const PUBLISH = path.join(process.env.TMPDIR || process.env.TEMP || process.env.TMP || '/tmp', 'goja-publish');
 const REMOTE = 'git@github.com:fingerfly/goja.git';
 
 const EXCLUDE = new Set([
@@ -15,16 +15,19 @@ const EXCLUDE = new Set([
   'test-results', 'package-lock.json',
 ]);
 
-function os() {
-  return process.env.TMPDIR || process.env.TEMP || process.env.TMP || '/tmp';
+function shouldExclude(name) {
+  if (EXCLUDE.has(name)) return true;
+  if (name.startsWith('.env')) return true;
+  if (/\.(pem|key)$/i.test(name) || name.includes('client_secret')) return true;
+  return false;
 }
 
-function git(args, cwd = PUBLISH) {
-  return execSync(`git ${args}`, { cwd, encoding: 'utf-8', stdio: 'pipe' }).trim();
+export function git(args, cwd = PUBLISH) {
+  return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: 'pipe' }).trim();
 }
 
-function gitLive(args, cwd = PUBLISH) {
-  execSync(`git ${args}`, { cwd, stdio: 'inherit' });
+export function gitLive(args, cwd = PUBLISH) {
+  execFileSync('git', args, { cwd, stdio: 'inherit' });
 }
 
 function copyRecursive(src, dest) {
@@ -33,7 +36,7 @@ function copyRecursive(src, dest) {
 
   const copied = new Set();
   for (const entry of entries) {
-    if (EXCLUDE.has(entry.name)) continue;
+    if (shouldExclude(entry.name)) continue;
     copied.add(entry.name);
     const s = path.join(src, entry.name);
     const d = path.join(dest, entry.name);
@@ -45,10 +48,9 @@ function copyRecursive(src, dest) {
   }
 
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
-    if (EXCLUDE.has(entry.name)) continue;
+    if (shouldExclude(entry.name)) continue;
     if (!copied.has(entry.name)) {
-      const target = path.join(dest, entry.name);
-      fs.rmSync(target, { recursive: true, force: true });
+      fs.rmSync(path.join(dest, entry.name), { recursive: true, force: true });
     }
   }
 }
@@ -66,20 +68,36 @@ async function main() {
   console.log(`Publish: ${PUBLISH}`);
   console.log('');
 
+  let needClone = true;
   if (fs.existsSync(path.join(PUBLISH, '.git'))) {
-    console.log('[1/5] Pulling latest from remote...');
-    gitLive('pull --ff-only origin main');
+    try {
+      const remote = git(['remote', 'get-url', 'origin']);
+      if (remote.includes('fingerfly/goja')) {
+        needClone = false;
+        console.log('[1/5] Pulling latest from remote...');
+        gitLive(['pull', '--ff-only', 'origin', 'main']);
+      }
+    } catch {
+      /* not a git repo or missing remote */
+    }
+    if (needClone) {
+      console.log('[1/5] Re-cloning repo...');
+      if (fs.existsSync(PUBLISH)) {
+        fs.rmSync(PUBLISH, { recursive: true, force: true });
+      }
+      execFileSync('git', ['clone', REMOTE, PUBLISH], { stdio: 'inherit' });
+    }
   } else {
     console.log('[1/5] Cloning repo...');
-    execSync(`git clone "${REMOTE}" "${PUBLISH}"`, { stdio: 'inherit' });
+    execFileSync('git', ['clone', REMOTE, PUBLISH], { stdio: 'inherit' });
   }
 
   console.log('[2/5] Syncing files...');
   copyRecursive(SOURCE, PUBLISH);
 
-  git('add -A');
+  git(['add', '-A']);
 
-  const diff = git('diff --cached --stat');
+  const diff = git(['diff', '--cached', '--stat']);
   if (!diff) {
     console.log('\nNo changes to publish. Everything is up to date.');
     return;
@@ -95,13 +113,24 @@ async function main() {
     process.exit(1);
   }
 
-  git(`commit -m "${msg.replace(/"/g, '\\"')}"`);
+  git(['commit', '-m', msg.trim()]);
+
+  const publishRemote = git(['remote', 'get-url', 'origin']);
+  const expected = 'fingerfly/goja';
+  if (!publishRemote.includes(expected)) {
+    throw new Error(`Safety check failed: publish repo remote is "${publishRemote}", expected "${expected}". Refusing to push.`);
+  }
 
   console.log('\n[4/5] Pushing to GitHub...');
-  gitLive('push origin main');
+  gitLive(['push', 'origin', 'main']);
 
   console.log('\n[5/5] Done! Site will update shortly at:');
   console.log('       https://fingerfly.github.io/goja/');
 }
 
-main().catch((err) => { console.error(err.message); process.exit(1); });
+const isDirectRun = process.argv[1]
+  && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isDirectRun) {
+  main().catch((err) => { console.error(err.message); process.exit(1); });
+}

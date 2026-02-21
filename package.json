@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "2.1.1-1",
+  "version": "2.2.0-1",
   "description": "Goja 宫将 — Grid craft. One and only.",
   "type": "module",
   "scripts": {
@@ -22,8 +22,8 @@
     "collage",
     "pwa"
   ],
-  "author": "",
-  "license": "TBD",
+  "author": "fingerfly",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "http-server": "^14.1.1",

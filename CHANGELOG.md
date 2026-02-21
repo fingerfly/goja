@@ -2,13 +2,54 @@
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-02-21
+
+### Added
+- GPL-3.0 license (`LICENSE` file) and author metadata in `package.json`
+- Content Security Policy meta tag restricting resources to `'self'` and `blob:` for images
+- Image load error handling in export pipeline (rejects instead of hanging)
+- Photo count cap at 9 (maximum supported by layout templates)
+- `publish.test.js` with 5 unit tests for shell-safe git argument passing
+- `export-handler.test.js` with 2 unit tests for image load error handling
+
+### Fixed
+- **[CRITICAL]** Command injection in `publish.js`: commit messages with shell metacharacters (`$()`, backticks, `&&`, `;`) were interpolated via `execSync`; now uses `execFileSync` with argument arrays
+- Export hanging indefinitely when an image fails to load (missing `onerror` handler)
+
+### Changed
+- Service worker uses network-first strategy for navigation requests, cache-first for assets
+- Publish script derives remote URL from `git remote get-url origin` with hardcoded fallback
+- Publish script guarded for safe module import (testable without side effects)
+
+### Removed
+- Dead EXIF orientation functions (`needsExifRotation`, `correctedDimensions`) and their tests
+- Test artifacts (`playwright-report/`, `test-results/`) untracked from git
+
 ## [2.1.1] - 2026-02-21
 
 
 ## [2.1.0] - 2026-02-21
 
+### Added
+- Configurable frame size (Width × Height) in Grid settings, default 1080×1350 (4:5 portrait)
+- Independent height control in layout engine (`outputHeight` parameter)
+- Number input styling in CSS for frame size controls
+- New unit tests for `outputHeight` and non-square frame layouts
+
+### Fixed
+- Row resize handles unusable due to swapped arguments in `makeHandle` call
+- `resize-engine.js` and `resize-handler.js` missing from service worker asset cache
+- `recomputePixelCells` now uses `canvasHeight` directly instead of deriving from column width
 
 ## [2.0.0] - 2026-02-21
+
+### Added
+- Grid cell resizing with draggable handles at column and row boundaries
+- `resize-engine.js` module: pure functions for ratio adjustment and pixel recomputation
+- `resize-handler.js` module: DOM overlay with touch-friendly 44px resize handles
+- CSS resize handle styles with hover/active visual feedback
+- Layout engine returns `colRatios` and `rowRatios` for non-uniform grid tracks
+- 19 unit tests for resize engine
 
 
 ## [1.0.0] - 2026-02-21

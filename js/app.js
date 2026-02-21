@@ -15,12 +15,15 @@ const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, fr
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
-let photos = [], currentLayout = null, cleanupResize = null;
+const MAX_PHOTOS = 9; let photos = [], currentLayout = null, cleanupResize = null;
 
 async function loadPhotos(files) {
   const items = Array.from(files).filter(f => f.type.startsWith('image/'));
   if (items.length === 0) return;
-  for (const file of items) {
+  const slots = MAX_PHOTOS - photos.length;
+  if (slots <= 0) return;
+  const accepted = items.slice(0, slots);
+  for (const file of accepted) {
     const dims = await readImageDimensions(file);
     photos.push({ file, url: URL.createObjectURL(file), ...dims });
   }
@@ -84,8 +87,7 @@ function clearAll() {
 }
 
 const openFile = () => fileInput.click();
-dropZone.addEventListener('click', openFile);
-addBtn.addEventListener('click', openFile);
+dropZone.addEventListener('click', openFile); addBtn.addEventListener('click', openFile);
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadPhotos(e.dataTransfer.files); });
