@@ -106,4 +106,26 @@ test.describe('Goja App', () => {
     const after = await grid.evaluate(el => el.style.gridTemplateColumns);
     expect(after).not.toBe(before);
   });
+
+  test('image fit setting switches preview to contain and export works', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#imageFit').selectOption('contain');
+    await page.locator('.settings-backdrop').click();
+    const objFit = await page.locator('#previewGrid img').first().evaluate((el) =>
+      getComputedStyle(el).objectFit
+    );
+    expect(objFit).toBe('contain');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#exportBtn').click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
+  });
 });

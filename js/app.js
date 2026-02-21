@@ -10,8 +10,8 @@ import { enableGridResize } from './resize-handler.js';
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
   ['#dropZone', '#fileInput', '#preview', '#previewGrid'].map($);
-const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH] =
-  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight'].map($);
+const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH, imageFit] =
+  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight', '#imageFit'].map($);
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
@@ -53,6 +53,7 @@ function showUI(show) {
 function renderGrid(layout) {
   const g = previewGrid, gap = `${layout.gap}px`;
   g.innerHTML = '';
+  g.style.setProperty('--image-fit', imageFit.value);
   Object.assign(g.style, { gridTemplateRows: ratiosToFrString(layout.rowRatios),
     gridTemplateColumns: ratiosToFrString(layout.colRatios),
     gap, background: bgColor.value, padding: gap,
@@ -72,6 +73,7 @@ async function onExport() {
   try {
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
+      fitMode: imageFit.value,
       watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
     });
     downloadBlob(blob, formatSelect.value);
@@ -93,7 +95,7 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadPhotos(e.dataTransfer.files); });
 fileInput.addEventListener('change', () => { loadPhotos(fileInput.files); fileInput.value = ''; });
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
-[gapSlider, bgColor, frameW, frameH].forEach(el => el.addEventListener('input', updatePreview));
+[gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
 exportBtn.addEventListener('click', onExport);
 clearBtn.addEventListener('click', clearAll);
 wmType.addEventListener('change', () => { const v = wmType.value;

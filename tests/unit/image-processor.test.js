@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createGridCanvas } from '../../js/image-processor.js';
+import { createGridCanvas, drawPhotoOnCanvas } from '../../js/image-processor.js';
 
 const mockCtx = {
   fillStyle: '',
@@ -11,6 +11,10 @@ beforeEach(() => {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(mockCtx);
   vi.clearAllMocks();
 });
+
+function mockImg(w, h) {
+  return { naturalWidth: w, naturalHeight: h };
+}
 
 describe('createGridCanvas', () => {
   it('returns a canvas element', () => {
@@ -58,5 +62,41 @@ describe('createGridCanvas', () => {
     const canvas = createGridCanvas(layout);
     expect(canvas.width).toBe(1080);
     expect(canvas.height).toBe(1080);
+  });
+});
+
+describe('drawPhotoOnCanvas', () => {
+  it('defaults to cover when no options passed', () => {
+    const img = mockImg(200, 100);
+    const cell = { x: 0, y: 0, width: 100, height: 100 };
+    drawPhotoOnCanvas(mockCtx, img, cell);
+    expect(mockCtx.fillRect).not.toHaveBeenCalled();
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      img, 50, 0, 100, 100, 0, 0, 100, 100
+    );
+  });
+
+  it('with fitMode cover crops and fills cell', () => {
+    const img = mockImg(200, 100);
+    const cell = { x: 10, y: 20, width: 80, height: 80 };
+    drawPhotoOnCanvas(mockCtx, img, cell, { fitMode: 'cover' });
+    expect(mockCtx.fillRect).not.toHaveBeenCalled();
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      img, 50, 0, 100, 100, 10, 20, 80, 80
+    );
+  });
+
+  it('with fitMode contain draws full image letterboxed', () => {
+    const img = mockImg(100, 200);
+    const cell = { x: 0, y: 0, width: 100, height: 100 };
+    drawPhotoOnCanvas(mockCtx, img, cell, {
+      fitMode: 'contain',
+      backgroundColor: '#eeeeee',
+    });
+    expect(mockCtx.fillStyle).toBe('#eeeeee');
+    expect(mockCtx.fillRect).toHaveBeenCalledWith(0, 0, 100, 100);
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      img, 0, 0, 100, 200, 25, 0, 50, 100
+    );
   });
 });

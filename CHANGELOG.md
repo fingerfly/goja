@@ -2,8 +2,24 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-02-21
+
+
+### Added
+- Image fit setting (Fill / Full display) in Grid settings; preview and export respect the choice (cover vs contain)
+
 ## [2.2.3] - 2026-02-21
 
+### Added
+- `scripts/generate-fixtures.js` to create E2E test images (landscape, portrait, square) with correct dimensions
+- `jpeg-js` devDependency for fixture generation
+- `pretest:e2e` hook runs `generate-fixtures` before E2E tests
+- `.github/workflows/test.yml` for unit and E2E tests on push/PR
+
+### Changed
+- E2E fixture images no longer committed: `tests/fixtures/*.jpg` in `.gitignore`
+- Deploy excludes fixture images from copy and runs `git rm --cached` to remove them from remote on next push
+- Deploy uses `execFileSync` for upgrade-version call (no shell string) to prevent command injection
 
 ## [2.2.2] - 2026-02-21
 
