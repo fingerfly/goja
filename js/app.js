@@ -101,6 +101,7 @@ dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classLis
 fileInput.addEventListener('change', () => { loadPhotos(fileInput.files); fileInput.value = ''; });
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
 [gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
+imageFit.addEventListener('change', updatePreview);
 exportBtn.addEventListener('click', onExport);
 clearBtn.addEventListener('click', clearAll);
 wmType.addEventListener('change', () => { const v = wmType.value;

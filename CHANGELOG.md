@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-02-21
+
+
+### Fixed
+- Full display mode: preview not updating when switching Image fit in Settings; added `change` listener for select (some browsers only fire `change` not `input`)
+
 ## [3.1.0] - 2026-02-21
 
 ### Added
