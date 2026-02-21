@@ -39,3 +39,11 @@ npm test
 npx playwright install
 npm run test:e2e
 ```
+
+### Deploy
+
+```bash
+npm run deploy -- <build|patch|minor|major>
+```
+
+Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. GitHub Actions deploys to Pages at https://fingerfly.github.io/goja/

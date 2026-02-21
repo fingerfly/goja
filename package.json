@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "2.2.0-1",
+  "version": "2.2.0-2",
   "description": "Goja 宫将 — Grid craft. One and only.",
   "type": "module",
   "scripts": {
@@ -14,7 +14,7 @@
     "validate-version": "node scripts/validate-version.js",
     "changelog-add-version": "node scripts/changelog-add-version-heading.js",
     "upgrade-version": "node scripts/upgrade-version.js",
-    "publish": "node scripts/publish.js"
+    "deploy": "node scripts/deploy.js"
   },
   "keywords": [
     "photo",

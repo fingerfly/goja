@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+- `publish.js` → `deploy.js`, `publish.test.js` → `deploy.test.js`, `npm run publish` → `npm run deploy` (aligned with LangBuilderJS)
+- Deploy now accepts bump type (`build`|`patch`|`minor`|`major`) and runs `upgrade-version` before pushing
+- Commit message auto-generated as `Release vX.Y.Z (build)` for non-interactive flow
+
+### Fixed
+- E2E tests: updated selectors to match current DOM (`h1`/`.tagline` → `.top-bar__brand`/`.top-bar__tagline`, `#controls`/`#actions` → `#bottomBar`)
+
 ## [2.2.0] - 2026-02-21
 
 ### Added

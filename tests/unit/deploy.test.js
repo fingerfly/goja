@@ -18,12 +18,12 @@ vi.mock('fs', async (importOriginal) => {
 
 const { execFileSync, execSync } = await import('child_process');
 
-describe('publish git helpers', () => {
+describe('deploy git helpers', () => {
   let git, gitLive;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    const mod = await import('../../scripts/publish.js');
+    const mod = await import('../../scripts/deploy.js');
     git = mod.git;
     gitLive = mod.gitLive;
   });

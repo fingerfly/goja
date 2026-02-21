@@ -9,14 +9,14 @@ test.describe('Goja App', () => {
   });
 
   test('shows header with branding', async ({ page }) => {
-    await expect(page.locator('h1')).toHaveText('Goja');
-    await expect(page.locator('.tagline')).toContainText('Grid craft');
+    await expect(page.locator('.top-bar__brand')).toHaveText('Goja');
+    await expect(page.locator('.top-bar__tagline')).toContainText('Grid craft');
   });
 
   test('shows drop zone on load', async ({ page }) => {
     await expect(page.locator('#dropZone')).toBeVisible();
     await expect(page.locator('#preview')).not.toBeVisible();
-    await expect(page.locator('#controls')).not.toBeVisible();
+    await expect(page.locator('#bottomBar')).toBeVisible();
   });
 
   test('uploads photos and shows preview grid', async ({ page }) => {
@@ -26,8 +26,7 @@ test.describe('Goja App', () => {
       path.join(fixtures, 'portrait.jpg'),
     ]);
     await expect(page.locator('#preview')).toBeVisible();
-    await expect(page.locator('#controls')).toBeVisible();
-    await expect(page.locator('#actions')).toBeVisible();
+    await expect(page.locator('#bottomBar')).toBeVisible();
     const images = page.locator('#previewGrid img');
     await expect(images).toHaveCount(2);
   });
