@@ -87,8 +87,8 @@ test.describe('Goja App', () => {
   test('resize handle drag changes grid proportions', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
-      path.join(fixtures, 'landscape.jpg'),
-      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
     ]);
     await expect(page.locator('#preview')).toBeVisible();
     await expect(page.locator('.resize-handle--col')).toBeVisible();

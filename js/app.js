@@ -32,7 +32,12 @@ async function loadPhotos(files) {
 
 function updatePreview() {
   if (photos.length === 0) { showUI(false); return; }
-  const opts = { gap: parseInt(gapSlider.value, 10), outputWidth: parseInt(frameW.value, 10), outputHeight: parseInt(frameH.value, 10) };
+  const opts = {
+    gap: parseInt(gapSlider.value, 10),
+    outputWidth: parseInt(frameW.value, 10),
+    outputHeight: parseInt(frameH.value, 10),
+    fitMode: imageFit.value,
+  };
   currentLayout = computeGridLayout(photos.map(p => ({ width: p.width, height: p.height })), opts);
   renderGrid(currentLayout);
   showUI(true);

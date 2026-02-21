@@ -180,4 +180,86 @@ describe('computeGridLayout', () => {
     expect(layout.canvasHeight).toBeDefined();
     expect(layout.canvasHeight).toBeGreaterThan(0);
   });
+
+  it('with fitMode cover: 2 landscape photos use vertical stack (same as contain)', () => {
+    const layout = computeGridLayout([L, L], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'cover',
+    });
+    expect(layout.baseRows).toBe(2);
+    expect(layout.baseCols).toBe(1);
+  });
+
+  it('with fitMode contain: 2 landscape photos use vertical stack (2 rows 1 col)', () => {
+    const layout = computeGridLayout([L, L], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    expect(layout.baseRows).toBe(2);
+    expect(layout.baseCols).toBe(1);
+  });
+
+  it('with fitMode contain: 2 portrait photos use horizontal layout (1 row 2 cols)', () => {
+    const layout = computeGridLayout([P, P], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    expect(layout.baseRows).toBe(1);
+    expect(layout.baseCols).toBe(2);
+  });
+
+  it('with fitMode contain: 3 landscape photos use top-spanning template (3T)', () => {
+    const layout = computeGridLayout([L, L, L], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    const spanningCell = layout.cells.find(c => (c.colEnd - c.colStart) === 2);
+    expect(spanningCell).toBeDefined();
+    expect(spanningCell.rowStart).toBe(1);
+  });
+
+  it('with fitMode contain: 3 portrait photos use left-spanning template (3L)', () => {
+    const layout = computeGridLayout([P, P, P], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    const spanningCell = layout.cells.find(c => (c.rowEnd - c.rowStart) === 2);
+    expect(spanningCell).toBeDefined();
+    expect(spanningCell.colStart).toBe(1);
+  });
+
+  it('with fitMode contain: 4 landscape photos get valid 4-cell layout', () => {
+    const layout = computeGridLayout([L, L, L, L], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    expect(layout.cells).toHaveLength(4);
+    expect(layout.baseRows).toBeGreaterThanOrEqual(2);
+    expect(layout.baseCols).toBeGreaterThanOrEqual(2);
+  });
+
+  it('with fitMode contain: 4 portrait photos get valid 4-cell layout', () => {
+    const layout = computeGridLayout([P, P, P, P], {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    expect(layout.cells).toHaveLength(4);
+  });
+
+  it('with fitMode contain: 6 landscape photos use 3×2 (6V) not 2×3 (6H)', () => {
+    const layout = computeGridLayout(Array(6).fill(L), {
+      outputWidth: 1080,
+      outputHeight: 1350,
+      fitMode: 'contain',
+    });
+    expect(layout.baseRows).toBe(3);
+    expect(layout.baseCols).toBe(2);
+  });
 });
