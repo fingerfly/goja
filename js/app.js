@@ -35,13 +35,13 @@ function updatePreview() {
   const opts = { gap: parseInt(gapSlider.value, 10), outputWidth: parseInt(frameW.value, 10), outputHeight: parseInt(frameH.value, 10) };
   currentLayout = computeGridLayout(photos.map(p => ({ width: p.width, height: p.height })), opts);
   renderGrid(currentLayout);
+  showUI(true);
   if (cleanupResize) cleanupResize();
   cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
     Object.assign(currentLayout, ratios);
     currentLayout.cells = recomputePixelCells(currentLayout);
     Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
   });
-  showUI(true);
 }
 
 function showUI(show) {

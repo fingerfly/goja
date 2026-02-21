@@ -68,4 +68,42 @@ test.describe('Goja App', () => {
     ]);
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });
+
+  test('resize handles exist and have usable dimensions when grid shown', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'landscape.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('.resize-overlay')).toBeVisible();
+    const handles = page.locator('.resize-handle');
+    await expect(handles).toHaveCount(1);
+    const box = await handles.first().boundingBox();
+    expect(box?.width).toBeGreaterThan(0);
+    expect(box?.height).toBeGreaterThan(0);
+  });
+
+  test('resize handle drag changes grid proportions', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'landscape.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('.resize-handle--col')).toBeVisible();
+    const grid = page.locator('#previewGrid');
+    const before = await grid.evaluate(el => el.style.gridTemplateColumns);
+    const handle = page.locator('.resize-handle--col').first();
+    await handle.hover();
+    const box = await handle.boundingBox();
+    if (!box) throw new Error('Handle has no bounding box');
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    await page.mouse.down();
+    await page.mouse.move(cx + 80, cy, { steps: 5 });
+    await page.mouse.up();
+    const after = await grid.evaluate(el => el.style.gridTemplateColumns);
+    expect(after).not.toBe(before);
+  });
 });
