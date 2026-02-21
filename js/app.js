@@ -31,6 +31,9 @@ async function loadPhotos(files) {
 }
 
 function updatePreview() {
+  // #region agent log
+  const _log4={sessionId:'405c66',location:'app.js:updatePreview',message:'updatePreview called',data:{imageFitValue:imageFit?.value,photosCount:photos.length},hypothesisId:'H4'};console.log('[DEBUG]',JSON.stringify(_log4));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log4,timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   if (photos.length === 0) { showUI(false); return; }
   const opts = {
     gap: parseInt(gapSlider.value, 10),
@@ -43,9 +46,15 @@ function updatePreview() {
   showUI(true);
   if (cleanupResize) cleanupResize();
   cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
+    // #region agent log
+    const beforeFit = previewGrid.style.getPropertyValue('--image-fit');
+    // #endregion
     Object.assign(currentLayout, ratios);
     currentLayout.cells = recomputePixelCells(currentLayout);
     Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
+    // #region agent log
+    const _log5={sessionId:'405c66',location:'app.js:resizeCallback',message:'resize ran',data:{beforeFit,afterFit:previewGrid.style.getPropertyValue('--image-fit')},hypothesisId:'H3'};console.log('[DEBUG]',JSON.stringify(_log5));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log5,timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
   });
 }
 
@@ -58,7 +67,11 @@ function showUI(show) {
 function renderGrid(layout) {
   const g = previewGrid, gap = `${layout.gap}px`;
   g.innerHTML = '';
-  g.style.setProperty('--image-fit', imageFit.value);
+  const fitVal = imageFit.value;
+  g.style.setProperty('--image-fit', fitVal);
+  // #region agent log
+  const _log1={sessionId:'405c66',location:'app.js:renderGrid',message:'renderGrid set --image-fit',data:{imageFitValue:fitVal,setValue:fitVal},hypothesisId:'H2'};console.log('[DEBUG]',JSON.stringify(_log1));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log1,timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   Object.assign(g.style, { gridTemplateRows: ratiosToFrString(layout.rowRatios),
     gridTemplateColumns: ratiosToFrString(layout.colRatios),
     gap, background: bgColor.value, padding: gap,
@@ -67,18 +80,35 @@ function renderGrid(layout) {
   for (let i = 0; i < layout.cells.length; i++) {
     const c = layout.cells[i], img = document.createElement('img');
     img.src = photos[order[i]].url; img.alt = `Photo ${i + 1}`;
-    Object.assign(img.style, { gridRow: `${c.rowStart} / ${c.rowEnd}`, gridColumn: `${c.colStart} / ${c.colEnd}` });
+    Object.assign(img.style, {
+      gridRow: `${c.rowStart} / ${c.rowEnd}`,
+      gridColumn: `${c.colStart} / ${c.colEnd}`,
+      objectFit: fitVal,
+    });
     img.draggable = true; g.appendChild(img);
   }
+  // #region agent log
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const imgs = g.querySelectorAll('img');
+      const allFits = Array.from(imgs).map((img, i) => ({ i, objectFit: getComputedStyle(img).objectFit, inline: img.style.objectFit || '(none)' }));
+      const _log2={sessionId:'405c66',location:'app.js:renderGrid',message:'all imgs objectFit',data:{allFits,count:imgs.length},hypothesisId:'H2'};console.log('[DEBUG]',JSON.stringify(_log2));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log2,timestamp:Date.now()})}).catch(()=>{});
+    });
+  });
+  // #endregion
 }
 
 async function onExport() {
   if (!currentLayout || photos.length === 0) return;
+  const fitVal = imageFit.value;
+  // #region agent log
+  const _log3={sessionId:'405c66',location:'app.js:onExport',message:'export fitMode',data:{imageFitValue:fitVal,fitModePassed:fitVal},hypothesisId:'H1'};console.log('[DEBUG]',JSON.stringify(_log3));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log3,timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   exportBtn.disabled = true; exportBtn.textContent = 'Exporting...';
   try {
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
-      fitMode: imageFit.value,
+      fitMode: fitVal,
       watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
     });
     downloadBlob(blob, formatSelect.value);
