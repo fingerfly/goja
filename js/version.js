@@ -1,4 +1,4 @@
-const version = { major: 3, minor: 1, patch: 2, build: 1 };
+const version = { major: 3, minor: 1, patch: 2, build: 2 };
 
 export const VERSION = `${version.major}.${version.minor}.${version.patch}`;
 export const BUILD = version.build;
