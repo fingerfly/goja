@@ -4,6 +4,9 @@
 
 ## [3.1.2] - 2026-02-21
 
+### Fixed
+- Full display mode: preview now matches export; added `min-width: 0` and `min-height: 0` on `.preview__grid img` so images constrain to grid cells instead of overflowing (CSS Grid `min-height: auto` was causing overflow and `overflow: hidden` on `.preview` clipped content, making preview look cropped like Fill)
+- Set `objectFit` inline on each img when rendering grid for robustness
 
 ## [3.1.1] - 2026-02-21
 

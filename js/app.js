@@ -31,9 +31,6 @@ async function loadPhotos(files) {
 }
 
 function updatePreview() {
-  // #region agent log
-  const _log4={sessionId:'405c66',location:'app.js:updatePreview',message:'updatePreview called',data:{imageFitValue:imageFit?.value,photosCount:photos.length},hypothesisId:'H4'};console.log('[DEBUG]',JSON.stringify(_log4));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log4,timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   if (photos.length === 0) { showUI(false); return; }
   const opts = {
     gap: parseInt(gapSlider.value, 10),
@@ -46,15 +43,9 @@ function updatePreview() {
   showUI(true);
   if (cleanupResize) cleanupResize();
   cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
-    // #region agent log
-    const beforeFit = previewGrid.style.getPropertyValue('--image-fit');
-    // #endregion
     Object.assign(currentLayout, ratios);
     currentLayout.cells = recomputePixelCells(currentLayout);
     Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
-    // #region agent log
-    const _log5={sessionId:'405c66',location:'app.js:resizeCallback',message:'resize ran',data:{beforeFit,afterFit:previewGrid.style.getPropertyValue('--image-fit')},hypothesisId:'H3'};console.log('[DEBUG]',JSON.stringify(_log5));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log5,timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
   });
 }
 
@@ -69,9 +60,6 @@ function renderGrid(layout) {
   g.innerHTML = '';
   const fitVal = imageFit.value;
   g.style.setProperty('--image-fit', fitVal);
-  // #region agent log
-  const _log1={sessionId:'405c66',location:'app.js:renderGrid',message:'renderGrid set --image-fit',data:{imageFitValue:fitVal,setValue:fitVal},hypothesisId:'H2'};console.log('[DEBUG]',JSON.stringify(_log1));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log1,timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   Object.assign(g.style, { gridTemplateRows: ratiosToFrString(layout.rowRatios),
     gridTemplateColumns: ratiosToFrString(layout.colRatios),
     gap, background: bgColor.value, padding: gap,
@@ -87,23 +75,11 @@ function renderGrid(layout) {
     });
     img.draggable = true; g.appendChild(img);
   }
-  // #region agent log
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const imgs = g.querySelectorAll('img');
-      const allFits = Array.from(imgs).map((img, i) => ({ i, objectFit: getComputedStyle(img).objectFit, inline: img.style.objectFit || '(none)' }));
-      const _log2={sessionId:'405c66',location:'app.js:renderGrid',message:'all imgs objectFit',data:{allFits,count:imgs.length},hypothesisId:'H2'};console.log('[DEBUG]',JSON.stringify(_log2));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log2,timestamp:Date.now()})}).catch(()=>{});
-    });
-  });
-  // #endregion
 }
 
 async function onExport() {
   if (!currentLayout || photos.length === 0) return;
   const fitVal = imageFit.value;
-  // #region agent log
-  const _log3={sessionId:'405c66',location:'app.js:onExport',message:'export fitMode',data:{imageFitValue:fitVal,fitModePassed:fitVal},hypothesisId:'H1'};console.log('[DEBUG]',JSON.stringify(_log3));fetch('http://127.0.0.1:7242/ingest/e2eb931b-7773-46be-87bc-e6f76e9c4970',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'405c66'},body:JSON.stringify({..._log3,timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   exportBtn.disabled = true; exportBtn.textContent = 'Exporting...';
   try {
     const blob = await handleExport(photos, currentLayout, {

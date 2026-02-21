@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "3.1.2-2",
+  "version": "3.1.2-3",
   "description": "Goja 宫将 — Grid craft. One and only.",
   "type": "module",
   "scripts": {
