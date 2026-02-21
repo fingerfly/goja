@@ -1,0 +1,32 @@
+{
+  "name": "goja",
+  "version": "1.0.0-1",
+  "description": "Goja 宫将 — Grid craft. One and only.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "sync-version": "node scripts/sync-version.js",
+    "validate-version": "node scripts/validate-version.js",
+    "changelog-add-version": "node scripts/changelog-add-version-heading.js",
+    "upgrade-version": "node scripts/upgrade-version.js"
+  },
+  "keywords": [
+    "photo",
+    "grid",
+    "collage",
+    "pwa"
+  ],
+  "author": "",
+  "license": "TBD",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "http-server": "^14.1.1",
+    "jsdom": "^28.1.0",
+    "vitest": "^4.0.18"
+  }
+}
