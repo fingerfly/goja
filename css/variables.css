@@ -40,9 +40,12 @@
   --settings-sheet-height: 60vh;
   --backdrop-color: rgba(0, 0, 0, 0.4);
   --transition-speed: 0.3s;
+  --z-resize-overlay: 50;
   --z-bottom-bar: 100;
   --z-backdrop: 200;
   --z-settings-panel: 300;
+  --resize-handle-color: var(--color-primary);
+  --resize-handle-width: 4px;
 }
 
 @media (prefers-color-scheme: dark) {

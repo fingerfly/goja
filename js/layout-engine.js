@@ -94,5 +94,6 @@ export function computeGridLayout(photos, options = {}) {
     baseRows: best.baseRows, baseCols: best.baseCols,
     gap, cells, photoOrder: indices,
     canvasWidth: outputWidth, canvasHeight: totalH,
+    colRatios: Array(best.baseCols).fill(1), rowRatios: Array(best.baseRows).fill(1),
   };
 }

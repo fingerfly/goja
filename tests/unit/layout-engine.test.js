@@ -140,4 +140,18 @@ describe('computeGridLayout', () => {
       expect(cell.x + cell.width).toBeLessThanOrEqual(1080);
     }
   });
+
+  it('includes colRatios and rowRatios arrays', () => {
+    const layout = computeGridLayout([L, L, L]);
+    expect(layout.colRatios).toBeDefined();
+    expect(layout.rowRatios).toBeDefined();
+    expect(layout.colRatios).toHaveLength(layout.baseCols);
+    expect(layout.rowRatios).toHaveLength(layout.baseRows);
+  });
+
+  it('default ratios are all 1s', () => {
+    const layout = computeGridLayout([L, P, SQ, L]);
+    expect(layout.colRatios.every(r => r === 1)).toBe(true);
+    expect(layout.rowRatios.every(r => r === 1)).toBe(true);
+  });
 });

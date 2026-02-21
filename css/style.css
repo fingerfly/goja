@@ -117,6 +117,7 @@ body {
   overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  position: relative;
 }
 
 .preview.active { display: block; }
@@ -132,6 +133,57 @@ body {
   object-fit: cover;
   display: block;
   cursor: grab;
+}
+
+/* --- Resize handles --- */
+.resize-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-resize-overlay);
+}
+
+.resize-handle {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  background: var(--resize-handle-color);
+  border-radius: 2px;
+  opacity: 0.25;
+  transition: opacity 0.15s;
+}
+
+.resize-handle:hover::after,
+.resize-handle.active::after { opacity: 0.8; }
+
+.resize-handle--col {
+  cursor: col-resize;
+  width: var(--touch-min);
+}
+
+.resize-handle--col::after {
+  width: var(--resize-handle-width);
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.resize-handle--row {
+  cursor: row-resize;
+  height: var(--touch-min);
+}
+
+.resize-handle--row::after {
+  height: var(--resize-handle-width);
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .preview__grid img.drag-source { opacity: 0.4; cursor: grabbing; }

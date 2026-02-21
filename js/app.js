@@ -4,6 +4,8 @@ import { handleExport, downloadBlob } from './export-handler.js';
 import { VERSION_STRING } from './version.js';
 import { swapOrder, enableDragAndDrop } from './drag-handler.js';
 import { initSettingsPanel, closeSettings } from './settings-panel.js';
+import { ratiosToFrString, recomputePixelCells } from './resize-engine.js';
+import { enableGridResize } from './resize-handler.js';
 
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
@@ -13,7 +15,7 @@ const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn] =
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
-let photos = [], currentLayout = null;
+let photos = [], currentLayout = null, cleanupResize = null;
 
 async function loadPhotos(files) {
   const items = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -32,6 +34,12 @@ function updatePreview() {
     { gap: parseInt(gapSlider.value, 10) }
   );
   renderGrid(currentLayout);
+  if (cleanupResize) cleanupResize();
+  cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
+    Object.assign(currentLayout, ratios);
+    currentLayout.cells = recomputePixelCells(currentLayout);
+    Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
+  });
   showUI(true);
 }
 
@@ -44,9 +52,10 @@ function showUI(show) {
 function renderGrid(layout) {
   const g = previewGrid, gap = `${layout.gap}px`;
   g.innerHTML = '';
-  Object.assign(g.style, { gridTemplateRows: `repeat(${layout.baseRows}, 1fr)`,
-    gridTemplateColumns: `repeat(${layout.baseCols}, 1fr)`,
-    gap, background: bgColor.value, padding: gap });
+  Object.assign(g.style, { gridTemplateRows: ratiosToFrString(layout.rowRatios),
+    gridTemplateColumns: ratiosToFrString(layout.colRatios),
+    gap, background: bgColor.value, padding: gap,
+    aspectRatio: `${layout.canvasWidth} / ${layout.canvasHeight}` });
   const order = layout.photoOrder || photos.map((_, i) => i);
   for (let i = 0; i < layout.cells.length; i++) {
     const c = layout.cells[i], img = document.createElement('img');
@@ -71,6 +80,7 @@ async function onExport() {
 
 function clearAll() {
   photos.forEach(p => URL.revokeObjectURL(p.url));
+  if (cleanupResize) { cleanupResize(); cleanupResize = null; }
   photos = []; currentLayout = null; previewGrid.innerHTML = '';
   showUI(false); closeSettings(sPanel, sBackdrop);
 }
@@ -83,8 +93,7 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadPhotos(e.dataTransfer.files); });
 fileInput.addEventListener('change', () => { loadPhotos(fileInput.files); fileInput.value = ''; });
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
-gapSlider.addEventListener('input', updatePreview);
-bgColor.addEventListener('input', updatePreview);
+[gapSlider, bgColor].forEach(el => el.addEventListener('input', updatePreview));
 exportBtn.addEventListener('click', onExport);
 clearBtn.addEventListener('click', clearAll);
 wmType.addEventListener('change', () => { const v = wmType.value;
