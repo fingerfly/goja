@@ -154,4 +154,30 @@ describe('computeGridLayout', () => {
     expect(layout.colRatios.every(r => r === 1)).toBe(true);
     expect(layout.rowRatios.every(r => r === 1)).toBe(true);
   });
+
+  it('with outputHeight sets canvasHeight to that value', () => {
+    const layout = computeGridLayout([L, L], { outputWidth: 1080, outputHeight: 1350 });
+    expect(layout.canvasHeight).toBe(1350);
+    expect(layout.canvasWidth).toBe(1080);
+  });
+
+  it('with outputHeight row height differs from col width', () => {
+    const layout = computeGridLayout([SQ, SQ, SQ, SQ], { outputWidth: 1080, outputHeight: 1350 });
+    const colWidth = layout.cells[0].width;
+    const rowHeight = layout.cells[0].height;
+    expect(rowHeight).not.toBe(colWidth);
+  });
+
+  it('pixel coords fit within outputHeight when provided', () => {
+    const layout = computeGridLayout([L, L, L], { outputWidth: 1080, outputHeight: 1350 });
+    for (const cell of layout.cells) {
+      expect(cell.y + cell.height).toBeLessThanOrEqual(1350);
+    }
+  });
+
+  it('without outputHeight uses default height', () => {
+    const layout = computeGridLayout([L, L]);
+    expect(layout.canvasHeight).toBeDefined();
+    expect(layout.canvasHeight).toBeGreaterThan(0);
+  });
 });

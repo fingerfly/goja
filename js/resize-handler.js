@@ -40,7 +40,7 @@ function createHandles(overlay, gridEl, layout, state, onResize) {
   }
   for (let i = 0; i < layout.baseRows - 1; i++) {
     const pos = trackBoundaryPos(state.rowRatios, i, innerH, layout.gap);
-    const handle = makeHandle('row', padLeft, padTop + pos, innerW, layout.gap);
+    const handle = makeHandle('row', padLeft, padTop + pos, layout.gap, innerW);
     attachDrag(handle, 'row', i, state, innerH, layout.gap, onResize,
       () => refreshHandles(overlay, gridEl, layout, state, onResize));
     overlay.appendChild(handle);

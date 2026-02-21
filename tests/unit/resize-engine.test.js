@@ -75,7 +75,7 @@ describe('adjustRatio', () => {
 
 describe('recomputePixelCells', () => {
   const twoColLayout = {
-    baseRows: 1, baseCols: 2, gap: 0, canvasWidth: 300,
+    baseRows: 1, baseCols: 2, gap: 0, canvasWidth: 300, canvasHeight: 150,
     colRatios: [1, 1], rowRatios: [1],
     cells: [
       { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
@@ -99,7 +99,7 @@ describe('recomputePixelCells', () => {
   });
 
   it('accounts for gap in pixel positions', () => {
-    const layout = { ...twoColLayout, gap: 10, canvasWidth: 310 };
+    const layout = { ...twoColLayout, gap: 10, canvasWidth: 310, canvasHeight: 150 };
     const cells = recomputePixelCells(layout);
     expect(cells[0].width).toBe(150);
     expect(cells[1].x).toBe(160);
@@ -108,7 +108,7 @@ describe('recomputePixelCells', () => {
 
   it('handles spanning slots with non-uniform ratios', () => {
     const layout = {
-      baseRows: 2, baseCols: 2, gap: 0, canvasWidth: 300,
+      baseRows: 2, baseCols: 2, gap: 0, canvasWidth: 300, canvasHeight: 300,
       colRatios: [2, 1], rowRatios: [1, 1],
       cells: [
         { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 3 },
@@ -131,7 +131,7 @@ describe('recomputePixelCells', () => {
 
   it('with non-uniform rowRatios adjusts heights proportionally', () => {
     const layout = {
-      baseRows: 2, baseCols: 1, gap: 0, canvasWidth: 200,
+      baseRows: 2, baseCols: 1, gap: 0, canvasWidth: 200, canvasHeight: 400,
       colRatios: [1], rowRatios: [2, 1],
       cells: [
         { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
@@ -145,7 +145,7 @@ describe('recomputePixelCells', () => {
 
   it('with uniform ratios matches original layout-engine output for multi-row', () => {
     const layout = {
-      baseRows: 2, baseCols: 3, gap: 4, canvasWidth: 1080,
+      baseRows: 2, baseCols: 3, gap: 4, canvasWidth: 1080, canvasHeight: 719,
       colRatios: [1, 1, 1], rowRatios: [1, 1],
       cells: [
         { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 4 },
@@ -158,5 +158,36 @@ describe('recomputePixelCells', () => {
     expect(cells[0].height).toBe(cells[1].height);
     expect(cells[1].width).toBe(cells[2].width);
     expect(cells[0].width).toBe(1080);
+  });
+
+  it('with non-square canvasHeight produces correct row heights', () => {
+    const layout = {
+      baseRows: 2, baseCols: 2, gap: 0, canvasWidth: 1080, canvasHeight: 1350,
+      colRatios: [1, 1], rowRatios: [1, 1],
+      cells: [
+        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
+        { rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 3 },
+        { rowStart: 2, rowEnd: 3, colStart: 1, colEnd: 2 },
+        { rowStart: 2, rowEnd: 3, colStart: 2, colEnd: 3 },
+      ],
+    };
+    const cells = recomputePixelCells(layout);
+    expect(cells[0].width).toBe(540);
+    expect(cells[0].height).toBe(675);
+    expect(cells[0].height).toBeGreaterThan(cells[0].width);
+  });
+
+  it('total cell height equals canvasHeight for non-square frame', () => {
+    const layout = {
+      baseRows: 2, baseCols: 1, gap: 10, canvasWidth: 1080, canvasHeight: 1350,
+      colRatios: [1], rowRatios: [1, 1],
+      cells: [
+        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
+        { rowStart: 2, rowEnd: 3, colStart: 1, colEnd: 2 },
+      ],
+    };
+    const cells = recomputePixelCells(layout);
+    const totalH = cells[1].y + cells[1].height;
+    expect(totalH).toBe(1350);
   });
 });

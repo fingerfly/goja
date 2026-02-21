@@ -10,8 +10,8 @@ import { enableGridResize } from './resize-handler.js';
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
   ['#dropZone', '#fileInput', '#preview', '#previewGrid'].map($);
-const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn] =
-  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn'].map($);
+const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH] =
+  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight'].map($);
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
@@ -29,10 +29,8 @@ async function loadPhotos(files) {
 
 function updatePreview() {
   if (photos.length === 0) { showUI(false); return; }
-  currentLayout = computeGridLayout(
-    photos.map(p => ({ width: p.width, height: p.height })),
-    { gap: parseInt(gapSlider.value, 10) }
-  );
+  const opts = { gap: parseInt(gapSlider.value, 10), outputWidth: parseInt(frameW.value, 10), outputHeight: parseInt(frameH.value, 10) };
+  currentLayout = computeGridLayout(photos.map(p => ({ width: p.width, height: p.height })), opts);
   renderGrid(currentLayout);
   if (cleanupResize) cleanupResize();
   cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
@@ -93,7 +91,7 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadPhotos(e.dataTransfer.files); });
 fileInput.addEventListener('change', () => { loadPhotos(fileInput.files); fileInput.value = ''; });
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
-[gapSlider, bgColor].forEach(el => el.addEventListener('input', updatePreview));
+[gapSlider, bgColor, frameW, frameH].forEach(el => el.addEventListener('input', updatePreview));
 exportBtn.addEventListener('click', onExport);
 clearBtn.addEventListener('click', clearAll);
 wmType.addEventListener('change', () => { const v = wmType.value;

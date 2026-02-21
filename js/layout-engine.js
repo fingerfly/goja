@@ -2,6 +2,7 @@ import { getTemplatesForCount } from './layout-templates.js';
 
 const SQUARE_THRESHOLD = 1.1;
 const DEFAULT_OUTPUT_WIDTH = 1080;
+const DEFAULT_OUTPUT_HEIGHT = 1350;
 const DEFAULT_GAP = 4;
 const MATCH_SCORE = 3;
 const ANY_SCORE = 1;
@@ -46,10 +47,12 @@ export function assignPhotosToSlots(photos, template) {
   return result;
 }
 
-function computePixelCells(template, indices, photos, outputWidth, gap) {
+function computePixelCells(template, indices, photos, outputWidth, gap, outputHeight) {
   const { baseRows, baseCols } = template;
   const colUnit = (outputWidth - gap * (baseCols - 1)) / baseCols;
-  const rowUnit = colUnit;
+  const rowUnit = outputHeight
+    ? (outputHeight - gap * (baseRows - 1)) / baseRows
+    : colUnit;
   const cells = [];
 
   for (let i = 0; i < template.slots.length; i++) {
@@ -87,8 +90,9 @@ export function computeGridLayout(photos, options = {}) {
   }
 
   const indices = assignPhotosToSlots(photos, best);
-  const cells = computePixelCells(best, indices, photos, outputWidth, gap);
-  const totalH = Math.round(best.baseRows * ((outputWidth - gap * (best.baseCols - 1)) / best.baseCols) + gap * (best.baseRows - 1));
+  const outputHeight = options.outputHeight || DEFAULT_OUTPUT_HEIGHT;
+  const cells = computePixelCells(best, indices, photos, outputWidth, gap, outputHeight);
+  const totalH = outputHeight;
 
   return {
     baseRows: best.baseRows, baseCols: best.baseCols,

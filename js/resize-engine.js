@@ -49,8 +49,7 @@ export function recomputePixelCells(layout) {
   const { baseCols, baseRows, gap, canvasWidth, colRatios, rowRatios, cells } = layout;
   const colSizes = trackSizes(colRatios, canvasWidth, gap);
   const colPos = trackPositions(colSizes, gap);
-  const colUnit = (canvasWidth - gap * (baseCols - 1)) / baseCols;
-  const totalRowPx = baseRows * colUnit + (baseRows - 1) * gap;
+  const totalRowPx = layout.canvasHeight;
   const rowSizes = trackSizes(rowRatios, totalRowPx, gap);
   const rowPos = trackPositions(rowSizes, gap);
 
