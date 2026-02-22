@@ -3,6 +3,7 @@
  */
 import { createOffscreenGridCanvas, drawPhotoOnCanvas, exportOffscreenCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
+import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { JPEG_QUALITY } from './config.js';
 
 self.onmessage = async (e) => {
@@ -14,22 +15,36 @@ self.onmessage = async (e) => {
 
     const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
       watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right',
-      watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
+      watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en',
+      showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7,
+      captureDateFontScale = 1, dateOriginals = [] } = options;
+    const bg = options.backgroundColor ?? '#ffffff';
 
-    const canvas = createOffscreenGridCanvas(layout, { backgroundColor });
+    const canvas = createOffscreenGridCanvas(layout, { backgroundColor: bg });
     const ctx = canvas.getContext('2d');
 
     for (let i = 0; i < layout.cells.length; i++) {
       drawPhotoOnCanvas(ctx, bitmaps[photoOrder[i]], layout.cells[i], {
         fitMode,
-        backgroundColor: options.backgroundColor ?? '#ffffff',
+        backgroundColor: bg,
       });
+      if (showCaptureDate) {
+        const dateStr = dateOriginals[photoOrder[i]];
+        if (dateStr) {
+          drawCaptureDateOverlay(ctx, layout.cells[i], dateStr, {
+            position: captureDatePos,
+            opacity: captureDateOpacity,
+            fontScale: captureDateFontScale,
+            backgroundColor: bg,
+          });
+        }
+      }
     }
 
     drawWatermark(ctx, canvas.width, canvas.height, {
       type: watermarkType, text: watermarkText, position: watermarkPos,
       opacity: watermarkOpacity, fontScale: watermarkFontScale,
-      backgroundColor: options.backgroundColor ?? '#ffffff', locale,
+      backgroundColor: bg, locale,
     });
 
     const quality = format === 'image/jpeg' ? JPEG_QUALITY : undefined;

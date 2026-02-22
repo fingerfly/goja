@@ -15,3 +15,13 @@ export const GAP_DEFAULT = 4;
 export const WATERMARK_OPACITY_MIN = 0.3;
 export const WATERMARK_OPACITY_MAX = 0.9;
 export const WATERMARK_OPACITY_DEFAULT = 0.8;
+
+export const EXIF_TAG_SET = ['DateTimeOriginal'];
+
+export const CAPTURE_DATE_POSITION_DEFAULT = 'bottom-left';
+export const CAPTURE_DATE_OPACITY_MIN = 0.3;
+export const CAPTURE_DATE_OPACITY_MAX = 0.9;
+export const CAPTURE_DATE_OPACITY_DEFAULT = 0.7;
+export const CAPTURE_DATE_FONT_RATIO = 0.025;
+export const CAPTURE_DATE_MARGIN_RATIO = 0.02;
+export const CAPTURE_DATE_FONT_SCALE_DEFAULT = 1;

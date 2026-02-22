@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v5.6.0-4';
+const CACHE_NAME = 'goja-v6.0.0-1';
 const ASSETS = [
   './',
   './index.html',
@@ -19,6 +19,9 @@ const ASSETS = [
   './js/cell-context-menu.js',
   './js/cell-keyboard-nav.js',
   './js/utils.js',
+  './js/exif.js',
+  './js/capture-date-overlay.js',
+  './js/vendor/exifr.mjs',
   './js/version.js',
   './js/drag-handler.js',
   './js/watermark.js',

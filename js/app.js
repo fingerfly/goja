@@ -1,6 +1,7 @@
 import { computeGridLayout } from './layout-engine.js';
 import { getTemplatesForCount, ensureTemplatesLoaded } from './layout-templates.js';
 import { readImageDimensions } from './utils.js';
+import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
 import { showExportOptions } from './export-options.js';
 import { VERSION_STRING } from './version.js';
@@ -10,7 +11,21 @@ import { ratiosToFrString, recomputePixelCells } from './resize-engine.js';
 import { enableGridResize } from './resize-handler.js';
 import { t, init as initI18n, getLocale, setLocale, applyToDOM } from './i18n.js';
 import { showToast } from './toast.js';
-import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX, GAP_MIN, GAP_MAX, GAP_DEFAULT, WATERMARK_OPACITY_MIN, WATERMARK_OPACITY_MAX, WATERMARK_OPACITY_DEFAULT } from './config.js';
+import {
+  MAX_PHOTOS,
+  FRAME_MIN,
+  FRAME_MAX,
+  GAP_MIN,
+  GAP_MAX,
+  GAP_DEFAULT,
+  WATERMARK_OPACITY_MIN,
+  WATERMARK_OPACITY_MAX,
+  WATERMARK_OPACITY_DEFAULT,
+  CAPTURE_DATE_POSITION_DEFAULT,
+  CAPTURE_DATE_OPACITY_MIN,
+  CAPTURE_DATE_OPACITY_MAX,
+  CAPTURE_DATE_OPACITY_DEFAULT,
+} from './config.js';
 import { clampFrameValue, isFrameValueValid } from './frame-validation.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
@@ -24,6 +39,8 @@ const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, fr
   ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight', '#imageFit', '#templateSelect', '#exportFilename', '#exportUseDate'].map($);
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup, wmOpacity, wmOpacityGroup, wmFontSize, wmFontSizeGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup', '#watermarkOpacity', '#watermarkOpacityGroup', '#watermarkFontSize', '#watermarkFontSizeGroup'].map($);
+const [showCaptureDate, captureDateOptionsGroup, captureDatePos, captureDateOpacity, captureDateFontSize] =
+  ['#showCaptureDate', '#captureDateOptionsGroup', '#captureDatePos', '#captureDateOpacity', '#captureDateFontSize'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
 const [loadingOverlay, loadingText, offlineBanner] = ['#loadingOverlay', '#loadingText', '#offlineBanner'].map($);
 const langSelect = $('#langSelect');
@@ -43,8 +60,16 @@ async function loadPhotos(files) {
   }
   for (let i = 0; i < accepted.length; i++) {
     if (loadingText) loadingText.textContent = t('loadingPhotos', { current: i + 1, total });
-    const dims = await readImageDimensions(accepted[i]);
-    photos.push({ file: accepted[i], url: URL.createObjectURL(accepted[i]), ...dims });
+    const [dims, dateOriginal] = await Promise.all([
+      readImageDimensions(accepted[i]),
+      readDateTimeOriginal(accepted[i]),
+    ]);
+    photos.push({
+      file: accepted[i],
+      url: URL.createObjectURL(accepted[i]),
+      ...dims,
+      dateOriginal: dateOriginal ?? null,
+    });
   }
   if (loadingOverlay) loadingOverlay.hidden = true;
   await updatePreview();
@@ -127,18 +152,45 @@ function renderGrid(layout) {
     gap, background: bgColor.value, padding: gap,
     aspectRatio: `${layout.canvasWidth} / ${layout.canvasHeight}` });
   const order = layout.photoOrder || photos.map((_, i) => i);
+  const showDate = showCaptureDate?.checked ?? false;
+  const posClass = captureDatePos?.value ?? 'bottom-left';
+
   for (let i = 0; i < layout.cells.length; i++) {
-    const c = layout.cells[i], img = document.createElement('img');
-    img.src = photos[order[i]].url; img.alt = t('photoAlt', { n: i + 1 });
-    Object.assign(img.style, {
+    const c = layout.cells[i];
+    const cell = document.createElement('div');
+    cell.className = 'preview-cell';
+    Object.assign(cell.style, {
       gridRow: `${c.rowStart} / ${c.rowEnd}`,
       gridColumn: `${c.colStart} / ${c.colEnd}`,
-      objectFit: fitVal,
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'stretch',
+      justifyContent: 'stretch',
     });
+
+    const img = document.createElement('img');
+    img.src = photos[order[i]].url;
+    img.alt = t('photoAlt', { n: i + 1 });
+    img.style.objectFit = fitVal;
+    img.style.width = '100%';
+    img.style.height = '100%';
     img.draggable = true;
     img.tabIndex = 0;
     img.setAttribute('role', 'button');
-    g.appendChild(img);
+    cell.appendChild(img);
+
+    const photo = photos[order[i]];
+    if (showDate && photo?.dateOriginal) {
+      const dateStr = formatDateTimeOriginal(photo.dateOriginal, getLocale());
+      const span = document.createElement('span');
+      span.className = `capture-date-overlay capture-date-overlay--${posClass}`;
+      span.setAttribute('aria-hidden', 'true');
+      span.textContent = dateStr;
+      cell.appendChild(span);
+    }
+
+    g.appendChild(cell);
   }
 }
 
@@ -155,6 +207,7 @@ async function onExport() {
   const fitVal = imageFit.value;
   updateActionButtons(photos.length, true);
   try {
+    const dateOriginals = photos.map(p => (p.dateOriginal ? formatDateTimeOriginal(p.dateOriginal, getLocale()) : null));
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
       fitMode: fitVal,
@@ -162,6 +215,11 @@ async function onExport() {
       watermarkOpacity: parseFloat(wmOpacity?.value ?? '0.8'),
       watermarkFontScale: parseFloat(wmFontSize?.value ?? '1'),
       locale: getLocale(),
+      showCaptureDate: showCaptureDate?.checked ?? false,
+      captureDatePos: captureDatePos?.value ?? 'bottom-left',
+      captureDateOpacity: parseFloat(captureDateOpacity?.value ?? '0.7'),
+      captureDateFontScale: parseFloat(captureDateFontSize?.value ?? '1'),
+      dateOriginals,
     });
     const base = (exportFilename?.value?.trim()) || 'goja-grid';
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
@@ -227,6 +285,12 @@ if (wmOpacity) {
   wmOpacity.max = String(WATERMARK_OPACITY_MAX);
   wmOpacity.value = String(WATERMARK_OPACITY_DEFAULT);
 }
+if (captureDatePos) captureDatePos.value = CAPTURE_DATE_POSITION_DEFAULT;
+if (captureDateOpacity) {
+  captureDateOpacity.min = String(CAPTURE_DATE_OPACITY_MIN);
+  captureDateOpacity.max = String(CAPTURE_DATE_OPACITY_MAX);
+  captureDateOpacity.value = String(CAPTURE_DATE_OPACITY_DEFAULT);
+}
 updateActionButtons(0);
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
 
@@ -279,7 +343,7 @@ function debounce(fn, ms) {
 
 const debouncedFrameInput = debounce(onFrameInputDebounced, 200);
 
-[gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
+[gapSlider, bgColor, frameW, frameH, imageFit].filter(Boolean).forEach(el => el.addEventListener('input', updatePreview));
 frameW?.addEventListener('input', () => debouncedFrameInput(frameW));
 frameH?.addEventListener('input', () => debouncedFrameInput(frameH));
 frameW?.addEventListener('blur', () => {
@@ -347,6 +411,13 @@ wmType.addEventListener('change', () => {
   wmFontSizeGroup?.classList.toggle('hidden', !show);
   wmTextGroup?.classList.toggle('hidden', v !== 'text' && v !== 'copyright');
 });
+showCaptureDate?.addEventListener('change', () => {
+  captureDateOptionsGroup?.classList.toggle('hidden', !showCaptureDate?.checked);
+  updatePreview();
+});
+captureDatePos?.addEventListener('change', updatePreview);
+captureDateOpacity?.addEventListener('input', updatePreview);
+captureDateFontSize?.addEventListener('change', updatePreview);
 initSettingsPanel(sPanel, sBackdrop, $('#settingsBtn'), $('#settingsCloseBtn'));
 enableDragAndDrop(previewGrid, (srcIdx, tgtIdx) => {
   if (!currentLayout) return;

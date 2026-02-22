@@ -13,6 +13,7 @@ import ja from '../../js/locales/ja.js';
 import eo from '../../js/locales/eo.js';
 
 const REQUIRED_FILENAME_KEYS = ['exportFilename', 'exportFilenamePlaceholder', 'exportUseDate'];
+const REQUIRED_CAPTURE_DATE_KEYS = ['showCaptureDate', 'captureDatePos', 'captureDateOpacity', 'captureDateFontSize'];
 const REQUIRED_FRAME_HINT_KEY = 'frameDimensionHint';
 const ALL_LOCALES = [
   ['en', en],
@@ -63,6 +64,15 @@ describe('i18n', () => {
     it('all locales have required filename i18n keys', () => {
       for (const [name, dict] of ALL_LOCALES) {
         for (const key of REQUIRED_FILENAME_KEYS) {
+          expect(dict[key], `${name} missing ${key}`).toBeDefined();
+          expect(typeof dict[key], `${name} ${key} must be string`).toBe('string');
+        }
+      }
+    });
+
+    it('all locales have required capture date i18n keys', () => {
+      for (const [name, dict] of ALL_LOCALES) {
+        for (const key of REQUIRED_CAPTURE_DATE_KEYS) {
           expect(dict[key], `${name} missing ${key}`).toBeDefined();
           expect(typeof dict[key], `${name} ${key} must be string`).toBe('string');
         }

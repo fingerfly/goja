@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as imageProcessor from '../../js/image-processor.js';
+import * as captureDateOverlay from '../../js/capture-date-overlay.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from '../../js/export-handler.js';
 
 const mockCtx = {
@@ -122,6 +123,87 @@ describe('handleExport', () => {
         expect.anything(),
         { fitMode: 'contain', backgroundColor: '#ff0000' }
       );
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
+  it('calls drawCaptureDateOverlay when showCaptureDate and dateOriginals provided', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(captureDateOverlay, 'drawCaptureDateOverlay');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, {
+        showCaptureDate: true,
+        dateOriginals: ['Feb 22, 2025'],
+        captureDatePos: 'bottom-right',
+        captureDateOpacity: 0.8,
+        captureDateFontScale: 1.2,
+      });
+      expect(spy).toHaveBeenCalledWith(
+        mockCtx,
+        expect.objectContaining({ x: 0, y: 0, width: 100, height: 100 }),
+        'Feb 22, 2025',
+        expect.objectContaining({
+          position: 'bottom-right',
+          opacity: 0.8,
+          fontScale: 1.2,
+        })
+      );
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
+  it('does not call drawCaptureDateOverlay when showCaptureDate is false', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(captureDateOverlay, 'drawCaptureDateOverlay');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, { dateOriginals: ['Feb 22, 2025'] });
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
+  it('does not call drawCaptureDateOverlay when dateOriginals cell is null', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(captureDateOverlay, 'drawCaptureDateOverlay');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, {
+        showCaptureDate: true,
+        dateOriginals: [null],
+      });
+      expect(spy).not.toHaveBeenCalled();
     } finally {
       globalThis.Image = origImage;
       spy.mockRestore();

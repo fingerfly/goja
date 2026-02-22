@@ -1,12 +1,15 @@
 import { createGridCanvas, drawPhotoOnCanvas, exportCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
+import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 
 function exportMainThread(photos, layout, options) {
   const { format = 'image/jpeg', fitMode = 'cover' } = options;
   const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
+  const { showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7, captureDateFontScale = 1, dateOriginals = [] } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
+  const bg = options.backgroundColor ?? '#ffffff';
 
-  const canvas = createGridCanvas(layout, { backgroundColor: options.backgroundColor ?? '#ffffff' });
+  const canvas = createGridCanvas(layout, { backgroundColor: bg });
   const ctx = canvas.getContext('2d');
 
   return Promise.all(photos.map((p, i) => {
@@ -20,13 +23,24 @@ function exportMainThread(photos, layout, options) {
     for (let i = 0; i < layout.cells.length; i++) {
       drawPhotoOnCanvas(ctx, imgElements[photoOrder[i]], layout.cells[i], {
         fitMode,
-        backgroundColor: options.backgroundColor ?? '#ffffff',
+        backgroundColor: bg,
       });
+      if (showCaptureDate) {
+        const dateStr = dateOriginals[photoOrder[i]];
+        if (dateStr) {
+          drawCaptureDateOverlay(ctx, layout.cells[i], dateStr, {
+            position: captureDatePos,
+            opacity: captureDateOpacity,
+            fontScale: captureDateFontScale,
+            backgroundColor: bg,
+          });
+        }
+      }
     }
     drawWatermark(ctx, canvas.width, canvas.height, {
       type: watermarkType, text: watermarkText, position: watermarkPos,
       opacity: watermarkOpacity, fontScale: watermarkFontScale,
-      backgroundColor: options.backgroundColor ?? '#ffffff', locale,
+      backgroundColor: bg, locale,
     });
     return exportCanvasAsBlob(canvas, format);
   });

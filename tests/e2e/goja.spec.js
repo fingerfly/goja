@@ -257,6 +257,30 @@ test.describe('Goja App', () => {
     expect(orderAfter).toHaveLength(3);
   });
 
+  test('capture date overlay: grid renders when showCaptureDate enabled with photos', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await page.locator('#showCaptureDate').check();
+    await page.locator('.settings-backdrop').click();
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('#previewGrid .preview-cell')).toHaveCount(2);
+  });
+
+  test('capture date options visibility: hidden when unchecked, shown when checked', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#captureDateOptionsGroup')).toHaveClass(/hidden/);
+    await page.locator('#showCaptureDate').check();
+    await expect(page.locator('#captureDateOptionsGroup')).not.toHaveClass(/hidden/);
+    await page.locator('#showCaptureDate').uncheck();
+    await expect(page.locator('#captureDateOptionsGroup')).toHaveClass(/hidden/);
+  });
+
   test('watermark groups visibility: hidden when type is none, shown when type is text', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

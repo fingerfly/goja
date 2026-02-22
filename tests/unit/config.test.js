@@ -11,6 +11,14 @@ import {
   WATERMARK_OPACITY_MIN,
   WATERMARK_OPACITY_MAX,
   WATERMARK_OPACITY_DEFAULT,
+  EXIF_TAG_SET,
+  CAPTURE_DATE_POSITION_DEFAULT,
+  CAPTURE_DATE_OPACITY_MIN,
+  CAPTURE_DATE_OPACITY_MAX,
+  CAPTURE_DATE_OPACITY_DEFAULT,
+  CAPTURE_DATE_FONT_RATIO,
+  CAPTURE_DATE_MARGIN_RATIO,
+  CAPTURE_DATE_FONT_SCALE_DEFAULT,
 } from '../../js/config.js';
 
 describe('config', () => {
@@ -56,5 +64,37 @@ describe('config', () => {
 
   it('exports WATERMARK_OPACITY_DEFAULT', () => {
     expect(WATERMARK_OPACITY_DEFAULT).toBe(0.8);
+  });
+
+  it('exports EXIF_TAG_SET', () => {
+    expect(EXIF_TAG_SET).toEqual(['DateTimeOriginal']);
+  });
+
+  it('exports CAPTURE_DATE_POSITION_DEFAULT', () => {
+    expect(CAPTURE_DATE_POSITION_DEFAULT).toBe('bottom-left');
+  });
+
+  it('exports CAPTURE_DATE_OPACITY_MIN', () => {
+    expect(CAPTURE_DATE_OPACITY_MIN).toBe(0.3);
+  });
+
+  it('exports CAPTURE_DATE_OPACITY_MAX', () => {
+    expect(CAPTURE_DATE_OPACITY_MAX).toBe(0.9);
+  });
+
+  it('exports CAPTURE_DATE_OPACITY_DEFAULT', () => {
+    expect(CAPTURE_DATE_OPACITY_DEFAULT).toBe(0.7);
+  });
+
+  it('exports CAPTURE_DATE_FONT_RATIO', () => {
+    expect(CAPTURE_DATE_FONT_RATIO).toBe(0.025);
+  });
+
+  it('exports CAPTURE_DATE_MARGIN_RATIO', () => {
+    expect(CAPTURE_DATE_MARGIN_RATIO).toBe(0.02);
+  });
+
+  it('exports CAPTURE_DATE_FONT_SCALE_DEFAULT', () => {
+    expect(CAPTURE_DATE_FONT_SCALE_DEFAULT).toBe(1);
   });
 });

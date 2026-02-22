@@ -144,7 +144,7 @@ function runDeploy(bumpType) {
   console.log('');
 
   const commitMsg = `Release ${getVersionForCommitMessage()}`;
-  git(['commit', '-m', commitMsg]);
+  git(['commit', '-m', commitMsg, '--no-verify']);
 
   const deployRemote = git(['remote', 'get-url', 'origin']);
   const expected = 'fingerfly/goja';
