@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [5.4.1] - 2026-02-22
+
 ### Fixed
 - CI E2E tests: Playwright config used `channel: 'chrome'` but workflow installs Chromium only; now uses Chromium in CI, Chrome locally
 - CI reproducibility: commit package-lock.json and use `npm ci`; removed from .gitignore and deploy EXCLUDE
@@ -21,6 +24,7 @@
 
 ### Fixed
 - Export options sheet visible on page load; now uses `visibility: hidden` and `pointer-events: none` when closed so it never appears until Export is clicked
+- Share option missing on some Android devices (e.g. Oppo Find X8); now shown on touch devices when `navigator.share` exists even if `canShare` returns false
 
 ### Added
 - Export options: when Export is pressed, users choose Share / Download / Copy to clipboard / Open in new tab

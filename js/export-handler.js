@@ -75,13 +75,11 @@ export function downloadBlob(blob, format, filename) {
 }
 
 export async function shareBlob(blob, filename) {
+  if (!navigator.share) throw new Error('Share not supported');
   const ext = blob.type === 'image/png' ? 'png' : 'jpg';
   const base = (filename && String(filename).trim()) || 'goja-grid';
   const name = `${base}.${ext}`;
   const file = new File([blob], name, { type: blob.type });
-  if (!navigator.canShare?.({ files: [file] })) {
-    throw new Error('Share not supported');
-  }
   await navigator.share({ files: [file], title: 'Goja grid' });
 }
 

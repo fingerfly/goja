@@ -1,11 +1,21 @@
 const MINIMAL_PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
 
-export function canShareFiles() {
+/**
+ * Returns true if Share should be shown. Uses actual blob when available for more accurate
+ * detection. On mobile (touch devices), falls back to showing Share when navigator.share
+ * exists even if canShare returns false, since some Android browsers (e.g. Oppo) support
+ * share but canShare may incorrectly return false.
+ */
+export function canShareFiles(blob) {
+  if (!navigator.share) return false;
   try {
-    const file = new File([MINIMAL_PNG], 'x.png', { type: 'image/png' });
-    return Boolean(navigator.canShare?.({ files: [file] }));
+    const data = blob
+      ? { files: [new File([blob], 'image.png', { type: blob.type })], title: '' }
+      : { files: [new File([MINIMAL_PNG], 'x.png', { type: 'image/png' })], title: '' };
+    if (navigator.canShare && navigator.canShare(data)) return true;
+    return navigator.maxTouchPoints > 0;
   } catch {
-    return false;
+    return navigator.maxTouchPoints > 0;
   }
 }
 
@@ -44,7 +54,7 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
 
   if (!sheetEl || !backdropEl) return;
 
-  const showShare = canShareFiles();
+  const showShare = canShareFiles(blob);
   const showCopy = canCopyImage(blob);
 
   shareBtn.style.display = showShare ? '' : 'none';

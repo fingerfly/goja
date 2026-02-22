@@ -130,30 +130,19 @@ describe('handleExport', () => {
 });
 
 describe('shareBlob', () => {
-  it('rejects when navigator.canShare returns false', async () => {
-    const origCanShare = navigator.canShare;
-    navigator.canShare = vi.fn(() => false);
+  it('rejects when navigator.share is undefined', async () => {
+    const origShare = navigator.share;
+    delete navigator.share;
     const blob = new Blob(['x'], { type: 'image/png' });
     await expect(shareBlob(blob, 'test')).rejects.toThrow('Share not supported');
-    navigator.canShare = origCanShare;
+    navigator.share = origShare;
   });
 
-  it('rejects when navigator.canShare is undefined', async () => {
-    const origCanShare = navigator.canShare;
-    delete navigator.canShare;
-    const blob = new Blob(['x'], { type: 'image/png' });
-    await expect(shareBlob(blob, 'test')).rejects.toThrow('Share not supported');
-    navigator.canShare = origCanShare;
-  });
-
-  it('calls navigator.share when canShare returns true', async () => {
+  it('calls navigator.share with file and title', async () => {
     const shareMock = vi.fn().mockResolvedValue(undefined);
-    const canShareMock = vi.fn(() => true);
     navigator.share = shareMock;
-    navigator.canShare = canShareMock;
     const blob = new Blob(['x'], { type: 'image/png' });
     await shareBlob(blob, 'my-grid');
-    expect(canShareMock).toHaveBeenCalled();
     expect(shareMock).toHaveBeenCalledWith(
       expect.objectContaining({
         files: expect.any(Array),

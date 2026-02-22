@@ -2,20 +2,28 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { canShareFiles, canCopyImage, showExportOptions } from '../../js/export-options.js';
 
 describe('canShareFiles', () => {
-  it('returns false when navigator.canShare is undefined', () => {
-    const orig = navigator.canShare;
-    delete navigator.canShare;
+  it('returns false when navigator.share is undefined', () => {
+    const orig = navigator.share;
+    delete navigator.share;
     expect(canShareFiles()).toBe(false);
-    navigator.canShare = orig;
+    navigator.share = orig;
   });
 
-  it('returns false when canShare returns false', () => {
-    navigator.canShare = vi.fn(() => false);
+  it('returns false when canShare returns false and navigator.maxTouchPoints is 0', () => {
+    const nav = { share: vi.fn(), canShare: vi.fn(() => false), maxTouchPoints: 0 };
+    vi.stubGlobal('navigator', nav);
     expect(canShareFiles()).toBe(false);
   });
 
   it('returns true when canShare returns true for files', () => {
+    navigator.share = vi.fn();
     navigator.canShare = vi.fn(() => true);
+    expect(canShareFiles()).toBe(true);
+  });
+
+  it('returns true on touch devices when share exists even if canShare returns false', () => {
+    const nav = { share: vi.fn(), canShare: vi.fn(() => false), maxTouchPoints: 1 };
+    vi.stubGlobal('navigator', nav);
     expect(canShareFiles()).toBe(true);
   });
 });
