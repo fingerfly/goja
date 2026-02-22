@@ -9,6 +9,10 @@ let touchStartCell = null;
 
 export function enableCellContextMenu(gridEl, getLayout, onRemove, t = (k) => k) {
   gridEl.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('img')) e.preventDefault();
+  }, { capture: true });
+
+  gridEl.addEventListener('contextmenu', (e) => {
     const img = e.target.closest('img');
     if (!img) return;
     e.preventDefault();

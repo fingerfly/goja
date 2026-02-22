@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [5.2.1] - 2026-02-22
+
+
+### Fixed
+- Suppress iOS/Android native image context menu on long-press so app Remove menu shows instead
+
 ## [5.2.0] - 2026-02-22
 
 

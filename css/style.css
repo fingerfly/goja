@@ -192,6 +192,9 @@ body {
   object-fit: var(--image-fit, cover);
   display: block;
   cursor: grab;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* --- Resize handles --- */
