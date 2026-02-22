@@ -9,7 +9,7 @@ export default {
   exportFailed: 'Vienti epäonnistui',
   exportOptionsTitle: 'Viennin vaihtoehdot',
   exportShare: 'Jaa',
-  exportDownload: 'Lataa',
+  exportDownload: 'Tallenna laitteelle',
   exportCopy: 'Kopioi leikepöydälle',
   exportOpenInNewTab: 'Avaa uudessa välilehdessä',
   exportShareFailed: 'Jakaminen epäonnistui',

@@ -9,7 +9,7 @@ export default {
   exportFailed: 'Export mislukt',
   exportOptionsTitle: 'Exportopties',
   exportShare: 'Delen',
-  exportDownload: 'Downloaden',
+  exportDownload: 'Opslaan op apparaat',
   exportCopy: 'Kopiëren naar klembord',
   exportOpenInNewTab: 'Openen in nieuw tabblad',
   exportShareFailed: 'Delen mislukt',

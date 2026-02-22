@@ -9,7 +9,7 @@ export default {
   exportFailed: 'エクスポートに失敗しました',
   exportOptionsTitle: 'エクスポートオプション',
   exportShare: '共有',
-  exportDownload: 'ダウンロード',
+  exportDownload: '端末に保存',
   exportCopy: 'クリップボードにコピー',
   exportOpenInNewTab: '新しいタブで開く',
   exportShareFailed: '共有に失敗しました',

@@ -10,7 +10,7 @@ export default {
   exportFailed: 'Export failed',
   exportOptionsTitle: 'Export options',
   exportShare: 'Share',
-  exportDownload: 'Download',
+  exportDownload: 'Save to device',
   exportCopy: 'Copy to clipboard',
   exportOpenInNewTab: 'Open in new tab',
   exportShareFailed: 'Share failed',

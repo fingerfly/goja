@@ -9,7 +9,7 @@ export default {
   exportFailed: 'Eksporto malsukcesis',
   exportOptionsTitle: 'Eksportaj opcioj',
   exportShare: 'Kunhavigi',
-  exportDownload: 'Elŝuti',
+  exportDownload: 'Konservi sur aparato',
   exportCopy: 'Kopii al tondujo',
   exportOpenInNewTab: 'Malfermi en nova langeto',
   exportShareFailed: 'Kunhavado malsukcesis',

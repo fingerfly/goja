@@ -9,7 +9,7 @@ export default {
   exportFailed: 'Esportazione fallita',
   exportOptionsTitle: 'Opzioni di esportazione',
   exportShare: 'Condividi',
-  exportDownload: 'Scarica',
+  exportDownload: 'Salva sul dispositivo',
   exportCopy: 'Copia negli appunti',
   exportOpenInNewTab: 'Apri in nuova scheda',
   exportShareFailed: 'Condivisione fallita',

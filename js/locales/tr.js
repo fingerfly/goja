@@ -9,7 +9,7 @@ export default {
   exportFailed: 'Dışa aktarma başarısız',
   exportOptionsTitle: 'Dışa aktarma seçenekleri',
   exportShare: 'Paylaş',
-  exportDownload: 'İndir',
+  exportDownload: 'Cihaza kaydet',
   exportCopy: 'Panoya kopyala',
   exportOpenInNewTab: 'Yeni sekmede aç',
   exportShareFailed: 'Paylaşım başarısız',

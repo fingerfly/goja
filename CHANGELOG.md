@@ -2,8 +2,10 @@
 
 ## [Unreleased]
 
-
 ## [5.6.0] - 2026-02-22
+
+### Changed
+- exportDownload label aligned across all locales with 保存到本机 (save to device): en, de, nl, es, it, tr, fi, ja, eo now use "Save to device" / equivalent instead of "Download"
 
 ### Fixed
 - Share option no longer shown on OPPO Browser and similar browsers that lack `navigator.share`; prevents "Share not supported" error
