@@ -584,7 +584,7 @@ body {
     right: auto;
     bottom: auto;
     top: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: translate(-50%, 150%);
     height: auto;
     max-height: 70vh;
     border-radius: var(--radius-lg);
@@ -592,7 +592,7 @@ body {
   }
 
   .export-options-sheet.open {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%);
   }
 
   .export-options-sheet__handle { display: none; }

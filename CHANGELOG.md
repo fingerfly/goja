@@ -2,8 +2,11 @@
 
 ## [Unreleased]
 
-## [5.3.0] - 2026-02-22
+## [5.3.1] - 2026-02-22
 
+
+### Fixed
+- Export options sheet visible on page load on desktop; now hidden off-screen when closed
 
 ### Added
 - Export options: when Export is pressed, users choose Share / Download / Copy to clipboard / Open in new tab
