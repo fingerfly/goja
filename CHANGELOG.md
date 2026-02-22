@@ -2,7 +2,16 @@
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-02-22
+
+
+### Changed
+- Relocate version display from footer to top bar (left of settings button)
+
 ## [5.1.0] - 2026-02-22
+
+### Added
+- China app aspect ratio presets: 抖音 Douyin (1080×1920), 小红书 Xiaohongshu (1080×1440), 快手 Kuaishou (1080×1920), 视频号 WeChat Channels (1080×1920)
 
 
 ## [5.0.0] - 2026-02-22

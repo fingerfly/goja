@@ -66,8 +66,21 @@ body {
   display: none;
 }
 
-.top-bar__settings {
+.top-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
   margin-left: auto;
+}
+
+.top-bar__version {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.top-bar__settings {
   background: none;
   border: none;
   color: var(--color-text-muted);
@@ -454,17 +467,6 @@ body {
   color: var(--color-text);
   font-size: var(--font-size-sm);
   width: 100%;
-}
-
-/* --- Footer --- */
-.footer {
-  position: fixed;
-  bottom: var(--bottom-bar-height);
-  right: var(--gap-md);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  pointer-events: none;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* --- Tablet and up (>768px) --- */

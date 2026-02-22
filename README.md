@@ -15,7 +15,7 @@ Create photo grid collages directly in your browser. Drop in your photos, choose
 - Keyboard navigation between cells; Alt+Arrow to swap with previous/next
 - Watermark support (free text, date/time, copyright) with opacity and position options
 - Export as JPEG or PNG; customizable filename and optional date
-- Aspect presets (1:1, 4:3, 16:9, Instagram, Stories)
+- Aspect presets (1:1, 4:3, 16:9, Instagram, Stories, 抖音, 小红书, 快手, 视频号)
 - Adjustable gap and background color
 - PWA with update notification and offline support
 - Toast notifications for export success/failure
