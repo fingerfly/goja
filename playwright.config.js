@@ -15,7 +15,11 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
+    // CI installs Chromium only; locally Chrome works. Use Chromium in CI to match workflow.
+    {
+      name: 'chromium',
+      use: process.env.CI ? { ...devices['Chromium'] } : { ...devices['Desktop Chrome'], channel: 'chrome' },
+    },
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined

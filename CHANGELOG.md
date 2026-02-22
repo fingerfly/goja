@@ -2,10 +2,13 @@
 
 ## [Unreleased]
 
-### Added
-- TDD unit tests for action-buttons: edge cases (single photo, isExporting with 0 photos), i18n key verification, override of previous disabled state
+### Fixed
+- CI E2E tests: Playwright config used `channel: 'chrome'` but workflow installs Chromium only; now uses Chromium in CI, Chrome locally
 
 ## [5.4.0] - 2026-02-22
+
+### Added
+- TDD unit tests for action-buttons: edge cases (single photo, isExporting with 0 photos), i18n key verification, override of previous disabled state
 
 
 ### Changed
