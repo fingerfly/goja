@@ -7,21 +7,18 @@ describe('canShareFiles', () => {
     expect(canShareFiles()).toBe(true);
   });
 
-  it('returns true when viewport is narrow even without navigator.share', () => {
+  it('returns false when navigator.share is undefined', () => {
+    const origShare = navigator.share;
+    delete navigator.share;
+    expect(canShareFiles()).toBe(false);
+    navigator.share = origShare;
+  });
+
+  it('returns false when navigator.share is undefined even on narrow viewport', () => {
     const origShare = navigator.share;
     const origInnerWidth = Object.getOwnPropertyDescriptor(window, 'innerWidth');
     delete navigator.share;
     Object.defineProperty(window, 'innerWidth', { value: 360, configurable: true });
-    expect(canShareFiles()).toBe(true);
-    navigator.share = origShare;
-    if (origInnerWidth) Object.defineProperty(window, 'innerWidth', origInnerWidth);
-  });
-
-  it('returns false when navigator.share is undefined and viewport is wide', () => {
-    const origShare = navigator.share;
-    const origInnerWidth = Object.getOwnPropertyDescriptor(window, 'innerWidth');
-    delete navigator.share;
-    Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
     expect(canShareFiles()).toBe(false);
     navigator.share = origShare;
     if (origInnerWidth) Object.defineProperty(window, 'innerWidth', origInnerWidth);
@@ -102,5 +99,15 @@ describe('showExportOptions', () => {
     showExportOptions(blob, 'test', 'image/png', { onOpenInNewTab });
     document.getElementById('exportOptionOpenInNewTab').click();
     expect(onOpenInNewTab).toHaveBeenCalled();
+  });
+
+  it('makes Download primary when Share is hidden', () => {
+    const origShare = navigator.share;
+    delete navigator.share;
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {});
+    const downloadBtn = document.getElementById('exportOptionDownload');
+    expect(downloadBtn.classList.contains('btn-primary')).toBe(true);
+    navigator.share = origShare;
   });
 });

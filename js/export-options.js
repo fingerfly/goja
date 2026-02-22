@@ -1,12 +1,9 @@
 /**
- * Returns true if Share should be shown. Always show on mobile viewport (width < 768px)
- * so Oppo and similar devices see it; navigator.share may exist but detection can fail.
- * When tapped, shareBlob will try share; if unavailable, user gets an error toast.
+ * Returns true if Share should be shown. Only show when navigator.share exists.
+ * Browsers without Web Share API (e.g. OPPO built-in) must not show Share to avoid "Share not supported" error.
  */
 export function canShareFiles() {
-  const hasShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-  const isNarrowViewport = typeof window !== 'undefined' && window.innerWidth < 768;
-  return hasShare || isNarrowViewport;
+  return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 }
 
 export function canCopyImage(blob) {
@@ -50,6 +47,18 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
   copyBtn.style.display = showCopy ? '' : 'none';
   downloadBtn.style.display = '';
   openTabBtn.style.display = '';
+
+  if (showShare) {
+    shareBtn.classList.add('btn-primary');
+    shareBtn.classList.remove('btn-secondary');
+    downloadBtn.classList.remove('btn-primary');
+    downloadBtn.classList.add('btn-secondary');
+  } else {
+    shareBtn.classList.remove('btn-primary');
+    shareBtn.classList.add('btn-secondary');
+    downloadBtn.classList.add('btn-primary');
+    downloadBtn.classList.remove('btn-secondary');
+  }
 
   focusReturnEl = options.focusReturnEl || document.activeElement;
 

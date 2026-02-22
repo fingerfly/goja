@@ -2,13 +2,25 @@
 
 ## [Unreleased]
 
+## [5.6.0] - 2026-02-22
+
+
+### Fixed
+- Share option no longer shown on OPPO Browser and similar browsers that lack `navigator.share`; prevents "Share not supported" error
+
+### Changed
+- `canShareFiles`: require `navigator.share` (removed viewport fallback)
+- Export options: Download becomes primary when Share unavailable
+- zh-Hans/zh-Hant: `exportDownload` label updated to 保存到手机 / 保存到手機 for clearer save-to-device intent
+
 ## [5.5.1] - 2026-02-22
 
+### Added
+- Width/Height input hardening: `inputmode="numeric"`, `pattern="[0-9]*"`, `aria-describedby="frameDimensionHint"`, `aria-invalid`; `.invalid` styles for out-of-range; debounced validation (~200 ms); `frameDimensionHint` i18n in all 11 locales; `js/frame-validation.js` with `clampFrameValue`, `isFrameValueValid`; unit + E2E tests for frame dimension clamp on blur and debounced input
 
 ## [5.5.0] - 2026-02-22
 
 ### Added
-- Width/Height input hardening: `inputmode="numeric"`, `pattern="[0-9]*"`, `aria-describedby="frameDimensionHint"`, `aria-invalid`; `.invalid` styles for out-of-range; debounced validation (~200 ms); `frameDimensionHint` i18n in all 11 locales; `js/frame-validation.js` with `clampFrameValue`, `isFrameValueValid`; unit + E2E tests
 - Settings polish: config constants (GAP_*, WATERMARK_OPACITY_*); unit tests for config; E2E for filename i18n and settings panel dialog role
 - TDD: unit test all locales have exportFilename/exportFilenamePlaceholder/exportUseDate; unit test preset34
 - TDD: E2E watermark groups visibility (.hidden) per type; checkbox touch target ≥44px; aspect preset 3:4 sets 1080×1440; gap/watermark opacity init from config
