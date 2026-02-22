@@ -24,6 +24,7 @@ export default {
   grid: 'Ruudukko',
   width: 'Leveys',
   height: 'Korkeus',
+  frameDimensionHint: '320–4096 px',
   gap: 'Väli',
   imageFit: 'Kuvan sovitus',
   fitCover: 'Täytä',

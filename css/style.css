@@ -579,6 +579,18 @@ body {
   width: 100%;
 }
 
+.control-group input[type="number"].invalid {
+  border-color: var(--color-danger);
+  outline: 2px solid var(--color-danger);
+  outline-offset: 1px;
+}
+
+.control-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: calc(-1 * var(--gap-xs));
+}
+
 /* --- Tablet and up (>= --bp-md 768px) --- */
 @media (min-width: 768px) {
   .top-bar__tagline { display: block; }

@@ -24,6 +24,7 @@ export default {
   grid: 'グリッド',
   width: '幅',
   height: '高さ',
+  frameDimensionHint: '320–4096 px',
   gap: '間隔',
   imageFit: '画像の合わせ方',
   fitCover: '塗りつぶし',

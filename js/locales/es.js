@@ -24,6 +24,7 @@ export default {
   grid: 'Cuadrícula',
   width: 'Ancho',
   height: 'Alto',
+  frameDimensionHint: '320–4096 px',
   gap: 'Espacio',
   imageFit: 'Ajuste de imagen',
   fitCover: 'Rellenar',

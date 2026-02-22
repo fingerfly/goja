@@ -11,6 +11,7 @@ import { enableGridResize } from './resize-handler.js';
 import { t, init as initI18n, getLocale, setLocale, applyToDOM } from './i18n.js';
 import { showToast } from './toast.js';
 import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX, GAP_MIN, GAP_MAX, GAP_DEFAULT, WATERMARK_OPACITY_MIN, WATERMARK_OPACITY_MAX, WATERMARK_OPACITY_DEFAULT } from './config.js';
+import { clampFrameValue, isFrameValueValid } from './frame-validation.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
 import { pushState, undo, redo, canUndo, canRedo } from './state.js';
@@ -143,11 +144,8 @@ function renderGrid(layout) {
 
 async function onExport() {
   if (!currentLayout || photos.length === 0) return;
-  let w = parseInt(frameW.value, 10), h = parseInt(frameH.value, 10);
-  if (Number.isNaN(w)) w = FRAME_MIN;
-  if (Number.isNaN(h)) h = FRAME_MIN;
-  w = Math.min(FRAME_MAX, Math.max(FRAME_MIN, w));
-  h = Math.min(FRAME_MAX, Math.max(FRAME_MIN, h));
+  let w = clampFrameValue(frameW.value);
+  let h = clampFrameValue(frameH.value);
   if (w !== parseInt(frameW.value, 10) || h !== parseInt(frameH.value, 10)) {
     frameW.value = String(w);
     frameH.value = String(h);
@@ -231,18 +229,67 @@ if (wmOpacity) {
 }
 updateActionButtons(0);
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
-function validateFrameInput(el) {
-  let v = parseInt(el.value, 10);
-  if (Number.isNaN(v) || v < FRAME_MIN || v > FRAME_MAX) {
-    v = Math.min(FRAME_MAX, Math.max(FRAME_MIN, Number.isNaN(v) ? FRAME_MIN : v));
-    el.value = String(v);
-    showToast(t('frameDimensionClamped'), 'error');
-  }
-  return v;
+
+function setFrameInputInvalidState(el, invalid) {
+  if (!el) return;
+  el.setAttribute('aria-invalid', String(invalid));
+  el.classList.toggle('invalid', invalid);
 }
+
+function validateFrameInput(el, options = {}) {
+  const { showClampedToast = true } = options;
+  if (!el) return FRAME_MIN;
+  const wasInvalid = !isFrameValueValid(el.value);
+  if (wasInvalid) {
+    const v = clampFrameValue(el.value);
+    el.value = String(v);
+    setFrameInputInvalidState(el, false);
+    if (showClampedToast) showToast(t('frameDimensionClamped'), 'error');
+    return v;
+  }
+  setFrameInputInvalidState(el, false);
+  return parseInt(el.value, 10);
+}
+
+const frameToastShownThisSession = new Set();
+function onFrameInputDebounced(el) {
+  if (!el) return;
+  if (!isFrameValueValid(el.value)) {
+    const clamped = clampFrameValue(el.value);
+    el.value = String(clamped);
+    setFrameInputInvalidState(el, false);
+    if (!frameToastShownThisSession.has(el)) {
+      frameToastShownThisSession.add(el);
+      showToast(t('frameDimensionClamped'), 'error');
+    }
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  } else {
+    frameToastShownThisSession.delete(el);
+    setFrameInputInvalidState(el, false);
+  }
+}
+
+function debounce(fn, ms) {
+  let tid;
+  return (...args) => {
+    clearTimeout(tid);
+    tid = setTimeout(() => fn(...args), ms);
+  };
+}
+
+const debouncedFrameInput = debounce(onFrameInputDebounced, 200);
+
 [gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
-frameW?.addEventListener('blur', () => validateFrameInput(frameW));
-frameH?.addEventListener('blur', () => validateFrameInput(frameH));
+frameW?.addEventListener('input', () => debouncedFrameInput(frameW));
+frameH?.addEventListener('input', () => debouncedFrameInput(frameH));
+frameW?.addEventListener('blur', () => {
+  frameToastShownThisSession.delete(frameW);
+  validateFrameInput(frameW);
+});
+frameH?.addEventListener('blur', () => {
+  frameToastShownThisSession.delete(frameH);
+  validateFrameInput(frameH);
+});
 $('#aspectPresets')?.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-w][data-h]');
   if (!btn) return;

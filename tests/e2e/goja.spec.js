@@ -300,6 +300,22 @@ test.describe('Goja App', () => {
     expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 
+  test('frame dimension input clamps invalid values on blur', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#frameWidth').fill('5000');
+    await page.locator('#frameWidth').blur();
+    await expect(page.locator('#frameWidth')).toHaveValue('4096');
+  });
+
+  test('frame dimension input clamps on debounced input', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#frameWidth').fill('100');
+    await page.waitForTimeout(250);
+    await expect(page.locator('#frameWidth')).toHaveValue('320');
+  });
+
   test('aspect preset 3:4 sets frame to 1080×1440', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
@@ -309,8 +325,9 @@ test.describe('Goja App', () => {
     await expect(page.locator('#preview')).toBeVisible();
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
-    await expect(page.locator('button[data-w="1080"][data-h="1440"]')).toHaveText('3:4');
-    await page.locator('button[data-w="1080"][data-h="1440"]').click();
+    const preset34Btn = page.locator('button[data-i18n="preset34"]');
+    await expect(preset34Btn).toHaveText('3:4');
+    await preset34Btn.click();
     await expect(page.locator('#frameWidth')).toHaveValue('1080');
     await expect(page.locator('#frameHeight')).toHaveValue('1440');
     await page.locator('.settings-backdrop').click();

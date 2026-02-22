@@ -24,6 +24,7 @@ export default {
   grid: 'Raster',
   width: 'Breedte',
   height: 'Hoogte',
+  frameDimensionHint: '320–4096 px',
   gap: 'Ruimte',
   imageFit: 'Afbeelding passen',
   fitCover: 'Vullen',

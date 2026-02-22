@@ -24,6 +24,7 @@ export default {
   grid: 'Krado',
   width: 'Larĝo',
   height: 'Alto',
+  frameDimensionHint: '320–4096 px',
   gap: 'Spaco',
   imageFit: 'Bildadaŭrigo',
   fitCover: 'Plenigi',

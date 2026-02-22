@@ -24,6 +24,7 @@ export default {
   grid: 'Izgara',
   width: 'Genişlik',
   height: 'Yükseklik',
+  frameDimensionHint: '320–4096 px',
   gap: 'Boşluk',
   imageFit: 'Görüntü uyumu',
   fitCover: 'Doldur',

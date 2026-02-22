@@ -26,6 +26,7 @@ export default {
   templateAuto: '自动',
   width: '宽度',
   height: '高度',
+  frameDimensionHint: '320–4096 像素',
   gap: '间距',
   aspectPresets: '比例预设',
   preset11: '1:1',

@@ -24,6 +24,7 @@ export default {
   grid: 'Griglia',
   width: 'Larghezza',
   height: 'Altezza',
+  frameDimensionHint: '320–4096 px',
   gap: 'Spazio',
   imageFit: 'Adatta immagine',
   fitCover: 'Riempire',

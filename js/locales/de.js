@@ -26,6 +26,7 @@ export default {
   templateAuto: 'Automatisch',
   width: 'Breite',
   height: 'Höhe',
+  frameDimensionHint: '320–4096 px',
   gap: 'Abstand',
   imageFit: 'Bildanpassung',
   fitCover: 'Füllen',

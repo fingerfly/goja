@@ -37,6 +37,7 @@ export default {
   templateAuto: 'Auto',
   width: 'Width',
   height: 'Height',
+  frameDimensionHint: '320–4096 px',
   gap: 'Gap',
   imageFit: 'Image fit',
   fitCover: 'Fill',

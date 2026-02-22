@@ -13,6 +13,7 @@ import ja from '../../js/locales/ja.js';
 import eo from '../../js/locales/eo.js';
 
 const REQUIRED_FILENAME_KEYS = ['exportFilename', 'exportFilenamePlaceholder', 'exportUseDate'];
+const REQUIRED_FRAME_HINT_KEY = 'frameDimensionHint';
 const ALL_LOCALES = [
   ['en', en],
   ['zh-Hans', zhHans],
@@ -65,6 +66,13 @@ describe('i18n', () => {
           expect(dict[key], `${name} missing ${key}`).toBeDefined();
           expect(typeof dict[key], `${name} ${key} must be string`).toBe('string');
         }
+      }
+    });
+
+    it('all locales have frameDimensionHint', () => {
+      for (const [name, dict] of ALL_LOCALES) {
+        expect(dict[REQUIRED_FRAME_HINT_KEY], `${name} missing frameDimensionHint`).toBeDefined();
+        expect(typeof dict[REQUIRED_FRAME_HINT_KEY], `${name} frameDimensionHint must be string`).toBe('string');
       }
     });
 
