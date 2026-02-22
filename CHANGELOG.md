@@ -24,7 +24,7 @@
 
 ### Fixed
 - Export options sheet visible on page load; now uses `visibility: hidden` and `pointer-events: none` when closed so it never appears until Export is clicked
-- Share option missing on some Android devices (e.g. Oppo Find X8); now shown on touch devices when `navigator.share` exists even if `canShare` returns false
+- Share option missing on Oppo Find X8 and similar; now always shown on mobile (viewport < 768px) or when `navigator.share` exists
 
 ### Added
 - Export options: when Export is pressed, users choose Share / Download / Copy to clipboard / Open in new tab

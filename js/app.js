@@ -190,7 +190,7 @@ async function onExport() {
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         showToast(t('exportSuccess'), 'success');
       },
-    }, { t, focusReturnEl: exportBtn });
+    }, { focusReturnEl: exportBtn });
   } catch (err) {
     showToast(`${t('exportFailed')} — ${err.message}`, 'error');
   }

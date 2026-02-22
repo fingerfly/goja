@@ -1,22 +1,12 @@
-const MINIMAL_PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
-
 /**
- * Returns true if Share should be shown. Uses actual blob when available for more accurate
- * detection. On mobile (touch devices), falls back to showing Share when navigator.share
- * exists even if canShare returns false, since some Android browsers (e.g. Oppo) support
- * share but canShare may incorrectly return false.
+ * Returns true if Share should be shown. Always show on mobile viewport (width < 768px)
+ * so Oppo and similar devices see it; navigator.share may exist but detection can fail.
+ * When tapped, shareBlob will try share; if unavailable, user gets an error toast.
  */
-export function canShareFiles(blob) {
-  if (!navigator.share) return false;
-  try {
-    const data = blob
-      ? { files: [new File([blob], 'image.png', { type: blob.type })], title: '' }
-      : { files: [new File([MINIMAL_PNG], 'x.png', { type: 'image/png' })], title: '' };
-    if (navigator.canShare && navigator.canShare(data)) return true;
-    return navigator.maxTouchPoints > 0;
-  } catch {
-    return navigator.maxTouchPoints > 0;
-  }
+export function canShareFiles() {
+  const hasShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  const isNarrowViewport = typeof window !== 'undefined' && window.innerWidth < 768;
+  return hasShare || isNarrowViewport;
 }
 
 export function canCopyImage(blob) {
@@ -43,7 +33,6 @@ function close(sheetEl, backdropEl) {
 }
 
 export function showExportOptions(blob, filename, format, callbacks, options = {}) {
-  const { t = (k) => k } = options;
   const sheetEl = document.getElementById('exportOptionsSheet');
   const backdropEl = document.getElementById('exportOptionsBackdrop');
   const shareBtn = document.getElementById('exportOptionShare');
@@ -54,7 +43,7 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
 
   if (!sheetEl || !backdropEl) return;
 
-  const showShare = canShareFiles(blob);
+  const showShare = canShareFiles();
   const showCopy = canCopyImage(blob);
 
   shareBtn.style.display = showShare ? '' : 'none';

@@ -2,29 +2,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { canShareFiles, canCopyImage, showExportOptions } from '../../js/export-options.js';
 
 describe('canShareFiles', () => {
-  it('returns false when navigator.share is undefined', () => {
-    const orig = navigator.share;
-    delete navigator.share;
-    expect(canShareFiles()).toBe(false);
-    navigator.share = orig;
-  });
-
-  it('returns false when canShare returns false and navigator.maxTouchPoints is 0', () => {
-    const nav = { share: vi.fn(), canShare: vi.fn(() => false), maxTouchPoints: 0 };
-    vi.stubGlobal('navigator', nav);
-    expect(canShareFiles()).toBe(false);
-  });
-
-  it('returns true when canShare returns true for files', () => {
+  it('returns true when navigator.share exists', () => {
     navigator.share = vi.fn();
-    navigator.canShare = vi.fn(() => true);
     expect(canShareFiles()).toBe(true);
   });
 
-  it('returns true on touch devices when share exists even if canShare returns false', () => {
-    const nav = { share: vi.fn(), canShare: vi.fn(() => false), maxTouchPoints: 1 };
-    vi.stubGlobal('navigator', nav);
+  it('returns true when viewport is narrow even without navigator.share', () => {
+    const origShare = navigator.share;
+    const origInnerWidth = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    delete navigator.share;
+    Object.defineProperty(window, 'innerWidth', { value: 360, configurable: true });
     expect(canShareFiles()).toBe(true);
+    navigator.share = origShare;
+    if (origInnerWidth) Object.defineProperty(window, 'innerWidth', origInnerWidth);
+  });
+
+  it('returns false when navigator.share is undefined and viewport is wide', () => {
+    const origShare = navigator.share;
+    const origInnerWidth = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    delete navigator.share;
+    Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+    expect(canShareFiles()).toBe(false);
+    navigator.share = origShare;
+    if (origInnerWidth) Object.defineProperty(window, 'innerWidth', origInnerWidth);
   });
 });
 
