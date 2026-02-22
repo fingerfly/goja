@@ -2,9 +2,6 @@
 
 ## [Unreleased]
 
-## [5.5.0] - 2026-02-22
-
-
 ### Added
 - Settings polish: config constants (GAP_*, WATERMARK_OPACITY_*); unit tests for config; E2E for filename i18n and settings panel dialog role
 - TDD: unit test all locales have exportFilename/exportFilenamePlaceholder/exportUseDate; unit test preset34
@@ -13,12 +10,16 @@
 - Settings panel accessibility: `role="dialog"`, `aria-labelledby="settingsTitle"`, `aria-modal="true"`
 - Checkbox touch target: `.control-group:has(input[type="checkbox"]) label` min-height 44px
 - Aspect preset 3:4 (was mislabeled 4:3 for 1080×1440 portrait)
+- Utility class `.hidden` in `css/style.css` for visibility toggling
 
 ### Changed
 - Watermark conditional groups: replace inline `style="display:none"` with CSS class `.hidden`
 - Gap and watermark opacity controls: init from `js/config.js` (GAP_MIN/MAX/DEFAULT, WATERMARK_OPACITY_*)
 - Media query: use 768px to align with `--bp-md` (was 769px)
 - Preset 4:3 renamed to 3:4 (1080×1440 is 3:4 portrait)
+
+### Fixed
+- i18n unit test: renamed `it` locale import to `itLocale` to avoid shadowing vitest's `it`
 
 ## [5.4.1] - 2026-02-22
 
