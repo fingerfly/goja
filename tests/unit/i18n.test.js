@@ -13,8 +13,8 @@ describe('i18n', () => {
   });
 
   describe('getAvailableLocales', () => {
-    it('returns en, zh-Hans, zh-Hant', () => {
-      expect(getAvailableLocales()).toEqual(['en', 'zh-Hans', 'zh-Hant']);
+    it('returns all available locales', () => {
+      expect(getAvailableLocales()).toEqual(['en', 'zh-Hans', 'zh-Hant', 'de', 'nl', 'es', 'it', 'tr', 'fi', 'ja', 'eo']);
     });
   });
 

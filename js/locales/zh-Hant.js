@@ -34,5 +34,13 @@ export default {
   langEn: 'English',
   langZhHans: '简体中文',
   langZhHant: '繁體中文',
+  langDe: 'Deutsch',
+  langNl: 'Nederlands',
+  langEs: 'Español',
+  langIt: 'Italiano',
+  langTr: 'Türkçe',
+  langFi: 'Suomi',
+  langJa: '日本語',
+  langEo: 'Esperanto',
   photoAlt: '照片 {n}',
 };
