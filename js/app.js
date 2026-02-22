@@ -6,6 +6,7 @@ import { swapOrder, enableDragAndDrop } from './drag-handler.js';
 import { initSettingsPanel, closeSettings } from './settings-panel.js';
 import { ratiosToFrString, recomputePixelCells } from './resize-engine.js';
 import { enableGridResize } from './resize-handler.js';
+import { t, init as initI18n, getLocale, setLocale, applyToDOM } from './i18n.js';
 
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
@@ -15,6 +16,7 @@ const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, fr
 const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
+const langSelect = $('#langSelect');
 const MAX_PHOTOS = 9; let photos = [], currentLayout = null, cleanupResize = null;
 
 async function loadPhotos(files) {
@@ -67,7 +69,7 @@ function renderGrid(layout) {
   const order = layout.photoOrder || photos.map((_, i) => i);
   for (let i = 0; i < layout.cells.length; i++) {
     const c = layout.cells[i], img = document.createElement('img');
-    img.src = photos[order[i]].url; img.alt = `Photo ${i + 1}`;
+    img.src = photos[order[i]].url; img.alt = t('photoAlt', { n: i + 1 });
     Object.assign(img.style, {
       gridRow: `${c.rowStart} / ${c.rowEnd}`,
       gridColumn: `${c.colStart} / ${c.colEnd}`,
@@ -80,16 +82,17 @@ function renderGrid(layout) {
 async function onExport() {
   if (!currentLayout || photos.length === 0) return;
   const fitVal = imageFit.value;
-  exportBtn.disabled = true; exportBtn.textContent = 'Exporting...';
+  exportBtn.disabled = true; exportBtn.textContent = t('exporting');
   try {
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
       fitMode: fitVal,
       watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
+      locale: getLocale(),
     });
     downloadBlob(blob, formatSelect.value);
   } catch (err) { console.warn('Export failed:', err); }
-  finally { exportBtn.disabled = false; exportBtn.textContent = 'Export'; }
+  finally { exportBtn.disabled = false; exportBtn.textContent = t('exportBtn'); }
 }
 
 function clearAll() {
@@ -105,6 +108,14 @@ dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.clas
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadPhotos(e.dataTransfer.files); });
 fileInput.addEventListener('change', () => { loadPhotos(fileInput.files); fileInput.value = ''; });
+initI18n();
+langSelect.value = getLocale();
+langSelect.addEventListener('change', () => {
+  setLocale(langSelect.value);
+  applyToDOM();
+  if (currentLayout) renderGrid(currentLayout);
+});
+applyToDOM();
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
 [gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
 imageFit.addEventListener('change', updatePreview);

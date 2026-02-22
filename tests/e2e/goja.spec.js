@@ -6,6 +6,8 @@ const fixtures = path.resolve('tests/fixtures');
 test.describe('Goja App', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'en'));
+    await page.reload();
   });
 
   test('shows header with branding', async ({ page }) => {
@@ -105,6 +107,29 @@ test.describe('Goja App', () => {
     await page.mouse.up();
     const after = await grid.evaluate(el => el.style.gridTemplateColumns);
     expect(after).not.toBe(before);
+  });
+
+  test('language selector exists when settings open', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#langSelect')).toBeVisible();
+    await expect(page.locator('#langSelect option')).toHaveCount(3);
+  });
+
+  test('switching to Simplified Chinese updates visible text', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#langSelect').selectOption('zh-Hans');
+    await page.locator('.settings-backdrop').click();
+    await expect(page.locator('#addBtn')).toHaveText('+ 添加');
+  });
+
+  test('language choice persists after page refresh', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#langSelect').selectOption('zh-Hans');
+    await page.locator('.settings-backdrop').click();
+    await page.reload();
+    await expect(page.locator('#addBtn')).toHaveText('+ 添加');
   });
 
   test('image fit setting switches preview to contain and export works', async ({ page }) => {

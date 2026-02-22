@@ -9,11 +9,11 @@ const TILED_FONT_RATIO = 0.03;
 const TILE_SPACING_RATIO = 0.2;
 const CORNER_MARGIN_RATIO = 0.02;
 
-export function resolveWatermarkText(type, userText) {
+export function resolveWatermarkText(type, userText, locale = 'en') {
   if (type === 'none') return '';
   if (type === 'text') return (userText || '').trim();
   if (type === 'datetime') {
-    return new Date().toLocaleString();
+    return new Date().toLocaleString(locale);
   }
   if (type === 'copyright') {
     const name = (userText || '').trim();
@@ -23,8 +23,8 @@ export function resolveWatermarkText(type, userText) {
 }
 
 export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
-  const { type, text, position = 'bottom-right' } = options;
-  const resolved = resolveWatermarkText(type, text);
+  const { type, text, position = 'bottom-right', locale = 'en' } = options;
+  const resolved = resolveWatermarkText(type, text, locale);
   if (!resolved) return;
 
   ctx.save();

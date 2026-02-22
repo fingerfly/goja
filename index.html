@@ -15,9 +15,9 @@
 </head>
 <body>
   <header class="top-bar">
-    <div class="top-bar__brand">Goja</div>
-    <p class="top-bar__tagline">Grid craft. One and only.</p>
-    <button class="top-bar__settings" id="settingsBtn" aria-label="Settings">
+    <div class="top-bar__brand" data-i18n="brand">Goja</div>
+    <p class="top-bar__tagline" data-i18n="tagline">Grid craft. One and only.</p>
+    <button class="top-bar__settings" id="settingsBtn" data-i18n-aria-label="settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -28,7 +28,7 @@
   <main class="main-content">
     <div class="drop-zone" id="dropZone">
       <div class="drop-zone__icon">+</div>
-      <div class="drop-zone__text">Drop photos here or tap to select</div>
+      <div class="drop-zone__text" data-i18n="dropZoneText">Drop photos here or tap to select</div>
       <input type="file" id="fileInput" accept="image/*" multiple>
     </div>
 
@@ -38,49 +38,57 @@
   </main>
 
   <nav class="bottom-bar" id="bottomBar">
-    <button class="btn btn-secondary" id="addBtn">+ Add</button>
-    <button class="btn btn-primary" id="exportBtn">Export</button>
-    <button class="btn btn-secondary" id="clearBtn">Clear</button>
+    <button class="btn btn-secondary" id="addBtn" data-i18n="addBtn">+ Add</button>
+    <button class="btn btn-primary" id="exportBtn" data-i18n="exportBtn">Export</button>
+    <button class="btn btn-secondary" id="clearBtn" data-i18n="clearBtn">Clear</button>
   </nav>
 
   <div class="settings-backdrop" id="settingsBackdrop"></div>
   <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
     <div class="settings-panel__header">
       <div class="settings-panel__handle"></div>
-      <h2>Settings</h2>
-      <button class="settings-panel__close" id="settingsCloseBtn" aria-label="Close settings">&times;</button>
+      <h2 data-i18n="settings">Settings</h2>
+      <button class="settings-panel__close" id="settingsCloseBtn" data-i18n-aria-label="closeSettings" aria-label="Close settings">&times;</button>
     </div>
     <div class="settings-panel__body">
       <fieldset class="settings-section">
-        <legend>Grid</legend>
+        <legend data-i18n="grid">Grid</legend>
         <div class="control-group">
-          <label for="frameWidth">Width</label>
+          <label for="langSelect" data-i18n="language">Language</label>
+          <select id="langSelect">
+            <option value="en" data-i18n="langEn">English</option>
+            <option value="zh-Hans" data-i18n="langZhHans">简体中文</option>
+            <option value="zh-Hant" data-i18n="langZhHant">繁體中文</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="frameWidth" data-i18n="width">Width</label>
           <input type="number" id="frameWidth" value="1080" min="320" max="4096" step="1">
         </div>
         <div class="control-group">
-          <label for="frameHeight">Height</label>
+          <label for="frameHeight" data-i18n="height">Height</label>
           <input type="number" id="frameHeight" value="1350" min="320" max="4096" step="1">
         </div>
         <div class="control-group">
-          <label for="gapSlider">Gap</label>
+          <label for="gapSlider" data-i18n="gap">Gap</label>
           <input type="range" id="gapSlider" min="0" max="20" value="4" step="1">
         </div>
         <div class="control-group">
-          <label for="imageFit">Image fit</label>
+          <label for="imageFit" data-i18n="imageFit">Image fit</label>
           <select id="imageFit">
-            <option value="cover">Fill</option>
-            <option value="contain">Full display</option>
+            <option value="cover" data-i18n="fitCover">Fill</option>
+            <option value="contain" data-i18n="fitContain">Full display</option>
           </select>
         </div>
       </fieldset>
       <fieldset class="settings-section">
-        <legend>Export</legend>
+        <legend data-i18n="exportSection">Export</legend>
         <div class="control-group">
-          <label for="bgColor">Background</label>
+          <label for="bgColor" data-i18n="background">Background</label>
           <input type="color" id="bgColor" value="#ffffff">
         </div>
         <div class="control-group">
-          <label for="formatSelect">Format</label>
+          <label for="formatSelect" data-i18n="format">Format</label>
           <select id="formatSelect">
             <option value="image/jpeg">JPEG</option>
             <option value="image/png">PNG</option>
@@ -88,27 +96,27 @@
         </div>
       </fieldset>
       <fieldset class="settings-section">
-        <legend>Watermark</legend>
+        <legend data-i18n="watermark">Watermark</legend>
         <div class="control-group">
-          <label for="watermarkType">Type</label>
+          <label for="watermarkType" data-i18n="watermarkType">Type</label>
           <select id="watermarkType">
-            <option value="none">None</option>
-            <option value="text">Free text</option>
-            <option value="datetime">Date/time</option>
-            <option value="copyright">Copyright</option>
+            <option value="none" data-i18n="watermarkNone">None</option>
+            <option value="text" data-i18n="watermarkText">Free text</option>
+            <option value="datetime" data-i18n="watermarkDatetime">Date/time</option>
+            <option value="copyright" data-i18n="watermarkCopyright">Copyright</option>
           </select>
         </div>
         <div class="control-group" id="watermarkPosGroup" style="display:none">
-          <label for="watermarkPos">Position</label>
+          <label for="watermarkPos" data-i18n="watermarkPos">Position</label>
           <select id="watermarkPos">
-            <option value="bottom-right">Bottom-right</option>
-            <option value="center">Center</option>
-            <option value="tiled">Tiled</option>
+            <option value="bottom-right" data-i18n="posBottomRight">Bottom-right</option>
+            <option value="center" data-i18n="posCenter">Center</option>
+            <option value="tiled" data-i18n="posTiled">Tiled</option>
           </select>
         </div>
         <div class="control-group" id="watermarkTextGroup" style="display:none">
-          <label for="watermarkText">Text</label>
-          <input type="text" id="watermarkText" placeholder="Your name or text" maxlength="50">
+          <label for="watermarkText" data-i18n="watermarkTextLabel">Text</label>
+          <input type="text" id="watermarkText" data-i18n-placeholder="watermarkPlaceholder" placeholder="Your name or text" maxlength="50">
         </div>
       </fieldset>
     </div>

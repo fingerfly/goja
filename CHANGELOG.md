@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-02-22
+
+
+### Added
+- Multi-language support (i18n): English, Simplified Chinese (简体中文), Traditional Chinese (繁體中文)
+- Lightweight vanilla i18n module: `js/i18n.js` with `t()`, `setLocale`, `init`, `applyToDOM`
+- Locale files: `js/locales/en.js`, `zh-Hans.js`, `zh-Hant.js`
+- Language selector in Settings (Grid section)
+- Browser language detection on first load; preference persisted in localStorage
+- Watermark datetime formatted per selected locale
+- E2E tests for language switch and persistence
+
 ## [3.1.2] - 2026-02-21
 
 ### Fixed

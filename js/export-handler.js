@@ -3,7 +3,7 @@ import { drawWatermark } from './watermark.js';
 
 export async function handleExport(photos, layout, options = {}) {
   const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover' } = options;
-  const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right' } = options;
+  const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', locale = 'en' } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
 
   const canvas = createGridCanvas(layout, { backgroundColor });
@@ -25,7 +25,7 @@ export async function handleExport(photos, layout, options = {}) {
     });
   }
 
-  drawWatermark(ctx, canvas.width, canvas.height, { type: watermarkType, text: watermarkText, position: watermarkPos });
+  drawWatermark(ctx, canvas.width, canvas.height, { type: watermarkType, text: watermarkText, position: watermarkPos, locale });
 
   const blob = await exportCanvasAsBlob(canvas, format);
   return blob;

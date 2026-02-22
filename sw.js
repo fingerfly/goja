@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v3.1.2-3';
+const CACHE_NAME = 'goja-v4.0.0-1';
 const ASSETS = [
   './',
   './index.html',
@@ -18,6 +18,10 @@ const ASSETS = [
   './js/settings-panel.js',
   './js/resize-engine.js',
   './js/resize-handler.js',
+  './js/i18n.js',
+  './js/locales/en.js',
+  './js/locales/zh-Hans.js',
+  './js/locales/zh-Hant.js',
   './assets/logo.svg',
   './assets/logo-192.svg',
   './manifest.json',
