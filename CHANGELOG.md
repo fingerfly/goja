@@ -6,7 +6,7 @@
 
 
 ### Fixed
-- Export options sheet visible on page load on desktop; now hidden off-screen when closed
+- Export options sheet visible on page load; now uses `visibility: hidden` and `pointer-events: none` when closed so it never appears until Export is clicked
 
 ### Added
 - Export options: when Export is pressed, users choose Share / Download / Copy to clipboard / Open in new tab
