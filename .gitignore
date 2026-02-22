@@ -1,6 +1,5 @@
 # Dependencies and build
 node_modules/
-package-lock.json
 
 # Test artifacts
 playwright-report/

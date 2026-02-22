@@ -4,7 +4,7 @@
 
 ### Fixed
 - CI E2E tests: Playwright config used `channel: 'chrome'` but workflow installs Chromium only; now uses Chromium in CI, Chrome locally
-- CI reproducibility: use `npm ci` instead of `npm install` for deterministic dependency installs
+- CI reproducibility: commit package-lock.json and use `npm ci`; removed from .gitignore and deploy EXCLUDE
 
 ## [5.4.0] - 2026-02-22
 

@@ -33,7 +33,7 @@ const VALID_TYPES = ['build', 'patch', 'minor', 'major'];
 
 const EXCLUDE = new Set([
   '.git', 'node_modules', 'playwright-report',
-  'test-results', 'package-lock.json',
+  'test-results',
 ]);
 
 function shouldExclude(name, parentPath = '') {
