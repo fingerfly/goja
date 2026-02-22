@@ -2,16 +2,19 @@
 
 ## [Unreleased]
 
-## [5.6.0] - 2026-02-22
 
+## [5.6.0] - 2026-02-22
 
 ### Fixed
 - Share option no longer shown on OPPO Browser and similar browsers that lack `navigator.share`; prevents "Share not supported" error
 
 ### Changed
 - `canShareFiles`: require `navigator.share` (removed viewport fallback)
-- Export options: Download becomes primary when Share unavailable
-- zh-Hans/zh-Hant: `exportDownload` label updated to 保存到手机 / 保存到手機 for clearer save-to-device intent
+- Export options: Download becomes primary (btn-primary) when Share unavailable
+- zh-Hans/zh-Hant: `exportDownload` label updated to 保存到本机 / 保存到本機 for clearer save-to-device intent
+
+### Added
+- Unit test: `canShareFiles` returns false when `navigator.share` undefined (including narrow viewport); Download-primary when Share hidden
 
 ## [5.5.1] - 2026-02-22
 

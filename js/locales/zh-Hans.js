@@ -9,7 +9,7 @@ export default {
   exportFailed: '导出失败',
   exportOptionsTitle: '导出选项',
   exportShare: '分享',
-  exportDownload: '保存到手机',
+  exportDownload: '保存到本机',
   exportCopy: '复制到剪贴板',
   exportOpenInNewTab: '在新标签页中打开',
   exportShareFailed: '分享失败',
