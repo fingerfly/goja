@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v5.4.1-2';
+const CACHE_NAME = 'goja-v5.5.0-1';
 const ASSETS = [
   './',
   './index.html',

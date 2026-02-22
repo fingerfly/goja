@@ -10,7 +10,7 @@ import { ratiosToFrString, recomputePixelCells } from './resize-engine.js';
 import { enableGridResize } from './resize-handler.js';
 import { t, init as initI18n, getLocale, setLocale, applyToDOM } from './i18n.js';
 import { showToast } from './toast.js';
-import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX } from './config.js';
+import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX, GAP_MIN, GAP_MAX, GAP_DEFAULT, WATERMARK_OPACITY_MIN, WATERMARK_OPACITY_MAX, WATERMARK_OPACITY_DEFAULT } from './config.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
 import { pushState, undo, redo, canUndo, canRedo } from './state.js';
@@ -219,6 +219,16 @@ langSelect.addEventListener('change', () => {
   if (currentLayout) renderGrid(currentLayout);
 });
 applyToDOM();
+if (gapSlider) {
+  gapSlider.min = String(GAP_MIN);
+  gapSlider.max = String(GAP_MAX);
+  gapSlider.value = String(GAP_DEFAULT);
+}
+if (wmOpacity) {
+  wmOpacity.min = String(WATERMARK_OPACITY_MIN);
+  wmOpacity.max = String(WATERMARK_OPACITY_MAX);
+  wmOpacity.value = String(WATERMARK_OPACITY_DEFAULT);
+}
 updateActionButtons(0);
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
 function validateFrameInput(el) {
@@ -282,12 +292,14 @@ function applyRestoredState(restored) {
     Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
   }, () => pushState(photos, currentLayout));
 }
-wmType.addEventListener('change', () => { const v = wmType.value;
+wmType.addEventListener('change', () => {
+  const v = wmType.value;
   const show = v !== 'none';
-  wmPosGroup.style.display = show ? '' : 'none';
-  wmOpacityGroup.style.display = show ? '' : 'none';
-  wmFontSizeGroup.style.display = show ? '' : 'none';
-  wmTextGroup.style.display = (v === 'text' || v === 'copyright') ? '' : 'none'; });
+  wmPosGroup?.classList.toggle('hidden', !show);
+  wmOpacityGroup?.classList.toggle('hidden', !show);
+  wmFontSizeGroup?.classList.toggle('hidden', !show);
+  wmTextGroup?.classList.toggle('hidden', v !== 'text' && v !== 'copyright');
+});
 initSettingsPanel(sPanel, sBackdrop, $('#settingsBtn'), $('#settingsCloseBtn'));
 enableDragAndDrop(previewGrid, (srcIdx, tgtIdx) => {
   if (!currentLayout) return;

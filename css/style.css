@@ -140,6 +140,8 @@ body {
 
 .drop-zone.hidden { display: none; }
 
+.hidden { display: none !important; }
+
 .loading-overlay {
   position: fixed;
   inset: 0;
@@ -408,6 +410,14 @@ body {
   font-weight: 500;
 }
 
+.control-group:has(input[type="checkbox"]) label {
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  cursor: pointer;
+}
+
 .control-group input[type="range"] {
   min-height: var(--touch-min);
   accent-color: var(--color-primary);
@@ -569,8 +579,8 @@ body {
   width: 100%;
 }
 
-/* --- Tablet and up (>768px) --- */
-@media (min-width: 769px) {
+/* --- Tablet and up (>= --bp-md 768px) --- */
+@media (min-width: 768px) {
   .top-bar__tagline { display: block; }
 
   .settings-panel {

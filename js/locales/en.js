@@ -21,7 +21,7 @@ export default {
   exportUseDate: 'Add date to filename',
   aspectPresets: 'Aspect presets',
   preset11: '1:1',
-  preset43: '4:3',
+  preset34: '3:4',
   preset169: '16:9',
   presetInstagram: 'Instagram',
   presetStories: 'Stories',

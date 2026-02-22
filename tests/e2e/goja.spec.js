@@ -226,6 +226,19 @@ test.describe('Goja App', () => {
     await expect(page.locator('#addBtn')).toHaveText('+ 添加');
   });
 
+  test('filename label and placeholder localized when settings open in zh-Hans', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const filenameLabel = page.locator('label[for="exportFilename"]');
+    await expect(filenameLabel).toHaveText('文件名');
+    const filenameInput = page.locator('#exportFilename');
+    await expect(filenameInput).toHaveAttribute('placeholder', 'goja-grid');
+    const exportUseDateLabel = page.locator('label:has(input#exportUseDate)');
+    await expect(exportUseDateLabel).toContainText('在文件名中添加日期');
+  });
+
   test('drag and drop reorders photos', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
@@ -242,6 +255,21 @@ test.describe('Goja App', () => {
       els.map((e) => e.src)
     );
     expect(orderAfter).toHaveLength(3);
+  });
+
+  test('watermark groups visibility: hidden when type is none, shown when type is text', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#watermarkType').selectOption('none');
+    await expect(page.locator('#watermarkPosGroup')).toHaveClass(/hidden/);
+    await expect(page.locator('#watermarkOpacityGroup')).toHaveClass(/hidden/);
+    await expect(page.locator('#watermarkTextGroup')).toHaveClass(/hidden/);
+    await page.locator('#watermarkType').selectOption('text');
+    await expect(page.locator('#watermarkPosGroup')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#watermarkOpacityGroup')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#watermarkTextGroup')).not.toHaveClass(/hidden/);
+    await page.locator('#watermarkType').selectOption('datetime');
+    await expect(page.locator('#watermarkTextGroup')).toHaveClass(/hidden/);
   });
 
   test('watermark export with text watermark', async ({ page }) => {
@@ -262,6 +290,48 @@ test.describe('Goja App', () => {
       page.locator('#exportOptionDownload').click(),
     ]);
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
+  });
+
+  test('checkbox label has touch target at least 44px', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const exportUseDateLabel = page.locator('label:has(input#exportUseDate)');
+    const box = await exportUseDateLabel.boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  });
+
+  test('aspect preset 3:4 sets frame to 1080×1440', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('button[data-w="1080"][data-h="1440"]')).toHaveText('3:4');
+    await page.locator('button[data-w="1080"][data-h="1440"]').click();
+    await expect(page.locator('#frameWidth')).toHaveValue('1080');
+    await expect(page.locator('#frameHeight')).toHaveValue('1440');
+    await page.locator('.settings-backdrop').click();
+  });
+
+  test('gap slider and watermark opacity init from config', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#gapSlider')).toHaveValue('4');
+    await expect(page.locator('#gapSlider')).toHaveAttribute('min', '0');
+    await expect(page.locator('#gapSlider')).toHaveAttribute('max', '20');
+    await page.locator('#watermarkType').selectOption('text');
+    await expect(page.locator('#watermarkOpacity')).toHaveValue('0.8');
+  });
+
+  test('settings panel has dialog role and aria attributes when open', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#settingsPanel')).toHaveAttribute('role', 'dialog');
+    await expect(page.locator('#settingsPanel')).toHaveAttribute('aria-labelledby', 'settingsTitle');
+    await expect(page.locator('#settingsPanel')).toHaveAttribute('aria-modal', 'true');
   });
 
   test('settings close returns focus to settings button', async ({ page }) => {

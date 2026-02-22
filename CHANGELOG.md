@@ -2,8 +2,35 @@
 
 ## [Unreleased]
 
+## [5.5.0] - 2026-02-22
+
+
+### Added
+- Settings polish: config constants (GAP_*, WATERMARK_OPACITY_*); unit tests for config; E2E for filename i18n and settings panel dialog role
+- TDD: unit test all locales have exportFilename/exportFilenamePlaceholder/exportUseDate; unit test preset34
+- TDD: E2E watermark groups visibility (.hidden) per type; checkbox touch target ≥44px; aspect preset 3:4 sets 1080×1440; gap/watermark opacity init from config
+- Filename i18n: `exportFilename`, `exportFilenamePlaceholder`, `exportUseDate` in all 11 locales (was missing in 10 non-English locales)
+- Settings panel accessibility: `role="dialog"`, `aria-labelledby="settingsTitle"`, `aria-modal="true"`
+- Checkbox touch target: `.control-group:has(input[type="checkbox"]) label` min-height 44px
+- Aspect preset 3:4 (was mislabeled 4:3 for 1080×1440 portrait)
+
+### Changed
+- Watermark conditional groups: replace inline `style="display:none"` with CSS class `.hidden`
+- Gap and watermark opacity controls: init from `js/config.js` (GAP_MIN/MAX/DEFAULT, WATERMARK_OPACITY_*)
+- Media query: use 768px to align with `--bp-md` (was 769px)
+- Preset 4:3 renamed to 3:4 (1080×1440 is 3:4 portrait)
 
 ## [5.4.1] - 2026-02-22
+
+
+### Changed
+- Export options: remove unused `t` parameter from `showExportOptions`; simplify options passed from `app.js`
+- `shareBlob`: no longer checks `navigator.canShare` before calling; tries `navigator.share` directly (supports mobile viewport fallback)
+- `canShareFiles`: simplified to return true when `navigator.share` exists or viewport width < 768px; removed `canShare`/`MINIMAL_PNG`-based detection
+
+### Added
+- Unit tests for `canShareFiles` viewport-based detection (narrow/wide) and `shareBlob` without `canShare`
+
 
 ### Fixed
 - CI E2E tests: Playwright config used `channel: 'chrome'` but workflow installs Chromium only; now uses Chromium in CI, Chrome locally

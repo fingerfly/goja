@@ -54,10 +54,10 @@
   </nav>
 
   <div class="settings-backdrop" id="settingsBackdrop"></div>
-  <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
+  <aside class="settings-panel" id="settingsPanel" role="dialog" aria-labelledby="settingsTitle" aria-modal="true" aria-hidden="true">
     <div class="settings-panel__header">
       <div class="settings-panel__handle"></div>
-      <h2 data-i18n="settings">Settings</h2>
+      <h2 id="settingsTitle" data-i18n="settings">Settings</h2>
       <button class="settings-panel__close" id="settingsCloseBtn" data-i18n-aria-label="closeSettings" aria-label="Close settings">&times;</button>
     </div>
     <div class="settings-panel__body">
@@ -91,7 +91,7 @@
           <span class="control-label" data-i18n="aspectPresets">Aspect presets</span>
           <div class="preset-buttons" id="aspectPresets">
             <button type="button" data-w="1080" data-h="1080" data-i18n="preset11">1:1</button>
-            <button type="button" data-w="1080" data-h="1440" data-i18n="preset43">4:3</button>
+            <button type="button" data-w="1080" data-h="1440" data-i18n="preset34">3:4</button>
             <button type="button" data-w="1080" data-h="608" data-i18n="preset169">16:9</button>
             <button type="button" data-w="1080" data-h="1350" data-i18n="presetInstagram">Instagram</button>
             <button type="button" data-w="1080" data-h="1920" data-i18n="presetStories">Stories</button>
@@ -154,7 +154,7 @@
             <option value="copyright" data-i18n="watermarkCopyright">Copyright</option>
           </select>
         </div>
-        <div class="control-group" id="watermarkPosGroup" style="display:none">
+        <div class="control-group hidden" id="watermarkPosGroup">
           <label for="watermarkPos" data-i18n="watermarkPos">Position</label>
           <select id="watermarkPos">
             <option value="bottom-right" data-i18n="posBottomRight">Bottom-right</option>
@@ -165,11 +165,11 @@
             <option value="tiled" data-i18n="posTiled">Tiled</option>
           </select>
         </div>
-        <div class="control-group" id="watermarkOpacityGroup" style="display:none;">
+        <div class="control-group hidden" id="watermarkOpacityGroup">
           <label for="watermarkOpacity" data-i18n="watermarkOpacity">Opacity</label>
           <input type="range" id="watermarkOpacity" min="0.3" max="0.9" step="0.1" value="0.8">
         </div>
-        <div class="control-group" id="watermarkFontSizeGroup" style="display:none;">
+        <div class="control-group hidden" id="watermarkFontSizeGroup">
           <label for="watermarkFontSize" data-i18n="watermarkFontSize">Font size</label>
           <select id="watermarkFontSize">
             <option value="0.8" data-i18n="fontSizeSmall">Small</option>
@@ -177,7 +177,7 @@
             <option value="1.2" data-i18n="fontSizeLarge">Large</option>
           </select>
         </div>
-        <div class="control-group" id="watermarkTextGroup" style="display:none">
+        <div class="control-group hidden" id="watermarkTextGroup">
           <label for="watermarkText" data-i18n="watermarkTextLabel">Text</label>
           <input type="text" id="watermarkText" data-i18n-placeholder="watermarkPlaceholder" placeholder="Your name or text" maxlength="50">
         </div>
