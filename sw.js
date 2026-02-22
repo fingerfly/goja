@@ -1,16 +1,22 @@
-const CACHE_NAME = 'goja-v4.0.0-3';
+const CACHE_NAME = 'goja-v5.0.0-1';
 const ASSETS = [
   './',
   './index.html',
   './css/variables.css',
   './css/style.css',
   './js/app.js',
+  './js/config.js',
+  './js/state.js',
   './js/layout-engine.js',
   './js/layout-templates.js',
   './js/templates-small.js',
   './js/templates-large.js',
   './js/image-processor.js',
   './js/export-handler.js',
+  './js/export-worker.js',
+  './js/toast.js',
+  './js/cell-context-menu.js',
+  './js/cell-keyboard-nav.js',
   './js/utils.js',
   './js/version.js',
   './js/drag-handler.js',
@@ -36,7 +42,6 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
@@ -48,6 +53,12 @@ self.addEventListener('activate', (event) => {
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {

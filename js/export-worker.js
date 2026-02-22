@@ -1,0 +1,43 @@
+/**
+ * Web Worker for export. Uses OffscreenCanvas; fallback to main thread if unsupported.
+ */
+import { createOffscreenGridCanvas, drawPhotoOnCanvas, exportOffscreenCanvasAsBlob } from './image-processor.js';
+import { drawWatermark } from './watermark.js';
+import { JPEG_QUALITY } from './config.js';
+
+self.onmessage = async (e) => {
+  const { layout, options, blobUrls } = e.data;
+  try {
+    const photoOrder = layout.photoOrder || blobUrls.map((_, i) => i);
+    const blobs = await Promise.all(blobUrls.map((url) => fetch(url).then((r) => r.blob())));
+    const bitmaps = await Promise.all(blobs.map((b) => createImageBitmap(b)));
+
+    const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
+      watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right',
+      watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
+
+    const canvas = createOffscreenGridCanvas(layout, { backgroundColor });
+    const ctx = canvas.getContext('2d');
+
+    for (let i = 0; i < layout.cells.length; i++) {
+      drawPhotoOnCanvas(ctx, bitmaps[photoOrder[i]], layout.cells[i], {
+        fitMode,
+        backgroundColor: options.backgroundColor ?? '#ffffff',
+      });
+    }
+
+    drawWatermark(ctx, canvas.width, canvas.height, {
+      type: watermarkType, text: watermarkText, position: watermarkPos,
+      opacity: watermarkOpacity, fontScale: watermarkFontScale,
+      backgroundColor: options.backgroundColor ?? '#ffffff', locale,
+    });
+
+    const quality = format === 'image/jpeg' ? JPEG_QUALITY : undefined;
+    const blob = await exportOffscreenCanvasAsBlob(canvas, format, quality);
+
+    bitmaps.forEach((b) => b.close());
+    self.postMessage({ blob }, [blob]);
+  } catch (err) {
+    self.postMessage({ error: err.message });
+  }
+};

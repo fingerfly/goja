@@ -6,7 +6,9 @@ export function ratiosToFrString(ratios) {
   return ratios.map(r => `${r}fr`).join(' ');
 }
 
-export function adjustRatio(ratios, index, deltaPx, totalPx, minFraction = 0.2) {
+import { MIN_FRACTION } from './config.js';
+
+export function adjustRatio(ratios, index, deltaPx, totalPx, minFraction = MIN_FRACTION) {
   if (deltaPx === 0) return [...ratios];
   const result = [...ratios];
   const sum = result.reduce((a, b) => a + b, 0);

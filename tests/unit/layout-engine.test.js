@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { classifyPhoto, computeGridLayout, scoreTemplate, assignPhotosToSlots } from '../../js/layout-engine.js';
+import { ensureTemplatesLoaded } from '../../js/layout-templates.js';
 
 const L = { width: 1600, height: 900 };
 const P = { width: 900, height: 1600 };
@@ -69,6 +70,10 @@ describe('assignPhotosToSlots', () => {
 });
 
 describe('computeGridLayout', () => {
+  beforeEach(async () => {
+    await ensureTemplatesLoaded();
+  });
+
   it('returns baseRows, baseCols, gap, and cells', () => {
     const layout = computeGridLayout([L, L]);
     expect(layout).toHaveProperty('baseRows');
@@ -166,6 +171,27 @@ describe('computeGridLayout', () => {
     const colWidth = layout.cells[0].width;
     const rowHeight = layout.cells[0].height;
     expect(rowHeight).not.toBe(colWidth);
+  });
+
+  it('templateId overrides auto-selection', () => {
+    const twoPhotos = [L, L];
+    const autoLayout = computeGridLayout(twoPhotos);
+    const forced2V = computeGridLayout(twoPhotos, { templateId: '2V' });
+    const forced2H = computeGridLayout(twoPhotos, { templateId: '2H' });
+    expect(forced2V.baseRows).toBe(2);
+    expect(forced2V.baseCols).toBe(1);
+    expect(forced2H.baseRows).toBe(1);
+    expect(forced2H.baseCols).toBe(2);
+  });
+
+  it('templateId "auto" uses auto-selection', () => {
+    const layout = computeGridLayout([L, L], { templateId: 'auto' });
+    expect(layout.cells).toHaveLength(2);
+  });
+
+  it('invalid templateId falls back to auto', () => {
+    const layout = computeGridLayout([L, L], { templateId: 'invalid' });
+    expect(layout.cells).toHaveLength(2);
   });
 
   it('pixel coords fit within outputHeight when provided', () => {

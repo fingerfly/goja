@@ -115,12 +115,18 @@ export function computeGridLayout(photos, options = {}) {
   const candidates = getTemplatesForCount(photos.length);
   if (candidates.length === 0) throw new Error(`No template for ${photos.length} photos`);
 
+  const templateId = options.templateId;
   let best = candidates[0];
-  let bestScore = -Infinity;
 
-  for (const tpl of candidates) {
-    const s = scoreTemplateByAspectMatch(tpl, photos, outputWidth, outputHeight, gap);
-    if (s > bestScore) { bestScore = s; best = tpl; }
+  if (templateId && templateId !== 'auto') {
+    const found = candidates.find((t) => t.id === templateId);
+    if (found) best = found;
+  } else {
+    let bestScore = -Infinity;
+    for (const tpl of candidates) {
+      const s = scoreTemplateByAspectMatch(tpl, photos, outputWidth, outputHeight, gap);
+      if (s > bestScore) { bestScore = s; best = tpl; }
+    }
   }
 
   const indices = assignPhotosByAspectMatch(photos, best, outputWidth, outputHeight, gap);

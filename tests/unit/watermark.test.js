@@ -112,4 +112,20 @@ describe('drawWatermark', () => {
     expect(mockCtx.save).toHaveBeenCalled();
     expect(mockCtx.restore).toHaveBeenCalled();
   });
+
+  it('uses white fill for dark background (dark mode watermark)', () => {
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'X', position: 'bottom-right',
+      backgroundColor: '#111111',
+    });
+    expect(mockCtx.fillStyle).toBe('rgb(255, 255, 255)');
+  });
+
+  it('uses black fill for light background', () => {
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'X', position: 'bottom-right',
+      backgroundColor: '#ffffff',
+    });
+    expect(mockCtx.fillStyle).toBe('rgb(0, 0, 0)');
+  });
 });

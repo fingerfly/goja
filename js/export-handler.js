@@ -1,42 +1,75 @@
 import { createGridCanvas, drawPhotoOnCanvas, exportCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
 
-export async function handleExport(photos, layout, options = {}) {
-  const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover' } = options;
-  const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', locale = 'en' } = options;
+function exportMainThread(photos, layout, options) {
+  const { format = 'image/jpeg', fitMode = 'cover' } = options;
+  const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
 
-  const canvas = createGridCanvas(layout, { backgroundColor });
+  const canvas = createGridCanvas(layout, { backgroundColor: options.backgroundColor ?? '#ffffff' });
   const ctx = canvas.getContext('2d');
 
-  const imgElements = await Promise.all(photos.map((p, i) => {
+  return Promise.all(photos.map((p, i) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = () => reject(new Error(`Failed to load photo ${i + 1}`));
       img.src = p.url;
     });
-  }));
-
-  for (let i = 0; i < layout.cells.length; i++) {
-    drawPhotoOnCanvas(ctx, imgElements[photoOrder[i]], layout.cells[i], {
-      fitMode,
-      backgroundColor: options.backgroundColor ?? '#ffffff',
+  })).then((imgElements) => {
+    for (let i = 0; i < layout.cells.length; i++) {
+      drawPhotoOnCanvas(ctx, imgElements[photoOrder[i]], layout.cells[i], {
+        fitMode,
+        backgroundColor: options.backgroundColor ?? '#ffffff',
+      });
+    }
+    drawWatermark(ctx, canvas.width, canvas.height, {
+      type: watermarkType, text: watermarkText, position: watermarkPos,
+      opacity: watermarkOpacity, fontScale: watermarkFontScale,
+      backgroundColor: options.backgroundColor ?? '#ffffff', locale,
     });
-  }
-
-  drawWatermark(ctx, canvas.width, canvas.height, { type: watermarkType, text: watermarkText, position: watermarkPos, locale });
-
-  const blob = await exportCanvasAsBlob(canvas, format);
-  return blob;
+    return exportCanvasAsBlob(canvas, format);
+  });
 }
 
-export function downloadBlob(blob, format) {
+function exportViaWorker(photos, layout, options) {
+  return new Promise((resolve, reject) => {
+    const blobUrls = photos.map((p) => p.url);
+    const worker = new Worker(new URL('./export-worker.js', import.meta.url), { type: 'module' });
+    worker.onmessage = (e) => {
+      worker.terminate();
+      if (e.data.error) reject(new Error(e.data.error));
+      else resolve(e.data.blob);
+    };
+    worker.onerror = () => {
+      worker.terminate();
+      reject(new Error('Worker failed'));
+    };
+    worker.postMessage({ layout, options, blobUrls });
+  });
+}
+
+const USE_WORKER = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap !== 'undefined';
+
+export async function handleExport(photos, layout, options = {}) {
+  if (USE_WORKER) {
+    try {
+      return await exportViaWorker(photos, layout, options);
+    } catch {
+      return exportMainThread(photos, layout, options);
+    }
+  }
+  return exportMainThread(photos, layout, options);
+}
+
+export function downloadBlob(blob, format, filename) {
   const ext = format === 'image/png' ? 'png' : 'jpg';
+  const base = (filename && String(filename).trim()) || 'goja-grid';
+  const name = `${base}.${ext}`;
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `goja-grid.${ext}`;
+  a.download = name;
   a.click();
   URL.revokeObjectURL(url);
 }

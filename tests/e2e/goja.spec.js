@@ -71,6 +71,38 @@ test.describe('Goja App', () => {
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });
 
+  test('context menu on cell shows Remove and removes photo', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+      path.join(fixtures, 'square.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    const images = page.locator('#previewGrid img');
+    await expect(images).toHaveCount(3);
+    await images.first().dispatchEvent('contextmenu', { bubbles: true });
+    await expect(page.locator('.cell-context-menu')).toBeVisible();
+    await expect(page.locator('.cell-context-menu')).toContainText('Remove');
+    await page.locator('.cell-context-menu button').click();
+    await expect(page.locator('#previewGrid img')).toHaveCount(2);
+  });
+
+  test('export success shows toast', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#exportBtn').click(),
+    ]);
+    await expect(page.locator('.toast')).toBeVisible();
+    await expect(page.locator('.toast')).toContainText('Export saved');
+  });
+
   test('resize handles exist and have usable dimensions when grid shown', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
@@ -130,6 +162,51 @@ test.describe('Goja App', () => {
     await page.locator('.settings-backdrop').click();
     await page.reload();
     await expect(page.locator('#addBtn')).toHaveText('+ 添加');
+  });
+
+  test('drag and drop reorders photos', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+      path.join(fixtures, 'square.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    const imgs = page.locator('#previewGrid img');
+    const first = imgs.first();
+    const last = imgs.last();
+    await first.dragTo(last, { force: true });
+    const orderAfter = await page.locator('#previewGrid img').evaluateAll((els) =>
+      els.map((e) => e.src)
+    );
+    expect(orderAfter).toHaveLength(3);
+  });
+
+  test('watermark export with text watermark', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkText').fill('Test Watermark');
+    await page.locator('.settings-backdrop').click();
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('#exportBtn').click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
+  });
+
+  test('settings close returns focus to settings button', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#langSelect').focus();
+    await page.locator('#settingsCloseBtn').click();
+    await expect(page.locator('#settingsPanel')).not.toHaveClass(/open/);
+    await expect(page.locator('#settingsBtn')).toBeFocused();
   });
 
   test('image fit setting switches preview to contain and export works', async ({ page }) => {

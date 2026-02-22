@@ -1,8 +1,16 @@
-import { TEMPLATES_SMALL } from './templates-small.js';
-import { TEMPLATES_LARGE } from './templates-large.js';
+let templatesCache = null;
 
-export const TEMPLATES = [...TEMPLATES_SMALL, ...TEMPLATES_LARGE];
+export async function ensureTemplatesLoaded() {
+  if (templatesCache) return templatesCache;
+  const [small, large] = await Promise.all([
+    import('./templates-small.js'),
+    import('./templates-large.js'),
+  ]);
+  templatesCache = [...small.TEMPLATES_SMALL, ...large.TEMPLATES_LARGE];
+  return templatesCache;
+}
 
 export function getTemplatesForCount(count) {
-  return TEMPLATES.filter(t => t.photoCount === count);
+  if (!templatesCache) throw new Error('Templates not loaded');
+  return templatesCache.filter((t) => t.photoCount === count);
 }

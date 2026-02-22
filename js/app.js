@@ -1,4 +1,5 @@
 import { computeGridLayout } from './layout-engine.js';
+import { getTemplatesForCount, ensureTemplatesLoaded } from './layout-templates.js';
 import { readImageDimensions } from './utils.js';
 import { handleExport, downloadBlob } from './export-handler.js';
 import { VERSION_STRING } from './version.js';
@@ -7,38 +8,90 @@ import { initSettingsPanel, closeSettings } from './settings-panel.js';
 import { ratiosToFrString, recomputePixelCells } from './resize-engine.js';
 import { enableGridResize } from './resize-handler.js';
 import { t, init as initI18n, getLocale, setLocale, applyToDOM } from './i18n.js';
+import { showToast } from './toast.js';
+import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX } from './config.js';
+import { enableCellContextMenu } from './cell-context-menu.js';
+import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
+import { pushState, undo, redo, canUndo, canRedo } from './state.js';
 
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
   ['#dropZone', '#fileInput', '#preview', '#previewGrid'].map($);
-const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH, imageFit] =
-  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight', '#imageFit'].map($);
-const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup] =
-  ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup'].map($);
+const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH, imageFit, templateSelect, exportFilename, exportUseDate] =
+  ['#gapSlider', '#bgColor', '#formatSelect', '#addBtn', '#exportBtn', '#clearBtn', '#frameWidth', '#frameHeight', '#imageFit', '#templateSelect', '#exportFilename', '#exportUseDate'].map($);
+const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup, wmOpacity, wmOpacityGroup, wmFontSize, wmFontSizeGroup] =
+  ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup', '#watermarkOpacity', '#watermarkOpacityGroup', '#watermarkFontSize', '#watermarkFontSizeGroup'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
+const [loadingOverlay, loadingText, offlineBanner] = ['#loadingOverlay', '#loadingText', '#offlineBanner'].map($);
 const langSelect = $('#langSelect');
-const MAX_PHOTOS = 9; let photos = [], currentLayout = null, cleanupResize = null;
+let photos = [], currentLayout = null, cleanupResize = null;
 
 async function loadPhotos(files) {
   const items = Array.from(files).filter(f => f.type.startsWith('image/'));
   if (items.length === 0) return;
   const slots = MAX_PHOTOS - photos.length;
   if (slots <= 0) return;
+  pushState(photos, currentLayout);
   const accepted = items.slice(0, slots);
-  for (const file of accepted) {
-    const dims = await readImageDimensions(file);
-    photos.push({ file, url: URL.createObjectURL(file), ...dims });
+  const total = accepted.length;
+  if (loadingOverlay && loadingText) {
+    loadingOverlay.hidden = false;
+    loadingText.textContent = t('loadingPhotos', { current: 0, total });
   }
-  updatePreview();
+  for (let i = 0; i < accepted.length; i++) {
+    if (loadingText) loadingText.textContent = t('loadingPhotos', { current: i + 1, total });
+    const dims = await readImageDimensions(accepted[i]);
+    photos.push({ file: accepted[i], url: URL.createObjectURL(accepted[i]), ...dims });
+  }
+  if (loadingOverlay) loadingOverlay.hidden = true;
+  await updatePreview();
 }
 
-function updatePreview() {
+const TEMPLATE_STORAGE_KEY = 'goja-template';
+
+function getStoredTemplate(count) {
+  try {
+    return localStorage.getItem(`${TEMPLATE_STORAGE_KEY}-${count}`) || 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+function setStoredTemplate(count, id) {
+  try {
+    localStorage.setItem(`${TEMPLATE_STORAGE_KEY}-${count}`, id);
+  } catch {}
+}
+
+function populateTemplateSelect(count) {
+  if (!templateSelect) return;
+  const templates = getTemplatesForCount(count);
+  const current = templateSelect.value || getStoredTemplate(count);
+  templateSelect.innerHTML = '';
+  const auto = document.createElement('option');
+  auto.value = 'auto';
+  auto.textContent = t('templateAuto');
+  templateSelect.appendChild(auto);
+  for (const tpl of templates) {
+    const opt = document.createElement('option');
+    opt.value = tpl.id;
+    opt.textContent = tpl.id;
+    templateSelect.appendChild(opt);
+  }
+  const valid = ['auto', ...templates.map((t) => t.id)].includes(current);
+  templateSelect.value = valid ? current : 'auto';
+}
+
+async function updatePreview() {
   if (photos.length === 0) { showUI(false); return; }
+  await ensureTemplatesLoaded();
+  populateTemplateSelect(photos.length);
   const opts = {
     gap: parseInt(gapSlider.value, 10),
     outputWidth: parseInt(frameW.value, 10),
     outputHeight: parseInt(frameH.value, 10),
     fitMode: imageFit.value,
+    templateId: templateSelect?.value || getStoredTemplate(photos.length),
   };
   currentLayout = computeGridLayout(photos.map(p => ({ width: p.width, height: p.height })), opts);
   renderGrid(currentLayout);
@@ -48,7 +101,7 @@ function updatePreview() {
     Object.assign(currentLayout, ratios);
     currentLayout.cells = recomputePixelCells(currentLayout);
     Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
-  });
+  }, () => pushState(photos, currentLayout));
 }
 
 function showUI(show) {
@@ -75,12 +128,26 @@ function renderGrid(layout) {
       gridColumn: `${c.colStart} / ${c.colEnd}`,
       objectFit: fitVal,
     });
-    img.draggable = true; g.appendChild(img);
+    img.draggable = true;
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    g.appendChild(img);
   }
 }
 
 async function onExport() {
   if (!currentLayout || photos.length === 0) return;
+  let w = parseInt(frameW.value, 10), h = parseInt(frameH.value, 10);
+  if (Number.isNaN(w)) w = FRAME_MIN;
+  if (Number.isNaN(h)) h = FRAME_MIN;
+  w = Math.min(FRAME_MAX, Math.max(FRAME_MIN, w));
+  h = Math.min(FRAME_MAX, Math.max(FRAME_MIN, h));
+  if (w !== parseInt(frameW.value, 10) || h !== parseInt(frameH.value, 10)) {
+    frameW.value = String(w);
+    frameH.value = String(h);
+    showToast(t('frameDimensionClamped'), 'error');
+    updatePreview();
+  }
   const fitVal = imageFit.value;
   exportBtn.disabled = true; exportBtn.textContent = t('exporting');
   try {
@@ -88,10 +155,17 @@ async function onExport() {
       backgroundColor: bgColor.value, format: formatSelect.value,
       fitMode: fitVal,
       watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
+      watermarkOpacity: parseFloat(wmOpacity?.value ?? '0.8'),
+      watermarkFontScale: parseFloat(wmFontSize?.value ?? '1'),
       locale: getLocale(),
     });
-    downloadBlob(blob, formatSelect.value);
-  } catch (err) { console.warn('Export failed:', err); }
+    const base = (exportFilename?.value?.trim()) || 'goja-grid';
+    const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
+    downloadBlob(blob, formatSelect.value, withDate);
+    showToast(t('exportSuccess'), 'success');
+  } catch (err) {
+    showToast(`${t('exportFailed')} — ${err.message}`, 'error');
+  }
   finally { exportBtn.disabled = false; exportBtn.textContent = t('exportBtn'); }
 }
 
@@ -113,23 +187,152 @@ langSelect.value = getLocale();
 langSelect.addEventListener('change', () => {
   setLocale(langSelect.value);
   applyToDOM();
+  if (photos.length > 0) populateTemplateSelect(photos.length);
   if (currentLayout) renderGrid(currentLayout);
 });
 applyToDOM();
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
+function validateFrameInput(el) {
+  let v = parseInt(el.value, 10);
+  if (Number.isNaN(v) || v < FRAME_MIN || v > FRAME_MAX) {
+    v = Math.min(FRAME_MAX, Math.max(FRAME_MIN, Number.isNaN(v) ? FRAME_MIN : v));
+    el.value = String(v);
+    showToast(t('frameDimensionClamped'), 'error');
+  }
+  return v;
+}
 [gapSlider, bgColor, frameW, frameH, imageFit].forEach(el => el.addEventListener('input', updatePreview));
+frameW?.addEventListener('blur', () => validateFrameInput(frameW));
+frameH?.addEventListener('blur', () => validateFrameInput(frameH));
+$('#aspectPresets')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-w][data-h]');
+  if (!btn) return;
+  frameW.value = btn.dataset.w;
+  frameH.value = btn.dataset.h;
+  frameW.dispatchEvent(new Event('input', { bubbles: true }));
+});
 imageFit.addEventListener('change', updatePreview);
+if (templateSelect) {
+  templateSelect.addEventListener('change', () => {
+    if (photos.length > 0) {
+      setStoredTemplate(photos.length, templateSelect.value);
+      updatePreview();
+    }
+  });
+}
 exportBtn.addEventListener('click', onExport);
 clearBtn.addEventListener('click', clearAll);
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    e.preventDefault();
+    if (e.shiftKey) {
+      const restored = redo(photos, currentLayout);
+      if (restored) applyRestoredState(restored);
+    } else {
+      const restored = undo(photos, currentLayout);
+      if (restored) applyRestoredState(restored);
+    }
+  }
+});
+
+function applyRestoredState(restored) {
+  photos = restored.photos;
+  currentLayout = restored.layout;
+  if (photos.length === 0) {
+    showUI(false);
+    previewGrid.innerHTML = '';
+    if (cleanupResize) { cleanupResize(); cleanupResize = null; }
+    return;
+  }
+  renderGrid(currentLayout);
+  showUI(true);
+  if (cleanupResize) cleanupResize();
+  cleanupResize = enableGridResize(previewGrid, currentLayout, (ratios) => {
+    Object.assign(currentLayout, ratios);
+    currentLayout.cells = recomputePixelCells(currentLayout);
+    Object.assign(previewGrid.style, { gridTemplateColumns: ratiosToFrString(currentLayout.colRatios), gridTemplateRows: ratiosToFrString(currentLayout.rowRatios) });
+  }, () => pushState(photos, currentLayout));
+}
 wmType.addEventListener('change', () => { const v = wmType.value;
-  wmPosGroup.style.display = v === 'none' ? 'none' : '';
+  const show = v !== 'none';
+  wmPosGroup.style.display = show ? '' : 'none';
+  wmOpacityGroup.style.display = show ? '' : 'none';
+  wmFontSizeGroup.style.display = show ? '' : 'none';
   wmTextGroup.style.display = (v === 'text' || v === 'copyright') ? '' : 'none'; });
 initSettingsPanel(sPanel, sBackdrop, $('#settingsBtn'), $('#settingsCloseBtn'));
 enableDragAndDrop(previewGrid, (srcIdx, tgtIdx) => {
   if (!currentLayout) return;
+  pushState(photos, currentLayout);
   currentLayout.photoOrder = swapOrder(currentLayout.photoOrder, srcIdx, tgtIdx);
   renderGrid(currentLayout);
 });
+enableCellContextMenu(previewGrid, () => currentLayout, (cellIndex) => {
+  if (!currentLayout || photos.length === 0) return;
+  pushState(photos, currentLayout);
+  const photoOrder = currentLayout.photoOrder || photos.map((_, i) => i);
+  const photoIndex = photoOrder[cellIndex];
+  URL.revokeObjectURL(photos[photoIndex].url);
+  photos.splice(photoIndex, 1);
+  updatePreview();
+}, t);
+enableCellKeyboardNav(previewGrid, () => currentLayout, (srcIdx, tgtIdx) => {
+  if (!currentLayout) return;
+  pushState(photos, currentLayout);
+  currentLayout.photoOrder = swapOrder(currentLayout.photoOrder, srcIdx, tgtIdx);
+  renderGrid(currentLayout);
+});
+function updateOfflineBanner() {
+  if (!offlineBanner) return;
+  offlineBanner.hidden = navigator.onLine;
+}
+if (typeof navigator !== 'undefined' && 'onLine' in navigator) {
+  updateOfflineBanner();
+  window.addEventListener('offline', updateOfflineBanner);
+  window.addEventListener('online', updateOfflineBanner);
+}
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
+  let skipWaitingRequested = false;
+  navigator.serviceWorker.register('./sw.js').then((reg) => {
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      if (!newWorker) return;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateBanner(reg, () => { skipWaitingRequested = true; });
+        }
+      });
+    });
+  });
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (skipWaitingRequested) window.location.reload();
+  });
+}
+
+function showUpdateBanner(reg, onRefreshClick) {
+  if (document.getElementById('updateBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'updateBanner';
+  Object.assign(banner.style, {
+    position: 'fixed', bottom: 0, left: 0, right: 0,
+    padding: '12px 16px', backgroundColor: 'var(--color-primary)',
+    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    gap: '12px', zIndex: 10000, boxShadow: '0 -2px 8px rgba(0,0,0,0.15)',
+  });
+  banner.innerHTML = `
+    <span>New version available. Refresh to update.</span>
+    <div style="display:flex;gap:8px;">
+      <button id="updateRefreshBtn" style="padding:8px 16px;border:none;border-radius:6px;background:#fff;color:var(--color-primary);cursor:pointer;font-weight:600;">Refresh</button>
+      <button id="updateDismissBtn" style="padding:8px 16px;border:1px solid rgba(255,255,255,0.5);border-radius:6px;background:transparent;color:#fff;cursor:pointer;">Dismiss</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+  document.getElementById('updateRefreshBtn').addEventListener('click', () => {
+    if (reg.waiting) {
+      onRefreshClick?.();
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+  });
+  document.getElementById('updateDismissBtn').addEventListener('click', () => {
+    banner.remove();
+  });
 }

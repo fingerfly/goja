@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-02-22
+
+
+### Added (Goja Improvement Proposals - 2026-02-22)
+- Toast notifications for export success/failure (`js/toast.js`)
+- PWA update notification banner with Refresh to update
+- Remove single photo via context menu (right-click / long-press) (`js/cell-context-menu.js`)
+- Config constants (`js/config.js`): JPEG_QUALITY, FRAME_MIN, FRAME_MAX, MAX_PHOTOS
+- Template picker in Settings; optional `templateId` in layout-engine
+- Export filename customization and date option; aspect preset buttons (1:1, 4:3, 16:9, Instagram, Stories)
+- Focus management in Settings; skip link for accessibility
+- Undo/redo with state module (`js/state.js`); Ctrl/Cmd+Z shortcuts
+- Keyboard navigation between grid cells; Alt+Arrow swap with previous/next (`js/cell-keyboard-nav.js`)
+- Frame dimension validation (320–4096 px); toast on invalid
+- Loading overlay during photo load ("Loading... 1/5")
+- Watermark options: opacity slider, font size, positions (top-left, top-right, bottom-left); dark-mode watermark
+- Web Worker export with main-thread fallback (`js/export-worker.js`)
+- Lazy load layout templates
+- Offline banner when disconnected
+- E2E: drag-and-drop, watermark export, focus return; unit: trackBoundaryPos, dark/light watermark
+- manifest.json version aligned with package.json; dark background export verified
+
+### Added
+- Eight additional languages: German (Deutsch), Dutch (Nederlands), Spanish (Español), Italian (Italiano), Turkish (Türkçe), Finnish (Suomi), Japanese (日本語), Esperanto
+- Locale files: `js/locales/de.js`, `nl.js`, `es.js`, `it.js`, `tr.js`, `fi.js`, `ja.js`, `eo.js`
+- Browser language detection for new locales
+- Language selector options for all 11 languages
+
+### Changed
+- Tagline redefined: 拼图成格 (Chinese), Grid your photos (English)
+- Removed "One tap" / "一步到位" from tagline across all locales
+
 ## [4.0.0] - 2026-02-22
 
 

@@ -1,10 +1,10 @@
 import { adjustRatio } from './resize-engine.js';
+import { MIN_FRACTION } from './config.js';
 
 const HANDLE_CLASS = 'resize-handle';
 const OVERLAY_CLASS = 'resize-overlay';
-const MIN_FRACTION = 0.2;
 
-export function enableGridResize(gridEl, layout, onResize) {
+export function enableGridResize(gridEl, layout, onResize, onResizeStart) {
   disableGridResize(gridEl);
   const overlay = document.createElement('div');
   overlay.className = OVERLAY_CLASS;
@@ -12,7 +12,7 @@ export function enableGridResize(gridEl, layout, onResize) {
   overlay._gridEl = gridEl;
 
   const state = { colRatios: [...layout.colRatios], rowRatios: [...layout.rowRatios] };
-  createHandles(overlay, gridEl, layout, state, onResize);
+  createHandles(overlay, gridEl, layout, state, onResize, onResizeStart);
 
   return () => disableGridResize(gridEl);
 }
@@ -24,7 +24,7 @@ function disableGridResize(gridEl) {
   if (old) old.remove();
 }
 
-function createHandles(overlay, gridEl, layout, state, onResize) {
+function createHandles(overlay, gridEl, layout, state, onResize, onResizeStart) {
   const rect = gridEl.getBoundingClientRect();
   const padLeft = parseFloat(getComputedStyle(gridEl).paddingLeft) || 0;
   const padTop = parseFloat(getComputedStyle(gridEl).paddingTop) || 0;
@@ -34,20 +34,20 @@ function createHandles(overlay, gridEl, layout, state, onResize) {
   for (let i = 0; i < layout.baseCols - 1; i++) {
     const pos = trackBoundaryPos(state.colRatios, i, innerW, layout.gap);
     const handle = makeHandle('col', padLeft + pos, padTop, layout.gap, innerH);
-    attachDrag(handle, 'col', i, state, innerW, layout.gap, onResize,
-      () => refreshHandles(overlay, gridEl, layout, state, onResize));
+    attachDrag(handle, 'col', i, state, innerW, layout.gap, onResize, onResizeStart,
+      () => refreshHandles(overlay, gridEl, layout, state, onResize, onResizeStart));
     overlay.appendChild(handle);
   }
   for (let i = 0; i < layout.baseRows - 1; i++) {
     const pos = trackBoundaryPos(state.rowRatios, i, innerH, layout.gap);
     const handle = makeHandle('row', padLeft, padTop + pos, layout.gap, innerW);
-    attachDrag(handle, 'row', i, state, innerH, layout.gap, onResize,
-      () => refreshHandles(overlay, gridEl, layout, state, onResize));
+    attachDrag(handle, 'row', i, state, innerH, layout.gap, onResize, onResizeStart,
+      () => refreshHandles(overlay, gridEl, layout, state, onResize, onResizeStart));
     overlay.appendChild(handle);
   }
 }
 
-function trackBoundaryPos(ratios, index, totalPx, gap) {
+export function trackBoundaryPos(ratios, index, totalPx, gap) {
   const sum = ratios.reduce((a, b) => a + b, 0);
   const available = totalPx - gap * (ratios.length - 1);
   let pos = 0;
@@ -69,13 +69,14 @@ function makeHandle(axis, left, top, gapOrWidth, extent) {
   return el;
 }
 
-function refreshHandles(overlay, gridEl, layout, state, onResize) {
+function refreshHandles(overlay, gridEl, layout, state, onResize, onResizeStart) {
   overlay.innerHTML = '';
-  createHandles(overlay, gridEl, layout, state, onResize);
+  createHandles(overlay, gridEl, layout, state, onResize, onResizeStart);
 }
 
-function attachDrag(handle, axis, index, state, totalPx, gap, onResize, refresh) {
+function attachDrag(handle, axis, index, state, totalPx, gap, onResize, onResizeStart, refresh) {
   let startPos = 0;
+  let startCalled = false;
   const prop = axis === 'col' ? 'clientX' : 'clientY';
   const ratioKey = axis === 'col' ? 'colRatios' : 'rowRatios';
 
@@ -96,6 +97,7 @@ function attachDrag(handle, axis, index, state, totalPx, gap, onResize, refresh)
   };
   const onStart = (e) => {
     e.preventDefault();
+    if (!startCalled && onResizeStart) { startCalled = true; onResizeStart(); }
     handle.classList.add('active');
     startPos = e.touches ? e.touches[0][prop] : e[prop];
     document.addEventListener('mousemove', onMove);
