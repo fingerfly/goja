@@ -12,7 +12,7 @@ test.describe('Goja App', () => {
 
   test('shows header with branding', async ({ page }) => {
     await expect(page.locator('.top-bar__brand')).toHaveText('Goja');
-    await expect(page.locator('.top-bar__tagline')).toContainText('Grid craft');
+    await expect(page.locator('.top-bar__tagline')).toContainText('Grid your photos');
   });
 
   test('shows drop zone on load', async ({ page }) => {

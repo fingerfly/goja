@@ -1,6 +1,6 @@
 export default {
   brand: 'Goja',
-  tagline: '宮格匠，獨一個。',
+  tagline: '拼圖成格',
   dropZoneText: '拖放照片或點擊選擇',
   addBtn: '+ 添加',
   exportBtn: '導出',

@@ -1,6 +1,6 @@
 export default {
   brand: 'Goja',
-  tagline: 'Grid craft. One and only.',
+  tagline: 'Grid your photos.',
   dropZoneText: 'Drop photos here or tap to select',
   addBtn: '+ Add',
   exportBtn: 'Export',

@@ -1,6 +1,6 @@
-# Goja 宫将
+# Goja
 
-**The grid artisan, one of a kind.** 宫格匠，独一个。
+**拼图成格.** Grid your photos.
 
 Create photo grid collages directly in your browser. Drop in your photos, choose a layout, and export — no uploads, no server, no sign-up required.
 
