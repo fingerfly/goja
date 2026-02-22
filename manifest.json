@@ -3,7 +3,7 @@
   "short_name": "Goja",
   "description": "拼图成格. Grid your photos.",
   "version": "5.6.0",
-  "version_name": "5.6.0 (3)",
+  "version_name": "5.6.0 (4)",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f8fafc",
