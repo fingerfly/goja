@@ -2,10 +2,12 @@
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-02-22
+
+
 ## [5.0.0] - 2026-02-22
 
-
-### Added (Goja Improvement Proposals - 2026-02-22)
+### Added (Goja Improvement Proposals)
 - Toast notifications for export success/failure (`js/toast.js`)
 - PWA update notification banner with Refresh to update
 - Remove single photo via context menu (right-click / long-press) (`js/cell-context-menu.js`)
@@ -24,6 +26,9 @@
 - E2E: drag-and-drop, watermark export, focus return; unit: trackBoundaryPos, dark/light watermark
 - manifest.json version aligned with package.json; dark background export verified
 
+
+## [4.0.0] - 2026-02-22
+
 ### Added
 - Eight additional languages: German (Deutsch), Dutch (Nederlands), Spanish (Español), Italian (Italiano), Turkish (Türkçe), Finnish (Suomi), Japanese (日本語), Esperanto
 - Locale files: `js/locales/de.js`, `nl.js`, `es.js`, `it.js`, `tr.js`, `fi.js`, `ja.js`, `eo.js`
@@ -33,9 +38,6 @@
 ### Changed
 - Tagline redefined: 拼图成格 (Chinese), Grid your photos (English)
 - Removed "One tap" / "一步到位" from tagline across all locales
-
-## [4.0.0] - 2026-02-22
-
 
 ### Added
 - Multi-language support (i18n): English, Simplified Chinese (简体中文), Traditional Chinese (繁體中文)

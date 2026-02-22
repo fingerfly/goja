@@ -7,13 +7,18 @@ Create photo grid collages directly in your browser. Drop in your photos, choose
 ## Features
 
 - Smart grid layout engine with 15+ templates for 1–9 photos
+- Template picker — choose layout manually or let Goja auto-select
 - Orientation-aware photo assignment (landscape/portrait slots)
 - Drag-and-drop rearrangement (desktop and mobile touch)
-- Watermark support (free text, date/time, copyright)
-- Export as JPEG or PNG
+- Remove single photos via right-click or long-press context menu
+- Undo/redo (Ctrl/Cmd+Z) for layout changes, swaps, and removals
+- Keyboard navigation between cells; Alt+Arrow to swap with previous/next
+- Watermark support (free text, date/time, copyright) with opacity and position options
+- Export as JPEG or PNG; customizable filename and optional date
+- Aspect presets (1:1, 4:3, 16:9, Instagram, Stories)
 - Adjustable gap and background color
-- Fully offline — works as a PWA
-- Dark mode support
+- PWA with update notification and offline support
+- Toast notifications for export success/failure
 
 ## Usage
 
@@ -22,9 +27,9 @@ Open `index.html` in a browser, or visit the hosted version:
 **https://fingerfly.github.io/goja/**
 
 1. Drop photos onto the grid (or tap to select)
-2. Rearrange by dragging
-3. Adjust settings (gap, background, watermark) via the gear icon
-4. Tap **Export** to download
+2. Rearrange by dragging; remove a photo via right-click or long-press
+3. Adjust settings (template, gap, background, watermark, filename) via the gear icon
+4. Tap **Export** to download (Ctrl/Cmd+Z to undo changes)
 
 ## Development
 
