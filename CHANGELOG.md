@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [5.4.0] - 2026-02-22
+
+
+### Changed
+- Action buttons aligned with workflow: Add and Clear enabled at startup, Export disabled; Export enabled only when photos present; `updateActionButtons` + `js/action-buttons.js` (`syncActionButtons`) centralize state
+- Export button has `disabled` in HTML for correct initial state before JS runs
+
 ## [5.3.1] - 2026-02-22
 
 

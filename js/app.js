@@ -14,6 +14,7 @@ import { MAX_PHOTOS, FRAME_MIN, FRAME_MAX } from './config.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
 import { pushState, undo, redo, canUndo, canRedo } from './state.js';
+import { syncActionButtons } from './action-buttons.js';
 
 const $ = (sel) => document.querySelector(sel);
 const [dropZone, fileInput, preview, previewGrid] =
@@ -105,10 +106,14 @@ async function updatePreview() {
   }, () => pushState(photos, currentLayout));
 }
 
+function updateActionButtons(photosCount, isExporting = false) {
+  syncActionButtons(addBtn, clearBtn, exportBtn, t, photosCount, isExporting);
+}
+
 function showUI(show) {
   preview.classList.toggle('active', show);
   dropZone.classList.toggle('hidden', show);
-  exportBtn.disabled = !show; clearBtn.disabled = !show;
+  updateActionButtons(photos.length);
 }
 
 function renderGrid(layout) {
@@ -150,7 +155,7 @@ async function onExport() {
     updatePreview();
   }
   const fitVal = imageFit.value;
-  exportBtn.disabled = true; exportBtn.textContent = t('exporting');
+  updateActionButtons(photos.length, true);
   try {
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
@@ -189,7 +194,7 @@ async function onExport() {
   } catch (err) {
     showToast(`${t('exportFailed')} — ${err.message}`, 'error');
   }
-  finally { exportBtn.disabled = false; exportBtn.textContent = t('exportBtn'); }
+  finally { updateActionButtons(photos.length, false); }
 }
 
 function clearAll() {
@@ -214,6 +219,7 @@ langSelect.addEventListener('change', () => {
   if (currentLayout) renderGrid(currentLayout);
 });
 applyToDOM();
+updateActionButtons(0);
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
 function validateFrameInput(el) {
   let v = parseInt(el.value, 10);

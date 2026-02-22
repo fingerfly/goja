@@ -21,6 +21,33 @@ test.describe('Goja App', () => {
     await expect(page.locator('#bottomBar')).toBeVisible();
   });
 
+  test('action buttons match workflow: Add and Clear enabled, Export disabled at startup', async ({ page }) => {
+    await expect(page.locator('#addBtn')).toBeEnabled();
+    await expect(page.locator('#clearBtn')).toBeEnabled();
+    await expect(page.locator('#exportBtn')).toBeDisabled();
+  });
+
+  test('action buttons: Export becomes enabled after adding photos', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([path.join(fixtures, 'landscape.jpg')]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('#addBtn')).toBeEnabled();
+    await expect(page.locator('#clearBtn')).toBeEnabled();
+    await expect(page.locator('#exportBtn')).toBeEnabled();
+  });
+
+  test('action buttons: Add and Clear stay enabled, Export disabled after clear', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([path.join(fixtures, 'landscape.jpg')]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('#exportBtn')).toBeEnabled();
+    await page.locator('#clearBtn').click();
+    await expect(page.locator('#preview')).not.toBeVisible();
+    await expect(page.locator('#addBtn')).toBeEnabled();
+    await expect(page.locator('#clearBtn')).toBeEnabled();
+    await expect(page.locator('#exportBtn')).toBeDisabled();
+  });
+
   test('uploads photos and shows preview grid', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
