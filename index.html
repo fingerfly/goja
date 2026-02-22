@@ -185,6 +185,21 @@
     </div>
   </aside>
 
+  <div class="export-options-backdrop" id="exportOptionsBackdrop" aria-hidden="true"></div>
+  <aside class="export-options-sheet" id="exportOptionsSheet" aria-hidden="true" role="dialog" aria-labelledby="exportOptionsTitle">
+    <div class="export-options-sheet__header">
+      <div class="export-options-sheet__handle"></div>
+      <h2 id="exportOptionsTitle" data-i18n="exportOptionsTitle">Export options</h2>
+      <button class="export-options-sheet__close" id="exportOptionsCloseBtn" data-i18n-aria-label="closeSettings" aria-label="Close">&times;</button>
+    </div>
+    <div class="export-options-sheet__body">
+      <button type="button" class="btn btn-primary export-options-btn" id="exportOptionShare" data-i18n="exportShare">Share</button>
+      <button type="button" class="btn btn-secondary export-options-btn" id="exportOptionDownload" data-i18n="exportDownload">Download</button>
+      <button type="button" class="btn btn-secondary export-options-btn" id="exportOptionCopy" data-i18n="exportCopy">Copy to clipboard</button>
+      <button type="button" class="btn btn-secondary export-options-btn" id="exportOptionOpenInNewTab" data-i18n="exportOpenInNewTab">Open in new tab</button>
+    </div>
+  </aside>
+
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

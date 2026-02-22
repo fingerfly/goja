@@ -454,6 +454,95 @@ body {
   background: var(--color-drop-zone);
 }
 
+/* --- Export options sheet --- */
+.export-options-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--backdrop-color);
+  z-index: calc(var(--z-export-sheet) - 1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.export-options-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.export-options-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--export-sheet-height);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  z-index: var(--z-export-sheet);
+  transform: translateY(100%);
+  transition: transform var(--transition-speed) ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.export-options-sheet.open { transform: translateY(0); }
+
+.export-options-sheet__header {
+  display: flex;
+  align-items: center;
+  padding: var(--gap-sm) var(--gap-md);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.export-options-sheet__handle {
+  position: absolute;
+  top: var(--gap-sm);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.export-options-sheet__header h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-top: var(--gap-sm);
+}
+
+.export-options-sheet__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-options-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--gap-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.export-options-sheet__body .btn {
+  min-height: var(--touch-min);
+  width: 100%;
+}
+
 .control-label {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -489,6 +578,24 @@ body {
 
   .settings-panel.open { transform: translateX(0); }
   .settings-panel__handle { display: none; }
+
+  .export-options-sheet {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    height: auto;
+    max-height: 70vh;
+    border-radius: var(--radius-lg);
+    min-width: 280px;
+  }
+
+  .export-options-sheet.open {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .export-options-sheet__handle { display: none; }
 }
 
 /* --- Desktop (>1024px) --- */

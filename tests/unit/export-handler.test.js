@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as imageProcessor from '../../js/image-processor.js';
-import { handleExport } from '../../js/export-handler.js';
+import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from '../../js/export-handler.js';
 
 const mockCtx = {
   fillStyle: '',
@@ -126,5 +126,75 @@ describe('handleExport', () => {
       globalThis.Image = origImage;
       spy.mockRestore();
     }
+  });
+});
+
+describe('shareBlob', () => {
+  it('rejects when navigator.canShare returns false', async () => {
+    const origCanShare = navigator.canShare;
+    navigator.canShare = vi.fn(() => false);
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await expect(shareBlob(blob, 'test')).rejects.toThrow('Share not supported');
+    navigator.canShare = origCanShare;
+  });
+
+  it('rejects when navigator.canShare is undefined', async () => {
+    const origCanShare = navigator.canShare;
+    delete navigator.canShare;
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await expect(shareBlob(blob, 'test')).rejects.toThrow('Share not supported');
+    navigator.canShare = origCanShare;
+  });
+
+  it('calls navigator.share when canShare returns true', async () => {
+    const shareMock = vi.fn().mockResolvedValue(undefined);
+    const canShareMock = vi.fn(() => true);
+    navigator.share = shareMock;
+    navigator.canShare = canShareMock;
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await shareBlob(blob, 'my-grid');
+    expect(canShareMock).toHaveBeenCalled();
+    expect(shareMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        files: expect.any(Array),
+        title: 'Goja grid',
+      })
+    );
+    expect(shareMock.mock.calls[0][0].files[0]).toBeInstanceOf(File);
+    expect(shareMock.mock.calls[0][0].files[0].name).toBe('my-grid.png');
+  });
+});
+
+describe('copyBlobToClipboard', () => {
+  it('rejects when navigator.clipboard is undefined', async () => {
+    const origClipboard = navigator.clipboard;
+    delete navigator.clipboard;
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await expect(copyBlobToClipboard(blob)).rejects.toThrow('Copy not supported');
+    navigator.clipboard = origClipboard;
+  });
+
+  it('rejects when clipboard.write is undefined', async () => {
+    const origClipboard = navigator.clipboard;
+    navigator.clipboard = {};
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await expect(copyBlobToClipboard(blob)).rejects.toThrow('Copy not supported');
+    navigator.clipboard = origClipboard;
+  });
+
+  it('calls navigator.clipboard.write when supported', async () => {
+    const writeMock = vi.fn().mockResolvedValue(undefined);
+    navigator.clipboard = { write: writeMock };
+    const origClipboardItem = globalThis.ClipboardItem;
+    globalThis.ClipboardItem = class {
+      constructor(items) {
+        this.items = items;
+      }
+      static supports = vi.fn(() => true);
+    };
+    const blob = new Blob(['x'], { type: 'image/png' });
+    await copyBlobToClipboard(blob);
+    expect(writeMock).toHaveBeenCalledWith(expect.any(Array));
+    globalThis.ClipboardItem = origClipboardItem;
   });
 });

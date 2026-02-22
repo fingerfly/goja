@@ -1,7 +1,8 @@
 import { computeGridLayout } from './layout-engine.js';
 import { getTemplatesForCount, ensureTemplatesLoaded } from './layout-templates.js';
 import { readImageDimensions } from './utils.js';
-import { handleExport, downloadBlob } from './export-handler.js';
+import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
+import { showExportOptions } from './export-options.js';
 import { VERSION_STRING } from './version.js';
 import { swapOrder, enableDragAndDrop } from './drag-handler.js';
 import { initSettingsPanel, closeSettings } from './settings-panel.js';
@@ -161,8 +162,30 @@ async function onExport() {
     });
     const base = (exportFilename?.value?.trim()) || 'goja-grid';
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
-    downloadBlob(blob, formatSelect.value, withDate);
-    showToast(t('exportSuccess'), 'success');
+    showExportOptions(blob, withDate, formatSelect.value, {
+      onShare: () => {
+        shareBlob(blob, withDate).then(
+          () => showToast(t('exportSuccess'), 'success'),
+          (err) => { if (err?.name !== 'AbortError') showToast(`${t('exportShareFailed')} — ${err.message}`, 'error'); }
+        );
+      },
+      onDownload: () => {
+        downloadBlob(blob, formatSelect.value, withDate);
+        showToast(t('exportSuccess'), 'success');
+      },
+      onCopy: () => {
+        copyBlobToClipboard(blob).then(
+          () => showToast(t('exportCopySuccess'), 'success'),
+          (err) => showToast(`${t('exportCopyFailed')} — ${err?.message ?? err}`, 'error')
+        );
+      },
+      onOpenInNewTab: () => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        showToast(t('exportSuccess'), 'success');
+      },
+    }, { t, focusReturnEl: exportBtn });
   } catch (err) {
     showToast(`${t('exportFailed')} — ${err.message}`, 'error');
   }

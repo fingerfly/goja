@@ -57,18 +57,51 @@ test.describe('Goja App', () => {
     await expect(page.locator('#previewGrid img')).toHaveCount(0);
   });
 
-  test('export button triggers download', async ({ page }) => {
+  test('export button opens options sheet', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
       path.join(fixtures, 'landscape.jpg'),
       path.join(fixtures, 'portrait.jpg'),
     ]);
     await expect(page.locator('#exportBtn')).toBeVisible();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
+    await expect(page.locator('#exportOptionDownload')).toBeVisible();
+    await expect(page.locator('#exportOptionOpenInNewTab')).toBeVisible();
+  });
+
+  test('export open in new tab opens image', async ({ page, context }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#exportBtn')).toBeVisible();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator('#exportOptionOpenInNewTab').click(),
+    ]);
+    await expect(newPage).toHaveURL(/^blob:/);
+    await newPage.close();
+  });
+
+  test('export download option triggers download and toast', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#exportBtn')).toBeVisible();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.locator('#exportBtn').click(),
+      page.locator('#exportOptionDownload').click(),
     ]);
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
+    await expect(page.locator('.toast')).toContainText('Export saved');
   });
 
   test('context menu on cell shows Remove and removes photo', async ({ page }) => {
@@ -95,9 +128,11 @@ test.describe('Goja App', () => {
       path.join(fixtures, 'portrait.jpg'),
     ]);
     await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
     await Promise.all([
       page.waitForEvent('download'),
-      page.locator('#exportBtn').click(),
+      page.locator('#exportOptionDownload').click(),
     ]);
     await expect(page.locator('.toast')).toBeVisible();
     await expect(page.locator('.toast')).toContainText('Export saved');
@@ -193,9 +228,11 @@ test.describe('Goja App', () => {
     await page.locator('#watermarkType').selectOption('text');
     await page.locator('#watermarkText').fill('Test Watermark');
     await page.locator('.settings-backdrop').click();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.locator('#exportBtn').click(),
+      page.locator('#exportOptionDownload').click(),
     ]);
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });
@@ -224,9 +261,11 @@ test.describe('Goja App', () => {
       getComputedStyle(el).objectFit
     );
     expect(objFit).toBe('contain');
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.locator('#exportBtn').click(),
+      page.locator('#exportOptionDownload').click(),
     ]);
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });

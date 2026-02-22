@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v5.2.1-1';
+const CACHE_NAME = 'goja-v5.3.0-1';
 const ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const ASSETS = [
   './js/templates-large.js',
   './js/image-processor.js',
   './js/export-handler.js',
+  './js/export-options.js',
   './js/export-worker.js',
   './js/toast.js',
   './js/cell-context-menu.js',

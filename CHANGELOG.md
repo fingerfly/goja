@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [5.3.0] - 2026-02-22
+
+
+### Added
+- Export options: when Export is pressed, users choose Share / Download / Copy to clipboard / Open in new tab
+- Share uses Web Share API (Save to Photos, WeChat, etc. on mobile)
+- Copy to clipboard for paste into chat/Notes
+- `js/export-options.js` with `showExportOptions`, `canShareFiles`, `canCopyImage`
+- `shareBlob` and `copyBlobToClipboard` in `js/export-handler.js`
+- i18n keys: exportOptionsTitle, exportShare, exportDownload, exportCopy, exportOpenInNewTab, exportShareFailed, exportCopySuccess, exportCopyFailed
+
 ## [5.2.1] - 2026-02-22
 
 

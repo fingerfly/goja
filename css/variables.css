@@ -44,6 +44,8 @@
   --z-bottom-bar: 100;
   --z-backdrop: 200;
   --z-settings-panel: 300;
+  --z-export-sheet: 350;
+  --export-sheet-height: 40vh;
   --resize-handle-color: var(--color-primary);
   --resize-handle-width: 4px;
 }
