@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- TDD unit tests for action-buttons: edge cases (single photo, isExporting with 0 photos), i18n key verification, override of previous disabled state
+
 ## [5.4.0] - 2026-02-22
 
 
