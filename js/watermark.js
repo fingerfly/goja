@@ -113,8 +113,11 @@ function drawTiled(ctx, w, h, text, opts = {}) {
   const scale = opts.fontScale ?? 1;
   const alpha = (opts.alpha ?? 0.8) * 0.1875;
   const fontSize = Math.round(w * TILED_FONT_RATIO * scale);
-  const spacing = Math.round(w * TILE_SPACING_RATIO);
   ctx.font = `${fontSize}px sans-serif`;
+  const metrics = ctx.measureText(text);
+  const textWidth = metrics.width;
+  const minSpacing = Math.max(textWidth, fontSize * 1.2) + fontSize * 0.5;
+  const spacing = Math.max(minSpacing, Math.round(w * TILE_SPACING_RATIO));
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);

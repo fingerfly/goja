@@ -2,8 +2,14 @@
 
 ## [Unreleased]
 
+## [7.2.2] - 2026-02-23
+
+
 ## [7.2.1] - 2026-02-23
 
+### Fixed
+- Capture date overlay in preview now respects Settings opacity and font size; previously only the exported grid applied these values.
+- Tiled watermark: spacing now based on text width (measureText) to prevent overlapping when text is long; previously used a fixed canvas-ratio spacing.
 
 ## [7.2.0] - 2026-02-23
 
