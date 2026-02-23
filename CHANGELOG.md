@@ -4,12 +4,8 @@
 
 ## [6.1.0] - 2026-02-23
 
-
-## [6.0.0] - 2026-02-23
-
-
 ### Added
-- EXIF capture date overlay: optional per-photo capture date (DateTimeOriginal) on photos in grid, with Settings options (position, opacity, font size). Uses exifr for EXIF parsing; preview and export both support the overlay when enabled. i18n for showCaptureDate, captureDatePos, captureDateOpacity, captureDateFontSize in all 11 locales. E2E for capture date options visibility.
+- EXIF capture date & time overlay: optional per-photo capture date-time (DateTimeOriginal) on photos in grid, with Settings options (position, opacity, font size). Uses exifr for EXIF parsing; locale-aware date-time format (e.g. Feb 22, 2025, 2:30 PM). Preview and export both support the overlay when enabled. i18n for showCaptureDate, captureDatePos, captureDateOpacity, captureDateFontSize in all 11 locales. E2E for capture date options visibility.
 
 ## [5.6.0] - 2026-02-22
 
