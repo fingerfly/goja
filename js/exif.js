@@ -19,18 +19,20 @@ export async function readDateTimeOriginal(file) {
 }
 
 /**
- * Formats a Date or ISO string for display in the given locale.
+ * Formats a Date or ISO string for display in the given locale (date and time).
  * @param {Date|string|null|undefined} value - Date, ISO string, or null
  * @param {string} locale - BCP 47 locale (e.g. 'en', 'de')
- * @returns {string} Formatted date string or ''
+ * @returns {string} Formatted date-time string or ''
  */
 export function formatDateTimeOriginal(value, locale = 'en') {
   if (value == null) return '';
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString(locale, {
+  return date.toLocaleString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   });
 }

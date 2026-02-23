@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Nombre de archivo',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Añadir fecha al nombre de archivo',
-  showCaptureDate: 'Mostrar fecha de captura en fotos',
+  showCaptureDate: 'Mostrar fecha y hora de captura en fotos',
   captureDatePos: 'Posición',
   captureDateOpacity: 'Opacidad',
   captureDateFontSize: 'Tamaño de fuente',

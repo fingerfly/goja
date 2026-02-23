@@ -18,7 +18,7 @@ export default {
   exportFilename: 'ファイル名',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'ファイル名に日付を追加',
-  showCaptureDate: '写真に撮影日を表示',
+  showCaptureDate: '写真に撮影日時を表示',
   captureDatePos: '位置',
   captureDateOpacity: '不透明度',
   captureDateFontSize: 'フォントサイズ',

@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Dateiname',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Datum zum Dateinamen hinzufügen',
-  showCaptureDate: 'Aufnahmedatum auf Fotos anzeigen',
+  showCaptureDate: 'Aufnahmedatum und -zeit auf Fotos anzeigen',
   captureDatePos: 'Position',
   captureDateOpacity: 'Deckkraft',
   captureDateFontSize: 'Schriftgröße',

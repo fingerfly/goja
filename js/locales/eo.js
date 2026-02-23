@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Dosiernomo',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Aldoni daton al dosiernomo',
-  showCaptureDate: 'Montri kapto-daton sur fotoj',
+  showCaptureDate: 'Montri kapto-daton kaj -horon sur fotoj',
   captureDatePos: 'Pozicio',
   captureDateOpacity: 'Opakeco',
   captureDateFontSize: 'Tipara grandeco',

@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Dosya adı',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Dosya adına tarih ekle',
-  showCaptureDate: 'Fotoğraflarda çekim tarihini göster',
+  showCaptureDate: 'Fotoğraflarda çekim tarihini ve saatini göster',
   captureDatePos: 'Konum',
   captureDateOpacity: 'Opaklık',
   captureDateFontSize: 'Yazı boyutu',

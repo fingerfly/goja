@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Bestandsnaam',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Datum toevoegen aan bestandsnaam',
-  showCaptureDate: 'Opnamedatum op foto\'s tonen',
+  showCaptureDate: 'Opnamedatum en -tijd op foto\'s tonen',
   captureDatePos: 'Positie',
   captureDateOpacity: 'Dekking',
   captureDateFontSize: 'Lettergrootte',

@@ -18,7 +18,7 @@ export default {
   exportFilename: 'Tiedostonimi',
   exportFilenamePlaceholder: 'goja-grid',
   exportUseDate: 'Lisää päivämäärä tiedostonimeen',
-  showCaptureDate: 'Näytä kuvauspäivä valokuvissa',
+  showCaptureDate: 'Näytä kuvauspäivä ja -aika valokuvissa',
   captureDatePos: 'Sijainti',
   captureDateOpacity: 'Läpinäkyvyys',
   captureDateFontSize: 'Fonttikoko',
