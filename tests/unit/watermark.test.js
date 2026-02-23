@@ -81,6 +81,18 @@ describe('drawWatermark', () => {
     expect(mockCtx.rotate).toHaveBeenCalled();
   });
 
+  it('tiled watermark uses measureText for spacing to prevent overlap', () => {
+    mockCtx.measureText = vi.fn((t) => ({ width: t.length * 20 }));
+    drawWatermark(mockCtx, 1080, 1080, { type: 'text', text: 'Short', position: 'tiled' });
+    expect(mockCtx.measureText).toHaveBeenCalledWith('Short');
+    const shortCount = mockCtx.fillText.mock.calls.length;
+    mockCtx.fillText.mockClear();
+    mockCtx.measureText = vi.fn(() => ({ width: 400 }));
+    drawWatermark(mockCtx, 1080, 1080, { type: 'text', text: 'Very Long Watermark Text', position: 'tiled' });
+    const longCount = mockCtx.fillText.mock.calls.length;
+    expect(longCount).toBeLessThan(shortCount);
+  });
+
   it('defaults to bottom-right when position is omitted', () => {
     drawWatermark(mockCtx, 1080, 1080, { type: 'text', text: 'X' });
     expect(mockCtx.fillText).toHaveBeenCalledTimes(1);

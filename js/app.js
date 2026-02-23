@@ -4,6 +4,7 @@ import { readImageDimensions } from './utils.js';
 import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
 import { getFilterCss } from './image-effects.js';
+import { resolveWatermarkText, drawWatermark } from './watermark.js';
 import { showExportOptions } from './export-options.js';
 import { VERSION_STRING } from './version.js';
 import { swapOrder, enableDragAndDrop } from './drag-handler.js';
@@ -216,6 +217,42 @@ function renderGrid(layout) {
 
     g.appendChild(cell);
   }
+
+  preview?.querySelector('.watermark-preview-overlay')?.remove();
+  const wmResolved = wmType?.value && wmType.value !== 'none'
+    ? resolveWatermarkText(wmType.value, wmText?.value ?? '', getLocale())
+    : '';
+  if (wmResolved && layout?.canvasWidth && layout?.canvasHeight) {
+    const w = layout.canvasWidth;
+    const h = layout.canvasHeight;
+    const overlay = document.createElement('div');
+    overlay.className = 'watermark-preview-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    Object.assign(overlay.style, {
+      position: 'absolute', inset: 0, top: 0, left: 0, right: 0, bottom: 0,
+      pointerEvents: 'none', overflow: 'hidden',
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      drawWatermark(ctx, w, h, {
+        type: wmType.value,
+        text: wmText?.value ?? '',
+        position: wmPos?.value ?? 'bottom-right',
+        locale: getLocale(),
+        opacity: parseFloat(wmOpacity?.value ?? '0.8'),
+        fontScale: parseFloat(wmFontSize?.value ?? '1'),
+        backgroundColor: bgColor?.value ?? '#ffffff',
+      });
+    }
+    overlay.appendChild(canvas);
+    preview.appendChild(overlay);
+  }
 }
 
 async function onExport() {
@@ -283,7 +320,9 @@ async function onExport() {
 function clearAll() {
   photos.forEach(p => URL.revokeObjectURL(p.url));
   if (cleanupResize) { cleanupResize(); cleanupResize = null; }
-  photos = []; currentLayout = null; previewGrid.innerHTML = '';
+  photos = []; currentLayout = null;
+  previewGrid.innerHTML = '';
+  preview?.querySelector('.watermark-preview-overlay')?.remove();
   showUI(false); closeSettings(sPanel, sBackdrop);
 }
 
@@ -442,7 +481,12 @@ wmType.addEventListener('change', () => {
   wmOpacityGroup?.classList.toggle('hidden', !show);
   wmFontSizeGroup?.classList.toggle('hidden', !show);
   wmTextGroup?.classList.toggle('hidden', v !== 'text' && v !== 'copyright');
+  updatePreview();
 });
+wmPos?.addEventListener('change', updatePreview);
+wmOpacity?.addEventListener('input', updatePreview);
+wmFontSize?.addEventListener('change', updatePreview);
+wmText?.addEventListener('input', updatePreview);
 showCaptureDate?.addEventListener('change', () => {
   captureDateOptionsGroup?.classList.toggle('hidden', !showCaptureDate?.checked);
   updatePreview();

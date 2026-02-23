@@ -399,6 +399,45 @@ test.describe('Goja App', () => {
     expect(filterStyle).toContain('grayscale');
   });
 
+  test('watermark shows in preview when enabled in settings', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkText').fill('Test');
+    await page.locator('.settings-backdrop').click();
+    await expect(page.locator('#preview .watermark-preview-overlay')).toBeVisible();
+  });
+
+  test('watermark overlay removed on clear, no duplicate when adding photos again', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkText').fill('Test');
+    await page.locator('.settings-backdrop').click();
+    await expect(page.locator('#preview .watermark-preview-overlay')).toBeVisible();
+    await page.locator('#clearBtn').click();
+    await expect(page.locator('#preview')).not.toBeVisible();
+    await expect(page.locator('.watermark-preview-overlay')).toHaveCount(0);
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await expect(page.locator('#preview .watermark-preview-overlay')).toHaveCount(1);
+  });
+
   test('vignette checkbox shows vignette overlay in preview when enabled', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([

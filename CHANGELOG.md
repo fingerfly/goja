@@ -2,14 +2,23 @@
 
 ## [Unreleased]
 
+## [7.2.3] - 2026-02-23
+
+
 ## [7.2.2] - 2026-02-23
 
+### Added
+- Watermark live preview: when watermark is enabled in Settings, the on-screen grid now shows the watermark; previously it appeared only on export.
+
+### Fixed
+- Tiled watermark: spacing now based on text width (measureText) to prevent overlapping when text is long; previously used a fixed canvas-ratio spacing.
+- Clear now removes watermark overlay from DOM; previously the overlay persisted when photos were cleared.
 
 ## [7.2.1] - 2026-02-23
 
 ### Fixed
 - Capture date overlay in preview now respects Settings opacity and font size; previously only the exported grid applied these values.
-- Tiled watermark: spacing now based on text width (measureText) to prevent overlapping when text is long; previously used a fixed canvas-ratio spacing.
+
 
 ## [7.2.0] - 2026-02-23
 
