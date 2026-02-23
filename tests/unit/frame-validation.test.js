@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { clampFrameValue, isFrameValueValid } from '../../js/frame-validation.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { clampFrameValue, isFrameValueValid, setFrameInputInvalidState, createFrameInputHandler } from '../../js/frame-validation.js';
 
 describe('clampFrameValue', () => {
   it('returns 320 for NaN', () => {
@@ -45,5 +45,86 @@ describe('isFrameValueValid', () => {
     expect(isFrameValueValid(1080)).toBe(true);
     expect(isFrameValueValid(4096)).toBe(true);
     expect(isFrameValueValid('1080')).toBe(true);
+  });
+});
+
+describe('setFrameInputInvalidState', () => {
+  let el;
+
+  beforeEach(() => {
+    el = document.createElement('input');
+    document.body.appendChild(el);
+  });
+
+  it('sets aria-invalid and invalid class when invalid is true', () => {
+    setFrameInputInvalidState(el, true);
+    expect(el.getAttribute('aria-invalid')).toBe('true');
+    expect(el.classList.contains('invalid')).toBe(true);
+  });
+
+  it('clears aria-invalid and invalid class when invalid is false', () => {
+    el.setAttribute('aria-invalid', 'true');
+    el.classList.add('invalid');
+    setFrameInputInvalidState(el, false);
+    expect(el.getAttribute('aria-invalid')).toBe('false');
+    expect(el.classList.contains('invalid')).toBe(false);
+  });
+
+  it('does nothing when el is null', () => {
+    expect(() => setFrameInputInvalidState(null, true)).not.toThrow();
+  });
+});
+
+describe('createFrameInputHandler', () => {
+  let el;
+  let showToast;
+
+  beforeEach(() => {
+    el = document.createElement('input');
+    document.body.appendChild(el);
+    showToast = vi.fn();
+  });
+
+  it('returns validateFrameInput that clamps invalid value and shows toast', () => {
+    const handler = createFrameInputHandler({
+      clampFrameValue,
+      isFrameValueValid,
+      setFrameInputInvalidState,
+      showToast,
+      t: (k) => k,
+      debounce: (fn) => fn,
+    });
+    el.value = '100';
+    const result = handler.validateFrameInput(el);
+    expect(result).toBe(320);
+    expect(el.value).toBe('320');
+    expect(showToast).toHaveBeenCalledWith('frameDimensionClamped', 'error');
+  });
+
+  it('validateFrameInput returns parsed value when valid', () => {
+    const handler = createFrameInputHandler({
+      clampFrameValue,
+      isFrameValueValid,
+      setFrameInputInvalidState,
+      showToast,
+      t: (k) => k,
+      debounce: (fn) => fn,
+    });
+    el.value = '1080';
+    expect(handler.validateFrameInput(el)).toBe(1080);
+    expect(showToast).not.toHaveBeenCalled();
+  });
+
+  it('returns clearToastSessionFor', () => {
+    const handler = createFrameInputHandler({
+      clampFrameValue,
+      isFrameValueValid,
+      setFrameInputInvalidState,
+      showToast,
+      t: (k) => k,
+      debounce: (fn) => fn,
+    });
+    expect(typeof handler.clearToastSessionFor).toBe('function');
+    expect(() => handler.clearToastSessionFor(el)).not.toThrow();
   });
 });

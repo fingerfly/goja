@@ -4,10 +4,12 @@ import {
   MIN_FRACTION,
   FRAME_MIN,
   FRAME_MAX,
+  FRAME_INPUT_DEBOUNCE_MS,
   MAX_PHOTOS,
   GAP_MIN,
   GAP_MAX,
   GAP_DEFAULT,
+  TEMPLATE_STORAGE_KEY,
   WATERMARK_OPACITY_MIN,
   WATERMARK_OPACITY_MAX,
   WATERMARK_OPACITY_DEFAULT,
@@ -41,6 +43,7 @@ import {
   FILTER_VINTAGE_BRIGHTNESS,
   FILTER_VINTAGE_CONTRAST,
   FILTER_BLUR_PX,
+  EXPORT_URL_REVOKE_DELAY_MS,
   VIGNETTE_STRENGTH_MIN,
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
@@ -63,6 +66,10 @@ describe('config', () => {
     expect(FRAME_MAX).toBe(4096);
   });
 
+  it('exports FRAME_INPUT_DEBOUNCE_MS', () => {
+    expect(FRAME_INPUT_DEBOUNCE_MS).toBe(200);
+  });
+
   it('exports MAX_PHOTOS', () => {
     expect(MAX_PHOTOS).toBe(9);
   });
@@ -77,6 +84,10 @@ describe('config', () => {
 
   it('exports GAP_DEFAULT', () => {
     expect(GAP_DEFAULT).toBe(4);
+  });
+
+  it('exports TEMPLATE_STORAGE_KEY', () => {
+    expect(TEMPLATE_STORAGE_KEY).toBe('goja-template');
   });
 
   it('exports WATERMARK_OPACITY_MIN', () => {
@@ -209,6 +220,10 @@ describe('config', () => {
 
   it('exports FILTER_BLUR_PX', () => {
     expect(FILTER_BLUR_PX).toBe(1.5);
+  });
+
+  it('exports EXPORT_URL_REVOKE_DELAY_MS', () => {
+    expect(EXPORT_URL_REVOKE_DELAY_MS).toBe(60000);
   });
 
   it('exports VIGNETTE_STRENGTH_MIN', () => {

@@ -6,11 +6,14 @@ export const JPEG_QUALITY = 0.92;
 export const MIN_FRACTION = 0.2;
 export const FRAME_MIN = 320;
 export const FRAME_MAX = 4096;
+export const FRAME_INPUT_DEBOUNCE_MS = 200;
 export const MAX_PHOTOS = 9;
 
 export const GAP_MIN = 0;
 export const GAP_MAX = 20;
 export const GAP_DEFAULT = 4;
+
+export const TEMPLATE_STORAGE_KEY = 'goja-template';
 
 export const WATERMARK_OPACITY_MIN = 0.3;
 export const WATERMARK_OPACITY_MAX = 0.9;
@@ -48,6 +51,8 @@ export const FILTER_VINTAGE_SEPIA = 0.35;
 export const FILTER_VINTAGE_BRIGHTNESS = 1.05;
 export const FILTER_VINTAGE_CONTRAST = 1.1;
 export const FILTER_BLUR_PX = 1.5;
+export const EXPORT_URL_REVOKE_DELAY_MS = 60000;
+
 export const VIGNETTE_STRENGTH_MIN = 0.2;
 export const VIGNETTE_STRENGTH_MAX = 0.8;
 export const VIGNETTE_STRENGTH_DEFAULT = 0.5;

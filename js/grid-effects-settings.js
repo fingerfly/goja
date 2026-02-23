@@ -46,6 +46,33 @@ export function getVignetteOptions(form) {
   };
 }
 
+/**
+ * Builds form object from DOM refs for grid effects.
+ * @param {{ wmType?: HTMLSelectElement, wmText?: HTMLInputElement, wmPos?: HTMLSelectElement, wmOpacity?: HTMLInputElement, wmFontSize?: HTMLInputElement, showCaptureDate?: HTMLInputElement, captureDatePos?: HTMLSelectElement, captureDateOpacity?: HTMLInputElement, captureDateFontSize?: HTMLInputElement, vignetteEnabled?: HTMLInputElement, vignetteStrength?: HTMLInputElement, filterPreset?: HTMLSelectElement, imageFit?: HTMLSelectElement, bgColor?: HTMLInputElement, formatSelect?: HTMLSelectElement }} refs
+ * @param {boolean} [includeFormat]
+ * @returns {Record<string, unknown>}
+ */
+export function buildFormFromRefs(refs, includeFormat = false) {
+  const f = {
+    wmType: refs.wmType?.value,
+    wmText: refs.wmText?.value,
+    wmPos: refs.wmPos?.value,
+    wmOpacity: refs.wmOpacity?.value,
+    wmFontSize: refs.wmFontSize?.value,
+    showCaptureDate: refs.showCaptureDate?.checked,
+    captureDatePos: refs.captureDatePos?.value,
+    captureDateOpacity: refs.captureDateOpacity?.value,
+    captureDateFontSize: refs.captureDateFontSize?.value,
+    vignetteEnabled: refs.vignetteEnabled?.checked,
+    vignetteStrength: refs.vignetteStrength?.value,
+    filterPreset: refs.filterPreset?.value,
+    imageFit: refs.imageFit?.value,
+    bgColor: refs.bgColor?.value,
+  };
+  if (includeFormat) f.format = refs.formatSelect?.value;
+  return f;
+}
+
 export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getLocale) {
   const locale = typeof getLocale === 'function' ? getLocale() : (getLocale ?? 'en');
   const wm = getWatermarkOptions(form, locale);

@@ -1,10 +1,49 @@
 import { describe, it, expect } from 'vitest';
 import {
+  buildFormFromRefs,
   getWatermarkOptions,
   getCaptureDateOptions,
   getVignetteOptions,
   getGridEffectsOptions,
 } from '../../js/grid-effects-settings.js';
+
+describe('buildFormFromRefs', () => {
+  it('extracts values from refs into form object', () => {
+    const refs = {
+      wmType: { value: 'text' },
+      wmText: { value: 'Hi' },
+      wmPos: { value: 'center' },
+      wmOpacity: { value: '0.5' },
+      wmFontSize: { value: '1' },
+      showCaptureDate: { checked: true },
+      captureDatePos: { value: 'bottom-left' },
+      captureDateOpacity: { value: '0.7' },
+      captureDateFontSize: { value: '1' },
+      vignetteEnabled: { checked: true },
+      vignetteStrength: { value: '0.5' },
+      filterPreset: { value: 'grayscale' },
+      imageFit: { value: 'cover' },
+      bgColor: { value: '#fff' },
+    };
+    const form = buildFormFromRefs(refs);
+    expect(form.wmType).toBe('text');
+    expect(form.wmText).toBe('Hi');
+    expect(form.showCaptureDate).toBe(true);
+    expect(form.filterPreset).toBe('grayscale');
+  });
+
+  it('includes format when includeFormat is true', () => {
+    const refs = { formatSelect: { value: 'image/png' } };
+    const form = buildFormFromRefs(refs, true);
+    expect(form.format).toBe('image/png');
+  });
+
+  it('omits format when includeFormat is false', () => {
+    const refs = { formatSelect: { value: 'image/png' } };
+    const form = buildFormFromRefs(refs, false);
+    expect(form.format).toBeUndefined();
+  });
+});
 
 describe('getWatermarkOptions', () => {
   it('returns normalized options from form with config defaults', () => {
