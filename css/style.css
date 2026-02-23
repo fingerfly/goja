@@ -229,6 +229,12 @@ body {
   right: var(--gap-xs);
 }
 
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 /* --- Resize handles --- */
 .resize-overlay {
   position: absolute;

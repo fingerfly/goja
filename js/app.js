@@ -160,6 +160,9 @@ function renderGrid(layout) {
   const order = layout.photoOrder || photos.map((_, i) => i);
   const showDate = showCaptureDate?.checked ?? false;
   const posClass = captureDatePos?.value ?? 'bottom-left';
+  const filterCss = getFilterCss(filterPreset?.value ?? 'none');
+  const showVignette = vignetteEnabled?.checked ?? false;
+  const vignetteStr = parseFloat(vignetteStrength?.value ?? String(VIGNETTE_STRENGTH_DEFAULT));
 
   for (let i = 0; i < layout.cells.length; i++) {
     const c = layout.cells[i];
@@ -181,10 +184,21 @@ function renderGrid(layout) {
     img.style.objectFit = fitVal;
     img.style.width = '100%';
     img.style.height = '100%';
+    if (filterCss && filterCss !== 'none') {
+      img.style.filter = filterCss;
+    }
     img.draggable = true;
     img.tabIndex = 0;
     img.setAttribute('role', 'button');
     cell.appendChild(img);
+
+    if (showVignette && vignetteStr > 0) {
+      const vignetteEl = document.createElement('div');
+      vignetteEl.className = 'vignette-overlay';
+      vignetteEl.setAttribute('aria-hidden', 'true');
+      vignetteEl.style.background = `radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,${vignetteStr}) 100%)`;
+      cell.appendChild(vignetteEl);
+    }
 
     const photo = photos[order[i]];
     if (showDate && photo?.dateOriginal) {

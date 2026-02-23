@@ -2,11 +2,14 @@
 
 ## [Unreleased]
 
+## [7.1.0] - 2026-02-23
+
+
 ## [7.0.0] - 2026-02-23
 
 
 ### Added
-- Filter and effect prototype: exportable photo filters (none, grayscale, sepia) via Canvas ctx.filter; vignette effect (radial gradient dark edges) per cell. Settings: Effects fieldset with filter preset dropdown, vignette checkbox, intensity slider. Graceful Safari fallback (filter unsupported; vignette works). i18n (effectsSection, filterPreset, filterNone, filterGrayscale, filterSepia, vignetteEnabled, vignetteStrength) in all 11 locales. Unit tests for image-effects, image-processor filter option, export-handler vignette.
+- Filter and effect prototype: exportable photo filters (none, grayscale, sepia) via Canvas ctx.filter; vignette effect (radial gradient dark edges) per cell. Settings: Effects fieldset with filter preset dropdown, vignette checkbox, intensity slider. Live preview: filter and vignette shown in grid before export (CSS filter on img; radial-gradient overlay). Graceful Safari fallback (filter unsupported; vignette works). i18n (effectsSection, filterPreset, filterNone, filterGrayscale, filterSepia, vignetteEnabled, vignetteStrength) in all 11 locales. Unit tests for image-effects, image-processor filter option, export-handler vignette.
 
 ## [6.1.0] - 2026-02-23
 
