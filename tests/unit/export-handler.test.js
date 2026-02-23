@@ -133,6 +133,32 @@ describe('handleExport', () => {
     }
   });
 
+  it('passes filter option to drawPhotoOnCanvas when filter preset is grayscale', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(imageProcessor, 'drawPhotoOnCanvas');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, { filter: 'grayscale(100%)' });
+      expect(spy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ filter: 'grayscale(100%)' })
+      );
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
   it('calls drawCaptureDateOverlay when showCaptureDate and dateOriginals provided', async () => {
     const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
     const layout = makeLayout();

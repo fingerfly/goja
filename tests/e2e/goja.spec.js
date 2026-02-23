@@ -384,6 +384,53 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsBtn')).toBeFocused();
   });
 
+  test('filter preset grayscale applies filter style to preview images', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#filterPreset').selectOption('grayscale');
+    await page.locator('.settings-backdrop').click();
+    const filterStyle = await page.locator('#previewGrid img').first().evaluate((el) => el.style.filter);
+    expect(filterStyle).toContain('grayscale');
+  });
+
+  test('vignette checkbox shows vignette overlay in preview when enabled', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#vignetteEnabled').check();
+    await page.locator('.settings-backdrop').click();
+    await expect(page.locator('#previewGrid .vignette-overlay')).toHaveCount(2);
+  });
+
+  test('vignette options group hidden when vignette unchecked, visible when checked', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#vignetteOptionsGroup')).toHaveClass(/hidden/);
+    await page.locator('#vignetteEnabled').check();
+    await expect(page.locator('#vignetteOptionsGroup')).not.toHaveClass(/hidden/);
+    await page.locator('#vignetteEnabled').uncheck();
+    await expect(page.locator('#vignetteOptionsGroup')).toHaveClass(/hidden/);
+  });
+
+  test('effects section has filter preset and vignette controls in settings', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#filterPreset')).toBeVisible();
+    await expect(page.locator('#vignetteEnabled')).toBeVisible();
+    await expect(page.locator('#filterPreset option')).toHaveCount(9);
+  });
+
   test('image fit setting switches preview to contain and export works', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
