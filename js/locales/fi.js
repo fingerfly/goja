@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Vaihda seuraavan kanssa',
   frameDimensionClamped: 'Kehyksen koko säädetty 320–4096 px',
   loadingPhotos: 'Ladataan... {current}/{total}',
+  loadFailed: 'Lataus epäonnistui',
   offlineMessage: 'Offline — Goja toimii offline-tilassa',
   _fallbackTest: 'fallback',
 };

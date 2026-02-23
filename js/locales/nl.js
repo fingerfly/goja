@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Wisselen met volgende',
   frameDimensionClamped: 'Framegrootte aangepast naar 320–4096 px',
   loadingPhotos: 'Laden... {current}/{total}',
+  loadFailed: 'Laden mislukt',
   offlineMessage: 'Offline — Goja werkt offline',
   _fallbackTest: 'fallback',
 };

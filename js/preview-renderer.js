@@ -36,6 +36,8 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
   const filterCss = getFilterCss(form.filterPreset ?? 'none');
 
   for (let i = 0; i < layout.cells.length; i++) {
+    const idx = order[i];
+    if (idx == null || idx < 0 || idx >= photos.length) continue;
     const c = layout.cells[i];
     const cell = document.createElement('div');
     cell.className = 'preview-cell';
@@ -50,7 +52,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     });
 
     const img = document.createElement('img');
-    img.src = photos[order[i]].url;
+    img.src = photos[idx].url;
     img.alt = t('photoAlt', { n: i + 1 });
     img.style.objectFit = fitVal;
     img.style.width = '100%';
@@ -71,7 +73,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       cell.appendChild(vignetteEl);
     }
 
-    const photo = photos[order[i]];
+    const photo = photos[idx];
     if (form.showCaptureDate && photo?.dateOriginal) {
       const dateStr = formatDateTimeOriginal(photo.dateOriginal, getLocale());
       const span = document.createElement('span');

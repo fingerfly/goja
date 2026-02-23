@@ -26,6 +26,10 @@ describe('createPreviewUpdater', () => {
       populateTemplateSelect: vi.fn(),
       getTemplatesForCount: () => [],
       getStoredTemplate: () => 'auto',
+      clampFrameValue: vi.fn((v) => {
+        const n = parseInt(String(v), 10);
+        return Number.isNaN(n) ? 320 : Math.min(4096, Math.max(320, n));
+      }),
       computeGridLayout: vi.fn().mockReturnValue({ cells: [], gap: 4, rowRatios: [1], colRatios: [1] }),
       renderGrid: vi.fn(),
       ratiosToFrString: (r) => r.join(' '),
@@ -60,5 +64,17 @@ describe('createPreviewUpdater', () => {
     await updater.updatePreview();
     expect(deps.computeGridLayout).toHaveBeenCalled();
     expect(deps.renderGrid).toHaveBeenCalled();
+  });
+
+  it('updatePreview uses clamped frame values when frameW/frameH are invalid', async () => {
+    stateRef.photos = [{ url: 'blob:1', width: 100, height: 100 }];
+    refs.frameW.value = 'abc';
+    refs.frameH.value = 'invalid';
+    const updater = createPreviewUpdater(stateRef, refs, deps);
+    await updater.updatePreview();
+    expect(deps.computeGridLayout).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ outputWidth: 320, outputHeight: 320 })
+    );
   });
 });

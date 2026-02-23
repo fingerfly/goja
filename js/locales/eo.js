@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Interŝanĝi kun sekva',
   frameDimensionClamped: 'Kadrogrando ĝustigita al 320–4096 px',
   loadingPhotos: 'Ŝargado... {current}/{total}',
+  loadFailed: 'Ŝargo malsukcesis',
   offlineMessage: 'Offline — Goja funkcias senrete',
   _fallbackTest: 'fallback',
 };

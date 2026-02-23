@@ -42,4 +42,21 @@ describe('loadPhotos', () => {
     await loadPhotos([pdf], context);
     expect(photos.length).toBe(0);
   });
+
+  it('ignores SVG files', async () => {
+    const svg = new File(['<svg></svg>'], 'icon.svg', { type: 'image/svg+xml' });
+    await loadPhotos([svg], context);
+    expect(photos.length).toBe(0);
+  });
+
+  it('calls onLoadError and onComplete when readImageDimensions rejects', async () => {
+    const onLoadError = vi.fn();
+    context.onLoadError = onLoadError;
+    const file = new File(['x'], 'test.jpg', { type: 'image/jpeg' });
+    context.readImageDimensions.mockRejectedValue(new Error('Failed to load'));
+    await loadPhotos([file], context);
+    expect(onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(context.onComplete).toHaveBeenCalled();
+    expect(photos.length).toBe(0);
+  });
 });

@@ -99,6 +99,7 @@ export default {
   swapWithNext: 'Mit nächstem tauschen',
   frameDimensionClamped: 'Rahmengröße auf 320–4096 px angepasst',
   loadingPhotos: 'Laden... {current}/{total}',
+  loadFailed: 'Laden fehlgeschlagen',
   offlineMessage: 'Offline — Goja funktioniert offline',
   _fallbackTest: 'fallback',
 };

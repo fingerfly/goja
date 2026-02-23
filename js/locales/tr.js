@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Sonrakiyle değiştir',
   frameDimensionClamped: 'Çerçeve boyutu 320–4096 px\'e ayarlandı',
   loadingPhotos: 'Yükleniyor... {current}/{total}',
+  loadFailed: 'Yükleme başarısız',
   offlineMessage: 'Çevrimdışı — Goja çevrimdışı çalışır',
   _fallbackTest: 'fallback',
 };

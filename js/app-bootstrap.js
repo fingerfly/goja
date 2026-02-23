@@ -51,11 +51,11 @@ export function bootstrap() {
   const stateRef = { photos: [], currentLayout: null, cleanupResize: null };
 
   const updater = createPreviewUpdater(stateRef, { previewGrid, preview, gapSlider, frameW, frameH, imageFit, templateSelect, dropZone, addBtn, clearBtn, exportBtn }, {
-    ensureTemplatesLoaded, populateTemplateSelect, getTemplatesForCount, getStoredTemplate, computeGridLayout, renderGrid, ratiosToFrString, recomputePixelCells, pushState, buildForm, formatDateTimeOriginal, getLocale, t, syncActionButtons, enableGridResize,
+    ensureTemplatesLoaded, populateTemplateSelect, getTemplatesForCount, getStoredTemplate, clampFrameValue, computeGridLayout, renderGrid, ratiosToFrString, recomputePixelCells, pushState, buildForm, formatDateTimeOriginal, getLocale, t, syncActionButtons, enableGridResize,
   });
   const { updatePreview, applyRestoredState, showUI, updateActionButtons } = updater;
 
-  const loadPhotos = (files) => loadPhotosFromFiles(files, { photos: stateRef.photos, maxPhotos: MAX_PHOTOS, currentLayout: stateRef.currentLayout, pushState, onComplete: updatePreview, loadingOverlay, loadingText, t, readImageDimensions, readDateTimeOriginal });
+  const loadPhotos = (files) => loadPhotosFromFiles(files, { photos: stateRef.photos, maxPhotos: MAX_PHOTOS, currentLayout: stateRef.currentLayout, pushState, onComplete: updatePreview, onLoadError: (err) => showToast(`${t('loadFailed')} — ${err?.message ?? err}`, 'error'), loadingOverlay, loadingText, t, readImageDimensions, readDateTimeOriginal });
   const onExport = () => runExport({ frameW, frameH, exportFilename, exportUseDate, formatSelect, exportBtn }, { photos: stateRef.photos, currentLayout: stateRef.currentLayout }, { clampFrameValue, showToast, t, buildForm, getGridEffectsOptions, handleExport, showExportOptions, downloadBlob, shareBlob, copyBlobToClipboard, formatDateTimeOriginal, getLocale, updateActionButtons, updatePreview });
   const clearAll = () => {
     stateRef.photos.forEach((p) => URL.revokeObjectURL(p.url));

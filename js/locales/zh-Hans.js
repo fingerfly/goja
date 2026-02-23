@@ -99,5 +99,6 @@ export default {
   swapWithNext: '与下一个交换',
   frameDimensionClamped: '画布尺寸已调整为 320–4096 px',
   loadingPhotos: '加载中… {current}/{total}',
+  loadFailed: '加载失败',
   offlineMessage: '离线 — Goja 可离线使用',
 };

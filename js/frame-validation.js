@@ -1,6 +1,6 @@
 /**
  * Frame dimension validation and clamping.
- * Pure logic for unit testing; app.js wires DOM and toast.
+ * Pure logic for unit testing; app-bootstrap wires DOM and toast.
  */
 import { FRAME_MIN, FRAME_MAX, FRAME_INPUT_DEBOUNCE_MS } from './config.js';
 

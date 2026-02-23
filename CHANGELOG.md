@@ -2,12 +2,18 @@
 
 ## [Unreleased]
 
+## [7.4.1] - 2026-02-23
+
+
 ## [7.4.0] - 2026-02-23
+
+### Added
+- app.js modularization Phase 10: extracted `app-bootstrap.js`; app.js reduced to 2 lines (bootstrap entry point). sw.js: added `./js/app-bootstrap.js` to ASSETS.
+
 
 
 ### Added
 - app.js modularization: extracted `update-banner.js`, `template-storage.js`, `preview-renderer.js`, `photo-loader.js`; `debounce` in utils, `setFrameInputInvalidState` in frame-validation; `buildFormFromRefs` in grid-effects-settings. Config: `FRAME_INPUT_DEBOUNCE_MS`, `TEMPLATE_STORAGE_KEY`. Unit tests for all new modules.
-- app.js modularization Phase 10: extracted `app-bootstrap.js`; app.js reduced to 2 lines (bootstrap entry point). sw.js: added `./js/app-bootstrap.js` to ASSETS.
 
 ## [7.3.0] - 2026-02-23
 

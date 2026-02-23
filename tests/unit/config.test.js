@@ -44,6 +44,8 @@ import {
   FILTER_VINTAGE_CONTRAST,
   FILTER_BLUR_PX,
   EXPORT_URL_REVOKE_DELAY_MS,
+  EXPORT_FILENAME_DEFAULT,
+  EXPORT_FILENAME_MAX_LENGTH,
   VIGNETTE_STRENGTH_MIN,
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
@@ -224,6 +226,14 @@ describe('config', () => {
 
   it('exports EXPORT_URL_REVOKE_DELAY_MS', () => {
     expect(EXPORT_URL_REVOKE_DELAY_MS).toBe(60000);
+  });
+
+  it('exports EXPORT_FILENAME_DEFAULT', () => {
+    expect(EXPORT_FILENAME_DEFAULT).toBe('goja-grid');
+  });
+
+  it('exports EXPORT_FILENAME_MAX_LENGTH', () => {
+    expect(EXPORT_FILENAME_MAX_LENGTH).toBe(200);
   });
 
   it('exports VIGNETTE_STRENGTH_MIN', () => {

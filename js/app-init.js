@@ -157,6 +157,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     pushState(stateRef.photos, stateRef.currentLayout);
     const photoOrder = stateRef.currentLayout.photoOrder || stateRef.photos.map((_, i) => i);
     const photoIndex = photoOrder[cellIndex];
+    if (photoIndex == null || photoIndex < 0 || photoIndex >= stateRef.photos.length) return;
     URL.revokeObjectURL(stateRef.photos[photoIndex].url);
     stateRef.photos.splice(photoIndex, 1);
     updatePreview();

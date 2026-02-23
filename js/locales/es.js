@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Intercambiar con siguiente',
   frameDimensionClamped: 'Tamaño de marco ajustado a 320–4096 px',
   loadingPhotos: 'Cargando... {current}/{total}',
+  loadFailed: 'Error al cargar',
   offlineMessage: 'Sin conexión — Goja funciona sin conexión',
   _fallbackTest: 'fallback',
 };

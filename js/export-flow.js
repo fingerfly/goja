@@ -2,7 +2,8 @@
  * Export flow: validate frame, run handleExport, show export options.
  * Extracted from app.js for modularity.
  */
-import { EXPORT_URL_REVOKE_DELAY_MS } from './config.js';
+import { EXPORT_URL_REVOKE_DELAY_MS, EXPORT_FILENAME_DEFAULT } from './config.js';
+import { sanitizeFilename } from './utils.js';
 
 /**
  * Runs the full export flow: clamp frame if needed, handleExport, showExportOptions.
@@ -31,7 +32,7 @@ export async function runExport(refs, state, deps) {
     const form = buildForm(true);
     const opts = getGridEffectsOptions(form, photos, formatDateTimeOriginal, getLocale);
     const blob = await handleExport(photos, currentLayout, opts);
-    const base = (exportFilename?.value?.trim()) || 'goja-grid';
+    const base = sanitizeFilename(exportFilename?.value, EXPORT_FILENAME_DEFAULT);
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
     showExportOptions(blob, withDate, formatSelect.value, {
       onShare: () => {

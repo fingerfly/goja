@@ -53,9 +53,9 @@ Before considering a phase complete:
 
 | Module | Used By | Notes |
 |--------|---------|-------|
-| `watermark.js` → `drawWatermark` | app.js (preview canvas), export-handler, export-worker | Single source for canvas drawing |
+| `watermark.js` → `drawWatermark` | preview-renderer.js (preview canvas), export-handler, export-worker | Single source for canvas drawing |
 | `capture-date-overlay.js` → `drawCaptureDateOverlay` | export-handler, export-worker | Shared for export |
-| `image-effects.js` → `getFilterCss` | app.js (preview img style), image-processor (export) | Single source for filter CSS |
+| `image-effects.js` → `getFilterCss` | preview-renderer.js (preview img style), image-processor (export) | Single source for filter CSS |
 | `image-effects.js` → `drawVignetteOverlay` | export-handler, export-worker | Shared for export canvas |
 
 ---
@@ -68,18 +68,18 @@ Before considering a phase complete:
 
 | Location | Purpose | Options Built |
 |----------|---------|---------------|
-| `app.js` renderGrid (L221–251) | Watermark preview canvas | type, text, position, locale, opacity, fontScale, backgroundColor |
-| `app.js` onExport (L271–287) | Full export options | All of the above + capture date, vignette, filter, format, etc. |
+| `preview-renderer.js` renderGrid | Watermark preview canvas | type, text, position, locale, opacity, fontScale, backgroundColor |
+| `export-flow.js` runExport | Full export options | All of the above + capture date, vignette, filter, format, etc. |
 | `export-handler.js` (L8–13) | Default fallbacks | watermarkOpacity: 0.8, captureDateOpacity: 0.7, etc. |
 | `export-worker.js` (L18–23) | Same defaults | Duplicated |
 
-**Recommendation:** Create `getGridEffectsOptions(form)`. `app.js` calls it with current form refs in both `renderGrid` and `onExport`. Export-handler and export-worker use config constants for defaults instead of inline literals.
+**Recommendation:** Create `getGridEffectsOptions(form)`. app-bootstrap calls it with current form refs in both `renderGrid` and `runExport`. Export-handler and export-worker use config constants for defaults instead of inline literals.
 
 ### 3.2 Default Values
 
 **Problem:** Magic numbers `0.8`, `0.7`, `'bottom-right'`, `'bottom-left'` appear inline.
 
-| Value | In app.js | In export-handler | In export-worker | Config |
+| Value | In preview/export flow | In export-handler | In export-worker | Config |
 |-------|-----------|-------------------|------------------|--------|
 | watermark opacity | `?? '0.8'` | `= 0.8` | `= 0.8` | WATERMARK_OPACITY_DEFAULT |
 | capture date opacity | `?? '0.7'` | `= 0.7` | `= 0.7` | CAPTURE_DATE_OPACITY_DEFAULT |
@@ -122,7 +122,7 @@ Same strength value, different rendering (CSS vs canvas).
 ```javascript
 /**
  * Builds normalized grid effect options from form state.
- * Shared by preview (app.js renderGrid) and export (handleExport).
+ * Shared by preview (preview-renderer.js renderGrid) and export (handleExport).
  */
 import {
   WATERMARK_OPACITY_DEFAULT,
@@ -138,7 +138,7 @@ export function getVignetteOptions(form) { ... }
 export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getLocale) { ... }
 ```
 
-**form** is a plain object `{ wmType, wmText, wmPos, wmOpacity, wmFontSize, showCaptureDate, ... }` built by app.js from DOM elements once per render/export.
+**form** is a plain object `{ wmType, wmText, wmPos, wmOpacity, wmFontSize, showCaptureDate, ... }` built by app-bootstrap from DOM refs via `buildFormFromRefs` once per render/export.
 
 **Export handler/worker:** Use config constants instead of inline defaults:
 
@@ -159,7 +159,7 @@ Add to config if needed: `WATERMARK_POSITION_DEFAULT = 'bottom-right'`, `WATERMA
 
 1. Add any missing defaults to `config.js`.
 2. Create `grid-effects-settings.js` with `getGridEffectsOptions` (and helpers).
-3. Refactor `app.js` to call `getGridEffectsOptions` in renderGrid and onExport.
+3. Refactor preview-renderer and export-flow to call `getGridEffectsOptions` (via app-bootstrap wiring).
 4. Refactor export-handler and export-worker to use config constants for defaults.
 5. Add unit tests for `grid-effects-settings.js`.
 

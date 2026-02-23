@@ -97,6 +97,7 @@ export default {
   swapWithNext: 'Scambia con successivo',
   frameDimensionClamped: 'Dimensione cornice regolata a 320–4096 px',
   loadingPhotos: 'Caricamento... {current}/{total}',
+  loadFailed: 'Caricamento fallito',
   offlineMessage: 'Offline — Goja funziona offline',
   _fallbackTest: 'fallback',
 };

@@ -1,3 +1,24 @@
+import { EXPORT_FILENAME_DEFAULT, EXPORT_FILENAME_MAX_LENGTH } from './config.js';
+
+const RESERVED_CHARS = /[/\\?%*:|"<>]/g;
+const DOT_DOT = /\.+/g;
+
+/**
+ * Sanitizes a filename for safe export: strips path separators, reserved chars, collapses dots.
+ * @param {string | null | undefined} name - Raw filename
+ * @param {string} defaultName - Fallback when name is empty/invalid
+ * @returns {string}
+ */
+export function sanitizeFilename(name, defaultName = EXPORT_FILENAME_DEFAULT) {
+  const s = (name ?? '').trim();
+  if (!s) return defaultName;
+  const cleaned = s
+    .replace(RESERVED_CHARS, '')
+    .replace(DOT_DOT, '')
+    .slice(0, EXPORT_FILENAME_MAX_LENGTH);
+  return cleaned || defaultName;
+}
+
 /**
  * Returns a debounced version of fn that waits ms before invoking.
  * @param {(...args: unknown[]) => void} fn

@@ -97,6 +97,7 @@ export default {
   swapWithNext: '次の写真と入れ替え',
   frameDimensionClamped: 'フレームサイズを320–4096 pxに調整しました',
   loadingPhotos: '読み込み中… {current}/{total}',
+  loadFailed: '読み込みに失敗しました',
   offlineMessage: 'オフライン — Gojaはオフラインで動作します',
   _fallbackTest: 'fallback',
 };

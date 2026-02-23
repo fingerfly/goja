@@ -1,6 +1,6 @@
 /**
  * Builds normalized grid effect options from form state.
- * Shared by preview (app.js renderGrid) and export (handleExport).
+ * Shared by preview (preview-renderer.js renderGrid) and export (handleExport).
  */
 import {
   WATERMARK_OPACITY_DEFAULT,
