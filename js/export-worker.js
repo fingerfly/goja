@@ -5,7 +5,16 @@ import { createOffscreenGridCanvas, drawPhotoOnCanvas, exportOffscreenCanvasAsBl
 import { drawWatermark } from './watermark.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { drawVignetteOverlay } from './image-effects.js';
-import { JPEG_QUALITY, VIGNETTE_STRENGTH_DEFAULT } from './config.js';
+import {
+  JPEG_QUALITY,
+  VIGNETTE_STRENGTH_DEFAULT,
+  WATERMARK_OPACITY_DEFAULT,
+  WATERMARK_POSITION_DEFAULT,
+  WATERMARK_FONT_SCALE_DEFAULT,
+  CAPTURE_DATE_OPACITY_DEFAULT,
+  CAPTURE_DATE_POSITION_DEFAULT,
+  CAPTURE_DATE_FONT_SCALE_DEFAULT,
+} from './config.js';
 
 self.onmessage = async (e) => {
   const { layout, options, blobUrls } = e.data;
@@ -16,10 +25,10 @@ self.onmessage = async (e) => {
 
     const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
       filter = 'none', vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT,
-      watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right',
-      watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en',
-      showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7,
-      captureDateFontScale = 1, dateOriginals = [] } = options;
+      watermarkType = 'none', watermarkText = '', watermarkPos = WATERMARK_POSITION_DEFAULT,
+      watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT, locale = 'en',
+      showCaptureDate = false, captureDatePos = CAPTURE_DATE_POSITION_DEFAULT, captureDateOpacity = CAPTURE_DATE_OPACITY_DEFAULT,
+      captureDateFontScale = CAPTURE_DATE_FONT_SCALE_DEFAULT, dateOriginals = [] } = options;
     const bg = options.backgroundColor ?? '#ffffff';
 
     const canvas = createOffscreenGridCanvas(layout, { backgroundColor: bg });

@@ -15,6 +15,8 @@ export const GAP_DEFAULT = 4;
 export const WATERMARK_OPACITY_MIN = 0.3;
 export const WATERMARK_OPACITY_MAX = 0.9;
 export const WATERMARK_OPACITY_DEFAULT = 0.8;
+export const WATERMARK_POSITION_DEFAULT = 'bottom-right';
+export const WATERMARK_FONT_SCALE_DEFAULT = 1;
 
 export const EXIF_TAG_SET = ['DateTimeOriginal'];
 

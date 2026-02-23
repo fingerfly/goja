@@ -5,6 +5,7 @@ import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
 import { getFilterCss } from './image-effects.js';
 import { resolveWatermarkText, drawWatermark } from './watermark.js';
+import { getWatermarkOptions, getGridEffectsOptions, getCaptureDateOptions, getVignetteOptions } from './grid-effects-settings.js';
 import { showExportOptions } from './export-options.js';
 import { VERSION_STRING } from './version.js';
 import { swapOrder, enableDragAndDrop } from './drag-handler.js';
@@ -32,6 +33,27 @@ import {
   VIGNETTE_STRENGTH_DEFAULT,
 } from './config.js';
 import { clampFrameValue, isFrameValueValid } from './frame-validation.js';
+
+function buildForm(includeFormat = false) {
+  const f = {
+    wmType: wmType?.value,
+    wmText: wmText?.value,
+    wmPos: wmPos?.value,
+    wmOpacity: wmOpacity?.value,
+    wmFontSize: wmFontSize?.value,
+    showCaptureDate: showCaptureDate?.checked,
+    captureDatePos: captureDatePos?.value,
+    captureDateOpacity: captureDateOpacity?.value,
+    captureDateFontSize: captureDateFontSize?.value,
+    vignetteEnabled: vignetteEnabled?.checked,
+    vignetteStrength: vignetteStrength?.value,
+    filterPreset: filterPreset?.value,
+    imageFit: imageFit?.value,
+    bgColor: bgColor?.value,
+  };
+  if (includeFormat) f.format = formatSelect?.value;
+  return f;
+}
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
 import { pushState, undo, redo, canUndo, canRedo } from './state.js';
@@ -152,18 +174,17 @@ function showUI(show) {
 function renderGrid(layout) {
   const g = previewGrid, gap = `${layout.gap}px`;
   g.innerHTML = '';
-  const fitVal = imageFit.value;
+  const form = buildForm();
+  const fitVal = form.imageFit ?? imageFit.value;
   g.style.setProperty('--image-fit', fitVal);
   Object.assign(g.style, { gridTemplateRows: ratiosToFrString(layout.rowRatios),
     gridTemplateColumns: ratiosToFrString(layout.colRatios),
-    gap, background: bgColor.value, padding: gap,
+    gap, background: form.bgColor ?? bgColor.value, padding: gap,
     aspectRatio: `${layout.canvasWidth} / ${layout.canvasHeight}` });
   const order = layout.photoOrder || photos.map((_, i) => i);
-  const showDate = showCaptureDate?.checked ?? false;
-  const posClass = captureDatePos?.value ?? 'bottom-left';
-  const filterCss = getFilterCss(filterPreset?.value ?? 'none');
-  const showVignette = vignetteEnabled?.checked ?? false;
-  const vignetteStr = parseFloat(vignetteStrength?.value ?? String(VIGNETTE_STRENGTH_DEFAULT));
+  const capture = getCaptureDateOptions(form);
+  const vignette = getVignetteOptions(form);
+  const filterCss = getFilterCss(form.filterPreset ?? 'none');
 
   for (let i = 0; i < layout.cells.length; i++) {
     const c = layout.cells[i];
@@ -193,25 +214,23 @@ function renderGrid(layout) {
     img.setAttribute('role', 'button');
     cell.appendChild(img);
 
-    if (showVignette && vignetteStr > 0) {
+    if (vignette.enabled && vignette.strength > 0) {
       const vignetteEl = document.createElement('div');
       vignetteEl.className = 'vignette-overlay';
       vignetteEl.setAttribute('aria-hidden', 'true');
-      vignetteEl.style.background = `radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,${vignetteStr}) 100%)`;
+      vignetteEl.style.background = `radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,${vignette.strength}) 100%)`;
       cell.appendChild(vignetteEl);
     }
 
     const photo = photos[order[i]];
-    if (showDate && photo?.dateOriginal) {
+    if (form.showCaptureDate && photo?.dateOriginal) {
       const dateStr = formatDateTimeOriginal(photo.dateOriginal, getLocale());
       const span = document.createElement('span');
-      span.className = `capture-date-overlay capture-date-overlay--${posClass}`;
+      span.className = `capture-date-overlay capture-date-overlay--${capture.position}`;
       span.setAttribute('aria-hidden', 'true');
       span.textContent = dateStr;
-      const opacityVal = captureDateOpacity?.value ?? String(CAPTURE_DATE_OPACITY_DEFAULT);
-      const fontScaleVal = parseFloat(captureDateFontSize?.value ?? '1');
-      span.style.opacity = opacityVal;
-      span.style.fontSize = `calc(var(--font-size-sm) * ${fontScaleVal})`;
+      span.style.opacity = String(capture.opacity);
+      span.style.fontSize = `calc(var(--font-size-sm) * ${capture.fontScale})`;
       cell.appendChild(span);
     }
 
@@ -219,8 +238,9 @@ function renderGrid(layout) {
   }
 
   preview?.querySelector('.watermark-preview-overlay')?.remove();
-  const wmResolved = wmType?.value && wmType.value !== 'none'
-    ? resolveWatermarkText(wmType.value, wmText?.value ?? '', getLocale())
+  const wmOpts = getWatermarkOptions(form, getLocale());
+  const wmResolved = wmOpts.type && wmOpts.type !== 'none'
+    ? resolveWatermarkText(wmOpts.type, wmOpts.text, wmOpts.locale)
     : '';
   if (wmResolved && layout?.canvasWidth && layout?.canvasHeight) {
     const w = layout.canvasWidth;
@@ -240,15 +260,7 @@ function renderGrid(layout) {
     canvas.style.display = 'block';
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      drawWatermark(ctx, w, h, {
-        type: wmType.value,
-        text: wmText?.value ?? '',
-        position: wmPos?.value ?? 'bottom-right',
-        locale: getLocale(),
-        opacity: parseFloat(wmOpacity?.value ?? '0.8'),
-        fontScale: parseFloat(wmFontSize?.value ?? '1'),
-        backgroundColor: bgColor?.value ?? '#ffffff',
-      });
+      drawWatermark(ctx, w, h, wmOpts);
     }
     overlay.appendChild(canvas);
     preview.appendChild(overlay);
@@ -265,26 +277,11 @@ async function onExport() {
     showToast(t('frameDimensionClamped'), 'error');
     updatePreview();
   }
-  const fitVal = imageFit.value;
   updateActionButtons(photos.length, true);
   try {
-    const dateOriginals = photos.map(p => (p.dateOriginal ? formatDateTimeOriginal(p.dateOriginal, getLocale()) : null));
-    const blob = await handleExport(photos, currentLayout, {
-      backgroundColor: bgColor.value, format: formatSelect.value,
-      fitMode: fitVal,
-      filter: getFilterCss(filterPreset?.value ?? 'none'),
-      vignetteEnabled: vignetteEnabled?.checked ?? false,
-      vignetteStrength: parseFloat(vignetteStrength?.value ?? String(VIGNETTE_STRENGTH_DEFAULT)),
-      watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
-      watermarkOpacity: parseFloat(wmOpacity?.value ?? '0.8'),
-      watermarkFontScale: parseFloat(wmFontSize?.value ?? '1'),
-      locale: getLocale(),
-      showCaptureDate: showCaptureDate?.checked ?? false,
-      captureDatePos: captureDatePos?.value ?? 'bottom-left',
-      captureDateOpacity: parseFloat(captureDateOpacity?.value ?? '0.7'),
-      captureDateFontScale: parseFloat(captureDateFontSize?.value ?? '1'),
-      dateOriginals,
-    });
+    const form = buildForm(true);
+    const opts = getGridEffectsOptions(form, photos, formatDateTimeOriginal, getLocale);
+    const blob = await handleExport(photos, currentLayout, opts);
     const base = (exportFilename?.value?.trim()) || 'goja-grid';
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
     showExportOptions(blob, withDate, formatSelect.value, {

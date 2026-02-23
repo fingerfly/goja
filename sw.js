@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v7.2.3-1';
+const CACHE_NAME = 'goja-v7.3.0-1';
 const ASSETS = [
   './',
   './index.html',
@@ -26,6 +26,7 @@ const ASSETS = [
   './js/version.js',
   './js/drag-handler.js',
   './js/watermark.js',
+  './js/grid-effects-settings.js',
   './js/settings-panel.js',
   './js/resize-engine.js',
   './js/resize-handler.js',

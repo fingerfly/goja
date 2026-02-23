@@ -2,8 +2,16 @@
 
 ## [Unreleased]
 
+## [7.3.0] - 2026-02-23
+
+
+### Added
+- Grid effects code-sharing: `grid-effects-settings.js` module with `getWatermarkOptions`, `getCaptureDateOptions`, `getVignetteOptions`, `getGridEffectsOptions`; shared by preview (renderGrid) and export (handleExport). Config constants (WATERMARK_POSITION_DEFAULT, WATERMARK_FONT_SCALE_DEFAULT, etc.) used in export-handler and export-worker instead of inline literals.
+
 ## [7.2.3] - 2026-02-23
 
+### Added
+- TDD: Unit test for tiled watermark spacing (measureText-based); E2E for watermark overlay removed on clear.
 
 ## [7.2.2] - 2026-02-23
 

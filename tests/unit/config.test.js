@@ -11,6 +11,8 @@ import {
   WATERMARK_OPACITY_MIN,
   WATERMARK_OPACITY_MAX,
   WATERMARK_OPACITY_DEFAULT,
+  WATERMARK_POSITION_DEFAULT,
+  WATERMARK_FONT_SCALE_DEFAULT,
   EXIF_TAG_SET,
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_OPACITY_MIN,
@@ -87,6 +89,14 @@ describe('config', () => {
 
   it('exports WATERMARK_OPACITY_DEFAULT', () => {
     expect(WATERMARK_OPACITY_DEFAULT).toBe(0.8);
+  });
+
+  it('exports WATERMARK_POSITION_DEFAULT', () => {
+    expect(WATERMARK_POSITION_DEFAULT).toBe('bottom-right');
+  });
+
+  it('exports WATERMARK_FONT_SCALE_DEFAULT', () => {
+    expect(WATERMARK_FONT_SCALE_DEFAULT).toBe(1);
   });
 
   it('exports EXIF_TAG_SET', () => {

@@ -2,13 +2,23 @@ import { createGridCanvas, drawPhotoOnCanvas, exportCanvasAsBlob } from './image
 import { drawWatermark } from './watermark.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { drawVignetteOverlay } from './image-effects.js';
-import { VIGNETTE_STRENGTH_DEFAULT } from './config.js';
+import {
+  VIGNETTE_STRENGTH_DEFAULT,
+  WATERMARK_OPACITY_DEFAULT,
+  WATERMARK_POSITION_DEFAULT,
+  WATERMARK_FONT_SCALE_DEFAULT,
+  CAPTURE_DATE_OPACITY_DEFAULT,
+  CAPTURE_DATE_POSITION_DEFAULT,
+  CAPTURE_DATE_FONT_SCALE_DEFAULT,
+} from './config.js';
 
 function exportMainThread(photos, layout, options) {
   const { format = 'image/jpeg', fitMode = 'cover', filter = 'none' } = options;
   const { vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT } = options;
-  const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
-  const { showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7, captureDateFontScale = 1, dateOriginals = [] } = options;
+  const { watermarkType = 'none', watermarkText = '', watermarkPos = WATERMARK_POSITION_DEFAULT,
+    watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT, locale = 'en' } = options;
+  const { showCaptureDate = false, captureDatePos = CAPTURE_DATE_POSITION_DEFAULT,
+    captureDateOpacity = CAPTURE_DATE_OPACITY_DEFAULT, captureDateFontScale = CAPTURE_DATE_FONT_SCALE_DEFAULT, dateOriginals = [] } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
   const bg = options.backgroundColor ?? '#ffffff';
 
