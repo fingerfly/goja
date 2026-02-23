@@ -43,6 +43,12 @@ Open `index.html` in a browser, or visit the hosted version:
 3. Adjust settings (template, frame size, gap, background, watermark, capture date overlay, filename) via the gear icon
 4. Tap **Export** to choose Share, Download, Copy, or Open in new tab (Ctrl/Cmd+Z to undo changes)
 
+## Help
+
+- [FAQ](docs/FAQ.md) — common questions and answers
+- [Changelog](CHANGELOG.md)
+- [Security Policy](SECURITY.md)
+
 ## Development
 
 ```bash

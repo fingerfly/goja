@@ -59,4 +59,30 @@ describe('loadPhotos', () => {
     expect(context.onComplete).toHaveBeenCalled();
     expect(photos.length).toBe(0);
   });
+
+  it('calls onLoadError and onComplete when readDateTimeOriginal rejects', async () => {
+    const onLoadError = vi.fn();
+    context.onLoadError = onLoadError;
+    const file = new File(['x'], 'test.jpg', { type: 'image/jpeg' });
+    context.readDateTimeOriginal.mockRejectedValue(new Error('EXIF parse failed'));
+    await loadPhotos([file], context);
+    expect(onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(context.onComplete).toHaveBeenCalled();
+    expect(photos.length).toBe(0);
+  });
+
+  it('adds successful photos and calls onLoadError for failed one when second of two fails', async () => {
+    const onLoadError = vi.fn();
+    context.onLoadError = onLoadError;
+    const file1 = new File(['x'], 'a.jpg', { type: 'image/jpeg' });
+    const file2 = new File(['y'], 'b.jpg', { type: 'image/jpeg' });
+    context.readImageDimensions.mockImplementation((f) =>
+      f.name === 'b.jpg' ? Promise.reject(new Error('Corrupt')) : Promise.resolve({ width: 100, height: 100 })
+    );
+    await loadPhotos([file1, file2], context);
+    expect(photos.length).toBe(1);
+    expect(photos[0].file.name).toBe('a.jpg');
+    expect(onLoadError).toHaveBeenCalledWith(expect.any(Error));
+    expect(context.onComplete).toHaveBeenCalled();
+  });
 });

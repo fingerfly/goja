@@ -57,4 +57,12 @@ describe('runExport', () => {
     expect(deps.showToast).toHaveBeenCalledWith('frameDimensionClamped', 'error');
     expect(deps.updatePreview).toHaveBeenCalled();
   });
+
+  it('passes sanitized filename to showExportOptions when exportFilename has reserved chars', async () => {
+    refs.exportFilename.value = '../etc/passwd';
+    await runExport(refs, state, deps);
+    const call = deps.showExportOptions.mock.calls[0];
+    expect(call[1]).not.toMatch(/[\/\\?%*:|"<>]/);
+    expect(call[1]).toBe('etcpasswd');
+  });
 });

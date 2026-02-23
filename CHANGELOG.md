@@ -2,8 +2,24 @@
 
 ## [Unreleased]
 
+## [7.5.0] - 2026-02-23
+
+
 ## [7.4.1] - 2026-02-23
 
+### Security
+- Exclude SVG files (`image/svg+xml`) from photo loading to prevent script injection via malicious SVGs
+- Sanitize export filename: strip path separators and reserved characters (`/ \ ? % * : | " < >`) via new `sanitizeFilename()` in `utils.js`
+- Simplify CSP `script-src` to `'self'` only; removed obsolete inline script hash
+
+### Fixed
+- Validate frame dimensions before layout: `updatePreview` now clamps `frameW`/`frameH` via `clampFrameValue` so `computeGridLayout` never receives `NaN`
+- Handle `loadPhotos` promise rejections: `readImageDimensions`/`readDateTimeOriginal` failures are caught per file, reported via `onLoadError` toast, and do not break the load loop; successful photos are still added
+- Bounds-check `photoOrder` indices in `preview-renderer.js` and `app-init.js` context menu callback to prevent out-of-bounds access
+
+### Added
+- Config constants: `EXPORT_FILENAME_DEFAULT`, `EXPORT_FILENAME_MAX_LENGTH`
+- Locale key `loadFailed` added to all 11 languages
 
 ## [7.4.0] - 2026-02-23
 
