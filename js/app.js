@@ -207,6 +207,10 @@ function renderGrid(layout) {
       span.className = `capture-date-overlay capture-date-overlay--${posClass}`;
       span.setAttribute('aria-hidden', 'true');
       span.textContent = dateStr;
+      const opacityVal = captureDateOpacity?.value ?? String(CAPTURE_DATE_OPACITY_DEFAULT);
+      const fontScaleVal = parseFloat(captureDateFontSize?.value ?? '1');
+      span.style.opacity = opacityVal;
+      span.style.fontSize = `calc(var(--font-size-sm) * ${fontScaleVal})`;
       cell.appendChild(span);
     }
 
