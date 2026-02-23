@@ -45,7 +45,7 @@ Open `index.html` in a browser, or visit the hosted version:
 
 ## Help
 
-- [FAQ](docs/FAQ.md) — common questions and answers
+- [FAQ](docs/FAQ.md) — common questions and answers | [常见问题](docs/FAQ.zh-Hans.md)
 - [Changelog](CHANGELOG.md)
 - [Security Policy](SECURITY.md)
 

@@ -4,6 +4,10 @@
 
 ## [7.5.0] - 2026-02-23
 
+### Added
+- User-facing FAQ (`docs/FAQ.md`) covering privacy, getting started, working with photos, settings/effects, and exporting
+- Simplified Chinese FAQ (`docs/FAQ.zh-Hans.md`) for Chinese-speaking users
+- Help section in README linking to FAQ, Changelog, and Security Policy
 
 ## [7.4.1] - 2026-02-23
 
