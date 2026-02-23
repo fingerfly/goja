@@ -4,7 +4,8 @@
 import { createOffscreenGridCanvas, drawPhotoOnCanvas, exportOffscreenCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
-import { JPEG_QUALITY } from './config.js';
+import { drawVignetteOverlay } from './image-effects.js';
+import { JPEG_QUALITY, VIGNETTE_STRENGTH_DEFAULT } from './config.js';
 
 self.onmessage = async (e) => {
   const { layout, options, blobUrls } = e.data;
@@ -14,6 +15,7 @@ self.onmessage = async (e) => {
     const bitmaps = await Promise.all(blobs.map((b) => createImageBitmap(b)));
 
     const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
+      filter = 'none', vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT,
       watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right',
       watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en',
       showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7,
@@ -27,7 +29,11 @@ self.onmessage = async (e) => {
       drawPhotoOnCanvas(ctx, bitmaps[photoOrder[i]], layout.cells[i], {
         fitMode,
         backgroundColor: bg,
+        filter,
       });
+      if (vignetteEnabled) {
+        drawVignetteOverlay(ctx, layout.cells[i], { strength: vignetteStrength });
+      }
       if (showCaptureDate) {
         const dateStr = dateOriginals[photoOrder[i]];
         if (dateStr) {

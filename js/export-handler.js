@@ -1,9 +1,12 @@
 import { createGridCanvas, drawPhotoOnCanvas, exportCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
+import { drawVignetteOverlay } from './image-effects.js';
+import { VIGNETTE_STRENGTH_DEFAULT } from './config.js';
 
 function exportMainThread(photos, layout, options) {
-  const { format = 'image/jpeg', fitMode = 'cover' } = options;
+  const { format = 'image/jpeg', fitMode = 'cover', filter = 'none' } = options;
+  const { vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT } = options;
   const { watermarkType = 'none', watermarkText = '', watermarkPos = 'bottom-right', watermarkOpacity = 0.8, watermarkFontScale = 1, locale = 'en' } = options;
   const { showCaptureDate = false, captureDatePos = 'bottom-left', captureDateOpacity = 0.7, captureDateFontScale = 1, dateOriginals = [] } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
@@ -24,7 +27,11 @@ function exportMainThread(photos, layout, options) {
       drawPhotoOnCanvas(ctx, imgElements[photoOrder[i]], layout.cells[i], {
         fitMode,
         backgroundColor: bg,
+        filter,
       });
+      if (vignetteEnabled) {
+        drawVignetteOverlay(ctx, layout.cells[i], { strength: vignetteStrength });
+      }
       if (showCaptureDate) {
         const dateStr = dateOriginals[photoOrder[i]];
         if (dateStr) {

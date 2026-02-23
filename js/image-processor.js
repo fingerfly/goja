@@ -1,3 +1,6 @@
+import { isFilterSupported } from './image-effects.js';
+import { JPEG_QUALITY } from './config.js';
+
 export function createGridCanvas(layout, options = {}) {
   const { backgroundColor = '#ffffff' } = options;
   const { canvasWidth, canvasHeight } = layout;
@@ -23,10 +26,14 @@ export function createOffscreenGridCanvas(layout, options = {}) {
 export function drawPhotoOnCanvas(ctx, img, cell, options = {}) {
   const fitMode = options.fitMode ?? 'cover';
   const backgroundColor = options.backgroundColor ?? '#ffffff';
+  const filter = options.filter ?? 'none';
   const w = img.naturalWidth ?? img.width;
   const h = img.naturalHeight ?? img.height;
   const srcRatio = w / h;
   const cellRatio = cell.width / cell.height;
+
+  const useFilter = isFilterSupported(ctx) && filter && filter !== 'none';
+  if (useFilter) ctx.filter = filter;
 
   if (fitMode === 'contain') {
     let drawW, drawH, drawX, drawY;
@@ -55,9 +62,9 @@ export function drawPhotoOnCanvas(ctx, img, cell, options = {}) {
     }
     ctx.drawImage(img, sx, sy, sw, sh, cell.x, cell.y, cell.width, cell.height);
   }
-}
 
-import { JPEG_QUALITY } from './config.js';
+  if (useFilter) ctx.filter = 'none';
+}
 
 export function exportCanvasAsBlob(canvas, format = 'image/jpeg', quality = JPEG_QUALITY) {
   return new Promise((resolve) => {

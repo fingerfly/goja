@@ -25,3 +25,12 @@ export const CAPTURE_DATE_OPACITY_DEFAULT = 0.7;
 export const CAPTURE_DATE_FONT_RATIO = 0.025;
 export const CAPTURE_DATE_MARGIN_RATIO = 0.02;
 export const CAPTURE_DATE_FONT_SCALE_DEFAULT = 1;
+
+export const FILTER_PRESET_NONE = 'none';
+export const FILTER_PRESET_GRAYSCALE = 'grayscale';
+export const FILTER_PRESET_SEPIA = 'sepia';
+export const FILTER_GRAYSCALE_VALUE = 1;
+export const FILTER_SEPIA_VALUE = 0.8;
+export const VIGNETTE_STRENGTH_MIN = 0.2;
+export const VIGNETTE_STRENGTH_MAX = 0.8;
+export const VIGNETTE_STRENGTH_DEFAULT = 0.5;

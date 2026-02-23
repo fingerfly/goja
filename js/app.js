@@ -3,6 +3,7 @@ import { getTemplatesForCount, ensureTemplatesLoaded } from './layout-templates.
 import { readImageDimensions } from './utils.js';
 import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
+import { getFilterCss } from './image-effects.js';
 import { showExportOptions } from './export-options.js';
 import { VERSION_STRING } from './version.js';
 import { swapOrder, enableDragAndDrop } from './drag-handler.js';
@@ -25,6 +26,9 @@ import {
   CAPTURE_DATE_OPACITY_MIN,
   CAPTURE_DATE_OPACITY_MAX,
   CAPTURE_DATE_OPACITY_DEFAULT,
+  VIGNETTE_STRENGTH_MIN,
+  VIGNETTE_STRENGTH_MAX,
+  VIGNETTE_STRENGTH_DEFAULT,
 } from './config.js';
 import { clampFrameValue, isFrameValueValid } from './frame-validation.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
@@ -41,6 +45,8 @@ const [wmType, wmText, wmTextGroup, wmPos, wmPosGroup, wmOpacity, wmOpacityGroup
   ['#watermarkType', '#watermarkText', '#watermarkTextGroup', '#watermarkPos', '#watermarkPosGroup', '#watermarkOpacity', '#watermarkOpacityGroup', '#watermarkFontSize', '#watermarkFontSizeGroup'].map($);
 const [showCaptureDate, captureDateOptionsGroup, captureDatePos, captureDateOpacity, captureDateFontSize] =
   ['#showCaptureDate', '#captureDateOptionsGroup', '#captureDatePos', '#captureDateOpacity', '#captureDateFontSize'].map($);
+const [filterPreset, vignetteEnabled, vignetteOptionsGroup, vignetteStrength] =
+  ['#filterPreset', '#vignetteEnabled', '#vignetteOptionsGroup', '#vignetteStrength'].map($);
 const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
 const [loadingOverlay, loadingText, offlineBanner] = ['#loadingOverlay', '#loadingText', '#offlineBanner'].map($);
 const langSelect = $('#langSelect');
@@ -211,6 +217,9 @@ async function onExport() {
     const blob = await handleExport(photos, currentLayout, {
       backgroundColor: bgColor.value, format: formatSelect.value,
       fitMode: fitVal,
+      filter: getFilterCss(filterPreset?.value ?? 'none'),
+      vignetteEnabled: vignetteEnabled?.checked ?? false,
+      vignetteStrength: parseFloat(vignetteStrength?.value ?? String(VIGNETTE_STRENGTH_DEFAULT)),
       watermarkType: wmType.value, watermarkText: wmText.value, watermarkPos: wmPos.value,
       watermarkOpacity: parseFloat(wmOpacity?.value ?? '0.8'),
       watermarkFontScale: parseFloat(wmFontSize?.value ?? '1'),
@@ -290,6 +299,11 @@ if (captureDateOpacity) {
   captureDateOpacity.min = String(CAPTURE_DATE_OPACITY_MIN);
   captureDateOpacity.max = String(CAPTURE_DATE_OPACITY_MAX);
   captureDateOpacity.value = String(CAPTURE_DATE_OPACITY_DEFAULT);
+}
+if (vignetteStrength) {
+  vignetteStrength.min = String(VIGNETTE_STRENGTH_MIN);
+  vignetteStrength.max = String(VIGNETTE_STRENGTH_MAX);
+  vignetteStrength.value = String(VIGNETTE_STRENGTH_DEFAULT);
 }
 updateActionButtons(0);
 $('#versionLabel').textContent = `v${VERSION_STRING}`;
@@ -415,6 +429,12 @@ showCaptureDate?.addEventListener('change', () => {
   captureDateOptionsGroup?.classList.toggle('hidden', !showCaptureDate?.checked);
   updatePreview();
 });
+vignetteEnabled?.addEventListener('change', () => {
+  vignetteOptionsGroup?.classList.toggle('hidden', !vignetteEnabled?.checked);
+  updatePreview();
+});
+filterPreset?.addEventListener('change', updatePreview);
+vignetteStrength?.addEventListener('input', updatePreview);
 captureDatePos?.addEventListener('change', updatePreview);
 captureDateOpacity?.addEventListener('input', updatePreview);
 captureDateFontSize?.addEventListener('change', updatePreview);

@@ -1,12 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as imageProcessor from '../../js/image-processor.js';
 import * as captureDateOverlay from '../../js/capture-date-overlay.js';
+import * as imageEffects from '../../js/image-effects.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from '../../js/export-handler.js';
 
+const mockGradient = { addColorStop: vi.fn() };
 const mockCtx = {
   fillStyle: '',
+  filter: 'none',
   fillRect: vi.fn(),
   drawImage: vi.fn(),
+  createRadialGradient: vi.fn(() => mockGradient),
   save: vi.fn(),
   restore: vi.fn(),
   globalAlpha: 1,
@@ -92,7 +96,7 @@ describe('handleExport', () => {
         expect.anything(),
         expect.anything(),
         expect.anything(),
-        { fitMode: 'cover', backgroundColor: '#ffffff' }
+        { fitMode: 'cover', backgroundColor: '#ffffff', filter: 'none' }
       );
     } finally {
       globalThis.Image = origImage;
@@ -121,7 +125,7 @@ describe('handleExport', () => {
         expect.anything(),
         expect.anything(),
         expect.anything(),
-        { fitMode: 'contain', backgroundColor: '#ff0000' }
+        { fitMode: 'contain', backgroundColor: '#ff0000', filter: 'none' }
       );
     } finally {
       globalThis.Image = origImage;
@@ -179,6 +183,55 @@ describe('handleExport', () => {
 
     try {
       await handleExport(photos, layout, { dateOriginals: ['Feb 22, 2025'] });
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
+  it('calls drawVignetteOverlay when vignetteEnabled is true', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(imageEffects, 'drawVignetteOverlay');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, {
+        vignetteEnabled: true,
+        vignetteStrength: 0.6,
+      });
+      expect(spy).toHaveBeenCalledWith(
+        mockCtx,
+        expect.objectContaining({ x: 0, y: 0, width: 100, height: 100 }),
+        { strength: 0.6 }
+      );
+    } finally {
+      globalThis.Image = origImage;
+      spy.mockRestore();
+    }
+  });
+
+  it('does not call drawVignetteOverlay when vignetteEnabled is false', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const spy = vi.spyOn(imageEffects, 'drawVignetteOverlay');
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      await handleExport(photos, layout, {});
       expect(spy).not.toHaveBeenCalled();
     } finally {
       globalThis.Image = origImage;

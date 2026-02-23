@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "6.1.0-2",
+  "version": "7.0.0-1",
   "description": "Goja",
   "type": "module",
   "scripts": {

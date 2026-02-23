@@ -3,6 +3,7 @@ import { createGridCanvas, drawPhotoOnCanvas } from '../../js/image-processor.js
 
 const mockCtx = {
   fillStyle: '',
+  filter: 'none',
   fillRect: vi.fn(),
   drawImage: vi.fn(),
 };
@@ -115,5 +116,13 @@ describe('drawPhotoOnCanvas', () => {
     const cell = { x: 0, y: 0, width: 100, height: 100 };
     drawPhotoOnCanvas(mockCtx, img, cell, { fitMode: 'contain' });
     expect(mockCtx.fillStyle).toBe('#ffffff');
+  });
+
+  it('with filter option applies filter when supported and resets after draw', () => {
+    const img = mockImg(100, 100);
+    const cell = { x: 0, y: 0, width: 100, height: 100 };
+    drawPhotoOnCanvas(mockCtx, img, cell, { filter: 'grayscale(100%)' });
+    expect(mockCtx.drawImage).toHaveBeenCalled();
+    expect(mockCtx.filter).toBe('none');
   });
 });

@@ -19,6 +19,14 @@ import {
   CAPTURE_DATE_FONT_RATIO,
   CAPTURE_DATE_MARGIN_RATIO,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
+  FILTER_PRESET_NONE,
+  FILTER_PRESET_GRAYSCALE,
+  FILTER_PRESET_SEPIA,
+  FILTER_GRAYSCALE_VALUE,
+  FILTER_SEPIA_VALUE,
+  VIGNETTE_STRENGTH_MIN,
+  VIGNETTE_STRENGTH_MAX,
+  VIGNETTE_STRENGTH_DEFAULT,
 } from '../../js/config.js';
 
 describe('config', () => {
@@ -96,5 +104,37 @@ describe('config', () => {
 
   it('exports CAPTURE_DATE_FONT_SCALE_DEFAULT', () => {
     expect(CAPTURE_DATE_FONT_SCALE_DEFAULT).toBe(1);
+  });
+
+  it('exports FILTER_PRESET_NONE', () => {
+    expect(FILTER_PRESET_NONE).toBe('none');
+  });
+
+  it('exports FILTER_PRESET_GRAYSCALE', () => {
+    expect(FILTER_PRESET_GRAYSCALE).toBe('grayscale');
+  });
+
+  it('exports FILTER_PRESET_SEPIA', () => {
+    expect(FILTER_PRESET_SEPIA).toBe('sepia');
+  });
+
+  it('exports FILTER_GRAYSCALE_VALUE', () => {
+    expect(FILTER_GRAYSCALE_VALUE).toBe(1);
+  });
+
+  it('exports FILTER_SEPIA_VALUE', () => {
+    expect(FILTER_SEPIA_VALUE).toBe(0.8);
+  });
+
+  it('exports VIGNETTE_STRENGTH_MIN', () => {
+    expect(VIGNETTE_STRENGTH_MIN).toBe(0.2);
+  });
+
+  it('exports VIGNETTE_STRENGTH_MAX', () => {
+    expect(VIGNETTE_STRENGTH_MAX).toBe(0.8);
+  });
+
+  it('exports VIGNETTE_STRENGTH_DEFAULT', () => {
+    expect(VIGNETTE_STRENGTH_DEFAULT).toBe(0.5);
   });
 });
