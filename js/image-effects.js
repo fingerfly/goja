@@ -1,14 +1,28 @@
 import {
-  FILTER_PRESET_NONE,
   FILTER_PRESET_GRAYSCALE,
   FILTER_PRESET_SEPIA,
+  FILTER_PRESET_BRIGHTNESS,
+  FILTER_PRESET_CONTRAST,
+  FILTER_PRESET_SATURATED,
+  FILTER_PRESET_FADED,
+  FILTER_PRESET_VINTAGE,
+  FILTER_PRESET_BLUR,
   FILTER_GRAYSCALE_VALUE,
   FILTER_SEPIA_VALUE,
+  FILTER_BRIGHTNESS_VALUE,
+  FILTER_CONTRAST_VALUE,
+  FILTER_SATURATE_VALUE,
+  FILTER_FADED_SATURATE,
+  FILTER_FADED_BRIGHTNESS,
+  FILTER_VINTAGE_SEPIA,
+  FILTER_VINTAGE_BRIGHTNESS,
+  FILTER_VINTAGE_CONTRAST,
+  FILTER_BLUR_PX,
 } from './config.js';
 
 /**
  * Returns CSS filter string for a filter preset, or 'none'.
- * @param {string} filterPreset - 'none' | 'grayscale' | 'sepia'
+ * @param {string} filterPreset - preset name
  * @returns {string}
  */
 export function getFilterCss(filterPreset) {
@@ -17,6 +31,24 @@ export function getFilterCss(filterPreset) {
   }
   if (filterPreset === FILTER_PRESET_SEPIA) {
     return `sepia(${FILTER_SEPIA_VALUE * 100}%)`;
+  }
+  if (filterPreset === FILTER_PRESET_BRIGHTNESS) {
+    return `brightness(${FILTER_BRIGHTNESS_VALUE})`;
+  }
+  if (filterPreset === FILTER_PRESET_CONTRAST) {
+    return `contrast(${FILTER_CONTRAST_VALUE})`;
+  }
+  if (filterPreset === FILTER_PRESET_SATURATED) {
+    return `saturate(${FILTER_SATURATE_VALUE})`;
+  }
+  if (filterPreset === FILTER_PRESET_FADED) {
+    return `saturate(${FILTER_FADED_SATURATE}) brightness(${FILTER_FADED_BRIGHTNESS})`;
+  }
+  if (filterPreset === FILTER_PRESET_VINTAGE) {
+    return `sepia(${FILTER_VINTAGE_SEPIA * 100}%) brightness(${FILTER_VINTAGE_BRIGHTNESS}) contrast(${FILTER_VINTAGE_CONTRAST})`;
+  }
+  if (filterPreset === FILTER_PRESET_BLUR) {
+    return `blur(${FILTER_BLUR_PX}px)`;
   }
   return 'none';
 }

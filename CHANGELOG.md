@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [7.2.0] - 2026-02-23
+
+### Added
+- Live preview for filter and vignette: effects now display in the grid before export (CSS filter on img; radial-gradient vignette overlay). Previously effects applied only on export.
+- Six new filter presets: brightness, contrast, saturated, faded, vintage, blur. All use ctx.filter; config-driven values. i18n for filterBrightness, filterContrast, filterSaturated, filterFaded, filterVintage, filterBlur in all 11 locales.
+
 ## [7.1.0] - 2026-02-23
 
 

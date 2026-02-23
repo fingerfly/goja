@@ -22,8 +22,23 @@ import {
   FILTER_PRESET_NONE,
   FILTER_PRESET_GRAYSCALE,
   FILTER_PRESET_SEPIA,
+  FILTER_PRESET_BRIGHTNESS,
+  FILTER_PRESET_CONTRAST,
+  FILTER_PRESET_SATURATED,
+  FILTER_PRESET_FADED,
+  FILTER_PRESET_VINTAGE,
+  FILTER_PRESET_BLUR,
   FILTER_GRAYSCALE_VALUE,
   FILTER_SEPIA_VALUE,
+  FILTER_BRIGHTNESS_VALUE,
+  FILTER_CONTRAST_VALUE,
+  FILTER_SATURATE_VALUE,
+  FILTER_FADED_SATURATE,
+  FILTER_FADED_BRIGHTNESS,
+  FILTER_VINTAGE_SEPIA,
+  FILTER_VINTAGE_BRIGHTNESS,
+  FILTER_VINTAGE_CONTRAST,
+  FILTER_BLUR_PX,
   VIGNETTE_STRENGTH_MIN,
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
@@ -124,6 +139,66 @@ describe('config', () => {
 
   it('exports FILTER_SEPIA_VALUE', () => {
     expect(FILTER_SEPIA_VALUE).toBe(0.8);
+  });
+
+  it('exports FILTER_PRESET_BRIGHTNESS', () => {
+    expect(FILTER_PRESET_BRIGHTNESS).toBe('brightness');
+  });
+
+  it('exports FILTER_PRESET_CONTRAST', () => {
+    expect(FILTER_PRESET_CONTRAST).toBe('contrast');
+  });
+
+  it('exports FILTER_PRESET_SATURATED', () => {
+    expect(FILTER_PRESET_SATURATED).toBe('saturated');
+  });
+
+  it('exports FILTER_PRESET_FADED', () => {
+    expect(FILTER_PRESET_FADED).toBe('faded');
+  });
+
+  it('exports FILTER_PRESET_VINTAGE', () => {
+    expect(FILTER_PRESET_VINTAGE).toBe('vintage');
+  });
+
+  it('exports FILTER_PRESET_BLUR', () => {
+    expect(FILTER_PRESET_BLUR).toBe('blur');
+  });
+
+  it('exports FILTER_BRIGHTNESS_VALUE', () => {
+    expect(FILTER_BRIGHTNESS_VALUE).toBe(1.15);
+  });
+
+  it('exports FILTER_CONTRAST_VALUE', () => {
+    expect(FILTER_CONTRAST_VALUE).toBe(1.2);
+  });
+
+  it('exports FILTER_SATURATE_VALUE', () => {
+    expect(FILTER_SATURATE_VALUE).toBe(1.4);
+  });
+
+  it('exports FILTER_FADED_SATURATE', () => {
+    expect(FILTER_FADED_SATURATE).toBe(0.65);
+  });
+
+  it('exports FILTER_FADED_BRIGHTNESS', () => {
+    expect(FILTER_FADED_BRIGHTNESS).toBe(1.05);
+  });
+
+  it('exports FILTER_VINTAGE_SEPIA', () => {
+    expect(FILTER_VINTAGE_SEPIA).toBe(0.35);
+  });
+
+  it('exports FILTER_VINTAGE_BRIGHTNESS', () => {
+    expect(FILTER_VINTAGE_BRIGHTNESS).toBe(1.05);
+  });
+
+  it('exports FILTER_VINTAGE_CONTRAST', () => {
+    expect(FILTER_VINTAGE_CONTRAST).toBe(1.1);
+  });
+
+  it('exports FILTER_BLUR_PX', () => {
+    expect(FILTER_BLUR_PX).toBe(1.5);
   });
 
   it('exports VIGNETTE_STRENGTH_MIN', () => {

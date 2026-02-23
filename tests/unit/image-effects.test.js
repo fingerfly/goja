@@ -25,6 +25,30 @@ describe('getFilterCss', () => {
   it('returns "none" for empty string', () => {
     expect(getFilterCss('')).toBe('none');
   });
+
+  it('returns brightness filter for preset "brightness"', () => {
+    expect(getFilterCss('brightness')).toBe('brightness(1.15)');
+  });
+
+  it('returns contrast filter for preset "contrast"', () => {
+    expect(getFilterCss('contrast')).toBe('contrast(1.2)');
+  });
+
+  it('returns saturate filter for preset "saturated"', () => {
+    expect(getFilterCss('saturated')).toBe('saturate(1.4)');
+  });
+
+  it('returns faded combo filter for preset "faded"', () => {
+    expect(getFilterCss('faded')).toBe('saturate(0.65) brightness(1.05)');
+  });
+
+  it('returns vintage combo filter for preset "vintage"', () => {
+    expect(getFilterCss('vintage')).toBe('sepia(35%) brightness(1.05) contrast(1.1)');
+  });
+
+  it('returns blur filter for preset "blur"', () => {
+    expect(getFilterCss('blur')).toBe('blur(1.5px)');
+  });
 });
 
 describe('drawVignetteOverlay', () => {
