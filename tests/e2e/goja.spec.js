@@ -148,6 +148,40 @@ test.describe('Goja App', () => {
     await expect(page.locator('#previewGrid img')).toHaveCount(2);
   });
 
+  test.describe('touch remove menu', () => {
+    test.use({
+      hasTouch: true,
+      isMobile: true,
+      viewport: { width: 390, height: 844 },
+    });
+
+    test('tap on photo opens Goja remove menu on touch devices', async ({ page }) => {
+      const fileInput = page.locator('#fileInput');
+      await fileInput.setInputFiles([
+        path.join(fixtures, 'landscape.jpg'),
+        path.join(fixtures, 'portrait.jpg'),
+      ]);
+      await expect(page.locator('#preview')).toBeVisible();
+      const firstImage = page.locator('#previewGrid img').first();
+      await firstImage.tap();
+      await expect(page.locator('.cell-context-menu')).toBeVisible();
+      await expect(page.locator('.cell-context-menu')).toContainText('Remove');
+    });
+
+    test('repeated touch interactions keep one Goja menu instance', async ({ page }) => {
+      const fileInput = page.locator('#fileInput');
+      await fileInput.setInputFiles([
+        path.join(fixtures, 'landscape.jpg'),
+        path.join(fixtures, 'portrait.jpg'),
+      ]);
+      await expect(page.locator('#preview')).toBeVisible();
+      const firstImage = page.locator('#previewGrid img').first();
+      await firstImage.tap();
+      await firstImage.tap({ delay: 700 });
+      await expect(page.locator('.cell-context-menu')).toHaveCount(1);
+    });
+  });
+
   test('export success shows toast', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([
