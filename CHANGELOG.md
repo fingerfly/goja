@@ -9,6 +9,7 @@
 
 ### Changed
 - Preview capture-date rendering now draws via `drawCaptureDateOverlay()` in a per-cell canvas overlay instead of DOM `<span>` placement, so size/margins/opacity follow the same code path as exported output
+- PWA precache asset list in `sw.js` updated to include new rotation modules: `rotation-handler.js`, `rotation-math.js`, and `cell-draw.js`, ensuring offline cache completeness after feature rollout
 
 ### Tests
 - Verified with unit coverage (`preview-renderer`, `capture-date-overlay`, `cell-draw`) and full regression suites (unit + E2E)
