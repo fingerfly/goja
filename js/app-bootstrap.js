@@ -24,6 +24,7 @@ import { MAX_PHOTOS } from './config.js';
 import { clampFrameValue, isFrameValueValid, setFrameInputInvalidState, createFrameInputHandler } from './frame-validation.js';
 import { enableCellContextMenu } from './cell-context-menu.js';
 import { enableCellKeyboardNav } from './cell-keyboard-nav.js';
+import { enableRotation } from './rotation-handler.js';
 import { initServiceWorkerUpdate } from './update-banner.js';
 import { pushState, undo, redo } from './state.js';
 import { syncActionButtons } from './action-buttons.js';
@@ -53,12 +54,42 @@ export function bootstrap() {
   const updater = createPreviewUpdater(stateRef, { previewGrid, preview, gapSlider, frameW, frameH, imageFit, templateSelect, dropZone, addBtn, clearBtn, exportBtn }, {
     ensureTemplatesLoaded, populateTemplateSelect, getTemplatesForCount, getStoredTemplate, clampFrameValue, computeGridLayout, renderGrid, ratiosToFrString, recomputePixelCells, pushState, buildForm, formatDateTimeOriginal, getLocale, t, syncActionButtons, enableGridResize,
   });
-  const { updatePreview, applyRestoredState, showUI, updateActionButtons } = updater;
+  const { updatePreview: baseUpdatePreview, applyRestoredState: baseApplyRestoredState, showUI, updateActionButtons } = updater;
+
+  let cleanupRotation = null;
+  function refreshRotationHandles() {
+    cleanupRotation?.();
+    if (!stateRef.currentLayout || stateRef.photos.length === 0) return;
+    cleanupRotation = enableRotation(
+      previewGrid,
+      () => stateRef.photos,
+      () => stateRef.currentLayout,
+      (cellIndex, angle) => {
+        const order = stateRef.currentLayout?.photoOrder || stateRef.photos.map((_, i) => i);
+        const photoIndex = order[cellIndex];
+        if (photoIndex == null || photoIndex < 0 || photoIndex >= stateRef.photos.length) return;
+        stateRef.photos[photoIndex].angle = angle;
+        updatePreview();
+      },
+      () => pushState(stateRef.photos, stateRef.currentLayout),
+      () => t('rotatePhoto')
+    );
+  }
+  const updatePreview = async () => {
+    await baseUpdatePreview();
+    refreshRotationHandles();
+  };
+  const applyRestoredState = (restored) => {
+    baseApplyRestoredState(restored);
+    refreshRotationHandles();
+  };
 
   const loadPhotos = (files) => loadPhotosFromFiles(files, { photos: stateRef.photos, maxPhotos: MAX_PHOTOS, currentLayout: stateRef.currentLayout, pushState, onComplete: updatePreview, onLoadError: (err) => showToast(`${t('loadFailed')} — ${err?.message ?? err}`, 'error'), loadingOverlay, loadingText, t, readImageDimensions, readDateTimeOriginal });
   const onExport = () => runExport({ frameW, frameH, exportFilename, exportUseDate, formatSelect, exportBtn }, { photos: stateRef.photos, currentLayout: stateRef.currentLayout }, { clampFrameValue, showToast, t, buildForm, getGridEffectsOptions, handleExport, showExportOptions, downloadBlob, shareBlob, copyBlobToClipboard, formatDateTimeOriginal, getLocale, updateActionButtons, updatePreview });
   const clearAll = () => {
     stateRef.photos.forEach((p) => URL.revokeObjectURL(p.url));
+    cleanupRotation?.();
+    cleanupRotation = null;
     if (stateRef.cleanupResize) { stateRef.cleanupResize(); stateRef.cleanupResize = null; }
     stateRef.photos = []; stateRef.currentLayout = null;
     previewGrid.innerHTML = '';
@@ -74,7 +105,7 @@ export function bootstrap() {
   updateActionButtons(0);
   $('#versionLabel').textContent = `v${VERSION_STRING}`;
 
-  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav });
+  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
 
   function updateOfflineBanner() { if (offlineBanner) offlineBanner.hidden = navigator.onLine; }
   if (typeof navigator !== 'undefined' && 'onLine' in navigator) { updateOfflineBanner(); window.addEventListener('offline', updateOfflineBanner); window.addEventListener('online', updateOfflineBanner); }

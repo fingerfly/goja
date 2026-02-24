@@ -24,8 +24,8 @@ describe('renderGrid', () => {
       canvasWidth: 200,
       canvasHeight: 100,
       cells: [
-        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
-        { rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 3 },
+        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, width: 100, height: 100 },
+        { rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 3, width: 100, height: 100 },
       ],
       photoOrder: [0, 1],
     };
@@ -48,7 +48,7 @@ describe('renderGrid', () => {
       colRatios: [1],
       canvasWidth: 100,
       canvasHeight: 100,
-      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 }],
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, width: 100, height: 100 }],
     };
     const form = { wmType: 'none', imageFit: 'cover', bgColor: '#fff', filterPreset: 'none', showCaptureDate: false };
     const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
@@ -65,8 +65,8 @@ describe('renderGrid', () => {
       canvasWidth: 200,
       canvasHeight: 100,
       cells: [
-        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2 },
-        { rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 3 },
+        { rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, width: 100, height: 100 },
+        { rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 3, width: 100, height: 100 },
       ],
       photoOrder: [0, 999],
     };
@@ -74,5 +74,24 @@ describe('renderGrid', () => {
     const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
     expect(() => renderGrid(container, preview, photos, layout, form, deps)).not.toThrow();
     expect(container.querySelectorAll('.preview-cell').length).toBe(1);
+  });
+
+  it('applies rotation transform and cell scale variable when photo has angle', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null, angle: 45 }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 100,
+      canvasHeight: 100,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, width: 100, height: 100 }],
+      photoOrder: [0],
+    };
+    const form = { imageFit: 'cover', bgColor: '#fff', filterPreset: 'none', showCaptureDate: false };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const cell = container.querySelector('.preview-cell');
+    expect(cell.style.transform).toContain('rotate(45deg)');
+    expect(cell.style.getPropertyValue('--cell-scale')).not.toBe('');
   });
 });

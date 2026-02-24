@@ -1,7 +1,6 @@
-import { createGridCanvas, drawPhotoOnCanvas, exportCanvasAsBlob } from './image-processor.js';
+import { createGridCanvas, exportCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
-import { drawCaptureDateOverlay } from './capture-date-overlay.js';
-import { drawVignetteOverlay } from './image-effects.js';
+import { drawCellContent } from './cell-draw.js';
 import {
   VIGNETTE_STRENGTH_DEFAULT,
   WATERMARK_OPACITY_DEFAULT,
@@ -34,25 +33,19 @@ function exportMainThread(photos, layout, options) {
     });
   })).then((imgElements) => {
     for (let i = 0; i < layout.cells.length; i++) {
-      drawPhotoOnCanvas(ctx, imgElements[photoOrder[i]], layout.cells[i], {
+      drawCellContent(ctx, imgElements[photoOrder[i]], layout.cells[i], {
         fitMode,
         backgroundColor: bg,
         filter,
+        vignetteEnabled,
+        vignetteStrength,
+        showCaptureDate,
+        captureDateStr: dateOriginals[photoOrder[i]],
+        captureDatePos,
+        captureDateOpacity,
+        captureDateFontScale,
+        angle: photos[photoOrder[i]]?.angle || 0,
       });
-      if (vignetteEnabled) {
-        drawVignetteOverlay(ctx, layout.cells[i], { strength: vignetteStrength });
-      }
-      if (showCaptureDate) {
-        const dateStr = dateOriginals[photoOrder[i]];
-        if (dateStr) {
-          drawCaptureDateOverlay(ctx, layout.cells[i], dateStr, {
-            position: captureDatePos,
-            opacity: captureDateOpacity,
-            fontScale: captureDateFontScale,
-            backgroundColor: bg,
-          });
-        }
-      }
     }
     drawWatermark(ctx, canvas.width, canvas.height, {
       type: watermarkType, text: watermarkText, position: watermarkPos,
@@ -66,6 +59,7 @@ function exportMainThread(photos, layout, options) {
 function exportViaWorker(photos, layout, options) {
   return new Promise((resolve, reject) => {
     const blobUrls = photos.map((p) => p.url);
+    const angles = photos.map((p) => p.angle || 0);
     const worker = new Worker(new URL('./export-worker.js', import.meta.url), { type: 'module' });
     worker.onmessage = (e) => {
       worker.terminate();
@@ -76,7 +70,7 @@ function exportViaWorker(photos, layout, options) {
       worker.terminate();
       reject(new Error('Worker failed'));
     };
-    worker.postMessage({ layout, options, blobUrls });
+    worker.postMessage({ layout, options, blobUrls, angles });
   });
 }
 

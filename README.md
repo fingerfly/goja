@@ -22,10 +22,15 @@ Create photo grid collages directly in your browser. Drop in your photos, choose
 - Watermark support (free text, date/time, copyright) with opacity, position, and font size options
 - EXIF capture date & time overlay: optional per-photo DateTimeOriginal on each image, with position, opacity, and font size controls; locale-aware formatting
 
+### Effects
+- Eight filter presets: grayscale, sepia, brightness, contrast, saturated, faded, vintage, blur
+- Vignette effect (darkened edges) with adjustable intensity
+- Live preview for filters and vignette on the grid before export
+
 ### Export
 - Export as JPEG or PNG; customizable filename and optional date
 - Export options: Share (Web Share API), Download (save to device), Copy to clipboard, Open in new tab — Share hidden on browsers without Web Share API
-- Aspect presets (1:1, 3:4, 4:3, 16:9, Instagram, Stories, 抖音, 小红书, 快手, 视频号)
+- Aspect presets (1:1, 3:4, 16:9, Instagram, Stories, 抖音, 小红书, 快手, 视频号)
 
 ### App
 - 11 languages: English, 简体中文, 繁體中文, Deutsch, Nederlands, Español, Italiano, Türkçe, Suomi, 日本語, Esperanto
@@ -70,3 +75,7 @@ npm run deploy -- <build|patch|minor|major>
 ```
 
 Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. GitHub Actions deploys to Pages at https://fingerfly.github.io/goja/
+
+## License
+
+[GPL-3.0-only](LICENSE)

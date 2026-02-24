@@ -6,6 +6,8 @@ import { ratiosToFrString } from './resize-engine.js';
 import { getFilterCss } from './image-effects.js';
 import { resolveWatermarkText, drawWatermark } from './watermark.js';
 import { getWatermarkOptions, getCaptureDateOptions, getVignetteOptions } from './grid-effects-settings.js';
+import { ROTATION_DEFAULT_ANGLE } from './config.js';
+import { fitScaleFactor } from './rotation-math.js';
 
 /**
  * Renders the grid preview into container and optionally watermark overlay into preview.
@@ -64,6 +66,15 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     img.tabIndex = 0;
     img.setAttribute('role', 'button');
     cell.appendChild(img);
+
+    const angle = photos[idx].angle ?? ROTATION_DEFAULT_ANGLE;
+    if (angle !== 0) {
+      const scale = fitScaleFactor(angle, c.width, c.height);
+      cell.style.transform = `rotate(${angle}deg) scale(${scale})`;
+      cell.style.setProperty('--cell-scale', String(scale));
+    } else {
+      cell.style.setProperty('--cell-scale', '1');
+    }
 
     if (vignette.enabled && vignette.strength > 0) {
       const vignetteEl = document.createElement('div');

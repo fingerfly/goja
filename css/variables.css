@@ -48,6 +48,8 @@
   --export-sheet-height: 40vh;
   --resize-handle-color: var(--color-primary);
   --resize-handle-width: 4px;
+  --rotation-handle-size: 28px;
+  --rotation-handle-offset: 8px;
 }
 
 @media (prefers-color-scheme: dark) {

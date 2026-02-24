@@ -1,10 +1,9 @@
 /**
  * Web Worker for export. Uses OffscreenCanvas; fallback to main thread if unsupported.
  */
-import { createOffscreenGridCanvas, drawPhotoOnCanvas, exportOffscreenCanvasAsBlob } from './image-processor.js';
+import { createOffscreenGridCanvas, exportOffscreenCanvasAsBlob } from './image-processor.js';
 import { drawWatermark } from './watermark.js';
-import { drawCaptureDateOverlay } from './capture-date-overlay.js';
-import { drawVignetteOverlay } from './image-effects.js';
+import { drawCellContent } from './cell-draw.js';
 import {
   JPEG_QUALITY,
   VIGNETTE_STRENGTH_DEFAULT,
@@ -17,7 +16,7 @@ import {
 } from './config.js';
 
 self.onmessage = async (e) => {
-  const { layout, options, blobUrls } = e.data;
+  const { layout, options, blobUrls, angles = [] } = e.data;
   try {
     const photoOrder = layout.photoOrder || blobUrls.map((_, i) => i);
     const blobs = await Promise.all(blobUrls.map((url) => fetch(url).then((r) => r.blob())));
@@ -35,25 +34,19 @@ self.onmessage = async (e) => {
     const ctx = canvas.getContext('2d');
 
     for (let i = 0; i < layout.cells.length; i++) {
-      drawPhotoOnCanvas(ctx, bitmaps[photoOrder[i]], layout.cells[i], {
+      drawCellContent(ctx, bitmaps[photoOrder[i]], layout.cells[i], {
         fitMode,
         backgroundColor: bg,
         filter,
+        vignetteEnabled,
+        vignetteStrength,
+        showCaptureDate,
+        captureDateStr: dateOriginals[photoOrder[i]],
+        captureDatePos,
+        captureDateOpacity,
+        captureDateFontScale,
+        angle: angles[photoOrder[i]] || 0,
       });
-      if (vignetteEnabled) {
-        drawVignetteOverlay(ctx, layout.cells[i], { strength: vignetteStrength });
-      }
-      if (showCaptureDate) {
-        const dateStr = dateOriginals[photoOrder[i]];
-        if (dateStr) {
-          drawCaptureDateOverlay(ctx, layout.cells[i], dateStr, {
-            position: captureDatePos,
-            opacity: captureDateOpacity,
-            fontScale: captureDateFontScale,
-            backgroundColor: bg,
-          });
-        }
-      }
     }
 
     drawWatermark(ctx, canvas.width, canvas.height, {

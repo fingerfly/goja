@@ -58,3 +58,8 @@ export const EXPORT_FILENAME_MAX_LENGTH = 200;
 export const VIGNETTE_STRENGTH_MIN = 0.2;
 export const VIGNETTE_STRENGTH_MAX = 0.8;
 export const VIGNETTE_STRENGTH_DEFAULT = 0.5;
+
+export const ROTATION_HANDLE_SIZE = 28;
+export const ROTATION_HANDLE_OFFSET = 8;
+export const ROTATION_DEFAULT_ANGLE = 0;
+export const ROTATION_KEYBOARD_STEP = 1;

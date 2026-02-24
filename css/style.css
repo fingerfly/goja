@@ -235,6 +235,54 @@ body {
   pointer-events: none;
 }
 
+.preview-cell {
+  transform-origin: center center;
+}
+
+.rotation-handle {
+  position: absolute;
+  top: var(--rotation-handle-offset);
+  right: var(--rotation-handle-offset);
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  -webkit-transform: scale(calc(1 / var(--cell-scale, 1)));
+  transform: scale(calc(1 / var(--cell-scale, 1)));
+  transform-origin: top right;
+}
+
+.rotation-handle::before {
+  content: '';
+  width: var(--rotation-handle-size);
+  height: var(--rotation-handle-size);
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  background: var(--color-primary);
+}
+
+.rotation-handle::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--color-surface);
+  border-right: 2px solid var(--color-surface);
+  transform: rotate(45deg);
+}
+
+.rotation-handle:active {
+  cursor: grabbing;
+}
+
 /* --- Resize handles --- */
 .resize-overlay {
   position: absolute;

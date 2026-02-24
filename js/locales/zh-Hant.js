@@ -94,6 +94,7 @@ export default {
   langJa: '日本語',
   langEo: 'Esperanto',
   photoAlt: '照片 {n}',
+  rotatePhoto: '旋轉照片',
   removePhoto: '移除',
   swapWithPrevious: '與上一個交換',
   swapWithNext: '與下一個交換',

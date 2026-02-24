@@ -92,6 +92,7 @@ export default {
   langJa: '日本語',
   langEo: 'Esperanto',
   photoAlt: 'Fotoğraf {n}',
+  rotatePhoto: 'Fotoğrafı döndür',
   removePhoto: 'Kaldır',
   swapWithPrevious: 'Öncekiyle değiştir',
   swapWithNext: 'Sonrakiyle değiştir',

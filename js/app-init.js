@@ -66,7 +66,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange, openFile } = handlers;
   const { validateFrameInput, debouncedFrameInput, clearToastSessionFor } = frameInput;
   const { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm,
-    formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel } = deps;
+    formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, refreshRotationHandles } = deps;
 
   setFormDefaults(refs);
 
@@ -151,6 +151,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     pushState(stateRef.photos, stateRef.currentLayout);
     stateRef.currentLayout.photoOrder = swapOrder(stateRef.currentLayout.photoOrder, srcIdx, tgtIdx);
     renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t });
+    refreshRotationHandles?.();
   });
   deps.enableCellContextMenu(previewGrid, () => stateRef.currentLayout, (cellIndex) => {
     if (!stateRef.currentLayout || stateRef.photos.length === 0) return;
@@ -167,5 +168,6 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     pushState(stateRef.photos, stateRef.currentLayout);
     stateRef.currentLayout.photoOrder = swapOrder(stateRef.currentLayout.photoOrder, srcIdx, tgtIdx);
     renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t });
+    refreshRotationHandles?.();
   });
 }
