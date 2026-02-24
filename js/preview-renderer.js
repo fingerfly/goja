@@ -8,6 +8,7 @@ import { resolveWatermarkText, drawWatermark } from './watermark.js';
 import { getWatermarkOptions, getCaptureDateOptions, getVignetteOptions } from './grid-effects-settings.js';
 import { ROTATION_DEFAULT_ANGLE } from './config.js';
 import { fitScaleFactor } from './rotation-math.js';
+import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 
 /**
  * Renders the grid preview into container and optionally watermark overlay into preview.
@@ -72,8 +73,10 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       const scale = fitScaleFactor(angle, c.width, c.height);
       cell.style.transform = `rotate(${angle}deg) scale(${scale})`;
       cell.style.setProperty('--cell-scale', String(scale));
+      cell.style.setProperty('--cell-angle', `${angle}deg`);
     } else {
       cell.style.setProperty('--cell-scale', '1');
+      cell.style.setProperty('--cell-angle', '0deg');
     }
 
     if (vignette.enabled && vignette.strength > 0) {
@@ -87,13 +90,34 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     const photo = photos[idx];
     if (form.showCaptureDate && photo?.dateOriginal) {
       const dateStr = formatDateTimeOriginal(photo.dateOriginal, getLocale());
-      const span = document.createElement('span');
-      span.className = `capture-date-overlay capture-date-overlay--${capture.position}`;
-      span.setAttribute('aria-hidden', 'true');
-      span.textContent = dateStr;
-      span.style.opacity = String(capture.opacity);
-      span.style.fontSize = `calc(var(--font-size-sm) * ${capture.fontScale})`;
-      cell.appendChild(span);
+      const overlayCanvas = document.createElement('canvas');
+      overlayCanvas.className = 'capture-date-canvas-overlay';
+      overlayCanvas.setAttribute('aria-hidden', 'true');
+      overlayCanvas.width = c.width;
+      overlayCanvas.height = c.height;
+      Object.assign(overlayCanvas.style, {
+        position: 'absolute',
+        inset: '0',
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        pointerEvents: 'none',
+      });
+      const overlayCtx = overlayCanvas.getContext('2d');
+      if (overlayCtx) {
+        drawCaptureDateOverlay(
+          overlayCtx,
+          { x: 0, y: 0, width: c.width, height: c.height },
+          dateStr,
+          {
+            position: capture.position,
+            opacity: capture.opacity,
+            fontScale: capture.fontScale,
+            backgroundColor: form.bgColor ?? '#ffffff',
+          }
+        );
+      }
+      cell.appendChild(overlayCanvas);
     }
 
     container.appendChild(cell);

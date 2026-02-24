@@ -207,26 +207,33 @@ body {
   color: #fff;
   white-space: nowrap;
   pointer-events: none;
+  /* Keep capture date visually horizontal and readable on rotated cells. */
+  -webkit-transform: rotate(calc(-1 * var(--cell-angle, 0deg))) scale(calc(1 / var(--cell-scale, 1)));
+  transform: rotate(calc(-1 * var(--cell-angle, 0deg))) scale(calc(1 / var(--cell-scale, 1)));
 }
 
 .capture-date-overlay--bottom-left {
   bottom: var(--gap-xs);
   left: var(--gap-xs);
+  transform-origin: left bottom;
 }
 
 .capture-date-overlay--bottom-right {
   bottom: var(--gap-xs);
   right: var(--gap-xs);
+  transform-origin: right bottom;
 }
 
 .capture-date-overlay--top-left {
   top: var(--gap-xs);
   left: var(--gap-xs);
+  transform-origin: left top;
 }
 
 .capture-date-overlay--top-right {
   top: var(--gap-xs);
   right: var(--gap-xs);
+  transform-origin: right top;
 }
 
 .vignette-overlay {

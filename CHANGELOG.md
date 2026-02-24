@@ -2,7 +2,31 @@
 
 ## [Unreleased]
 
+## [8.0.1] - 2026-02-24
+
+
 ## [8.0.0] - 2026-02-24
+
+### Added
+- Per-photo rotation with draggable handle: each grid cell can now be rotated in 360 degrees, with whole-cell rotation (photo + overlays) and shrink-to-fit behavior to prevent overlap
+- Rotation interaction module (`js/rotation-handler.js`) with mouse/touch drag, keyboard step rotation, and live per-cell transform updates during drag
+- Rotation math module (`js/rotation-math.js`) with `computeAngleDeg`, `fitScaleFactor`, and `normalizeAngle`
+- New config constants for rotation behavior and UI sizing: `ROTATION_HANDLE_SIZE`, `ROTATION_HANDLE_OFFSET`, `ROTATION_DEFAULT_ANGLE`, `ROTATION_KEYBOARD_STEP`
+- Locale key `rotatePhoto` added across all 11 language files for rotation handle accessibility label
+
+### Changed
+- Preview rendering now applies per-cell rotation transforms using actual cell pixel dimensions (`layout.cells[i].width/height`) and stores `--cell-scale` for UI counter-scaling
+- Export pipeline now carries per-photo angles through main thread and worker paths so exported images match rotated preview output
+- App bootstrap/init wiring now rebinds rotation handles after preview re-renders and keeps undo/redo integration for rotation changes
+
+### Refactored
+- Extracted shared export cell draw logic into `js/cell-draw.js` to remove duplicated per-cell draw code between `export-handler.js` and `export-worker.js`
+- Rotation transform wrapping in export is centralized in `cell-draw.js` for better reuse and maintainability
+
+### Tests
+- Added unit tests: `tests/unit/rotation-math.test.js`, `tests/unit/rotation-handler.test.js`, `tests/unit/cell-draw.test.js`
+- Extended preview-renderer unit coverage for rotated cell transform behavior
+- Full regression verification completed: unit suite and E2E suite both passing
 
 
 ## [7.5.0] - 2026-02-23
