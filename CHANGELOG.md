@@ -4,6 +4,15 @@
 
 ## [8.0.1] - 2026-02-24
 
+### Fixed
+- Capture date/time overlay consistency between preview and export for rotated photos: preview now uses the same canvas drawing logic as export, improving on-screen positioning and visual alignment
+
+### Changed
+- Preview capture-date rendering now draws via `drawCaptureDateOverlay()` in a per-cell canvas overlay instead of DOM `<span>` placement, so size/margins/opacity follow the same code path as exported output
+
+### Tests
+- Verified with unit coverage (`preview-renderer`, `capture-date-overlay`, `cell-draw`) and full regression suites (unit + E2E)
+
 
 ## [8.0.0] - 2026-02-24
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v8.0.1-1';
+const CACHE_NAME = 'goja-v8.0.1-2';
 const ASSETS = [
   './',
   './index.html',
@@ -35,6 +35,9 @@ const ASSETS = [
   './js/export-flow.js',
   './js/preview-updater.js',
   './js/app-init.js',
+  './js/rotation-handler.js',
+  './js/rotation-math.js',
+  './js/cell-draw.js',
   './js/settings-panel.js',
   './js/resize-engine.js',
   './js/resize-handler.js',
