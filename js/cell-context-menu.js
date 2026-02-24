@@ -1,6 +1,7 @@
 const TAP_MAX_MOVE_PX = 8;
 const TAP_MAX_DURATION_MS = 250;
 const TOUCH_CONTEXTMENU_GUARD_MS = 700;
+const CONTEXT_MENU_AUTO_DISMISS_MS = 1500;
 
 export function enableCellContextMenu(gridEl, getLayout, onRemove, t = (k) => k) {
   let touchState = null;
@@ -58,7 +59,18 @@ function showContextMenu(clientX, clientY, cellIndex, onRemove, t) {
   removeBtn.type = 'button';
   removeBtn.className = 'cell-context-menu__btn';
   removeBtn.textContent = t('removePhoto');
-  removeBtn.addEventListener('click', () => { onRemove(cellIndex); menu.remove(); });
+  let dismissTimer = null;
+  let isClosed = false;
+  const close = () => {
+    if (isClosed) return;
+    isClosed = true;
+    if (dismissTimer) clearTimeout(dismissTimer);
+    dismissTimer = null;
+    menu.remove();
+    document.removeEventListener('click', close);
+  };
+  menu.__gojaClose = close;
+  removeBtn.addEventListener('click', () => { onRemove(cellIndex); close(); });
   menu.appendChild(removeBtn);
   document.body.appendChild(menu);
   const rect = menu.getBoundingClientRect();
@@ -66,10 +78,16 @@ function showContextMenu(clientX, clientY, cellIndex, onRemove, t) {
   if (clientY + rect.height > window.innerHeight) menu.style.top = `${window.innerHeight - rect.height - 8}px`;
   if (clientX < 8) menu.style.left = '8px';
   if (clientY < 8) menu.style.top = '8px';
-  const close = () => { menu.remove(); document.removeEventListener('click', close); };
   setTimeout(() => document.addEventListener('click', close), 0);
+  dismissTimer = setTimeout(close, CONTEXT_MENU_AUTO_DISMISS_MS);
 }
 
 function dismissExistingMenu() {
-  document.querySelector('.cell-context-menu')?.remove();
+  const menu = document.querySelector('.cell-context-menu');
+  if (!menu) return;
+  if (typeof menu.__gojaClose === 'function') {
+    menu.__gojaClose();
+    return;
+  }
+  menu.remove();
 }

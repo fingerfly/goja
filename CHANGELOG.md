@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [8.1.1] - 2026-02-24
+
+
+### Changed
+- Touch photo removal now uses tap-to-open context menu on grid photos instead of long-press timing, with tap gesture thresholds (`TAP_MAX_MOVE_PX`, `TAP_MAX_DURATION_MS`) to avoid drag conflicts
+- Context menu UI styles moved from inline JS to CSS classes (`.cell-context-menu`, `.cell-context-menu__btn`) with 44px touch-target minimum for better mobile usability
+- Context menu now auto-dismisses after idle timeout (`CONTEXT_MENU_AUTO_DISMISS_MS = 1500`) to reduce persistent on-screen menu clutter on touch devices
+
+### Fixed
+- Oppo Find X8 built-in browser overlap issue: touch-originated native `contextmenu` is now guarded, preventing double-menu overlap during Goja photo removal flow
+- Hybrid input handling: desktop mouse right-click context menu remains intact while touch-origin interactions follow the touch-first flow
+
+### Tests
+- Added unit tests: `tests/unit/cell-context-menu.test.js` (tap opens menu, repeated taps keep single menu instance)
+- Added unit coverage for auto-dismiss timing and replacement-menu timer cleanup behavior
+- Added E2E tests in `tests/e2e/goja.spec.js` for touch remove menu behavior, non-duplication regression, and idle auto-dismiss behavior
+
 ## [8.1.0] - 2026-02-24
 
 

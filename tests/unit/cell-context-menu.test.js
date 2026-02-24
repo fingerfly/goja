@@ -45,4 +45,26 @@ describe('cell-context-menu touch interactions', () => {
     const menus = document.querySelectorAll('.cell-context-menu');
     expect(menus).toHaveLength(1);
   });
+
+  it('auto-dismisses the menu after idle timeout', () => {
+    vi.useFakeTimers();
+    dispatchTouchStart(img);
+    dispatchTouchEnd(img);
+    expect(document.querySelector('.cell-context-menu')).toBeTruthy();
+    vi.advanceTimersByTime(1500);
+    expect(document.querySelector('.cell-context-menu')).toBeFalsy();
+  });
+
+  it('keeps replacement menu alive until its own timeout', () => {
+    vi.useFakeTimers();
+    dispatchTouchStart(img, 20, 20);
+    dispatchTouchEnd(img, 20, 20);
+    vi.advanceTimersByTime(1000);
+    dispatchTouchStart(img, 40, 40);
+    dispatchTouchEnd(img, 40, 40);
+    vi.advanceTimersByTime(600);
+    expect(document.querySelector('.cell-context-menu')).toBeTruthy();
+    vi.advanceTimersByTime(900);
+    expect(document.querySelector('.cell-context-menu')).toBeFalsy();
+  });
 });

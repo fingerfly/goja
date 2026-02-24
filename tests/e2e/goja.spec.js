@@ -180,6 +180,20 @@ test.describe('Goja App', () => {
       await firstImage.tap({ delay: 700 });
       await expect(page.locator('.cell-context-menu')).toHaveCount(1);
     });
+
+    test('touch menu auto-dismisses after idle timeout', async ({ page }) => {
+      const fileInput = page.locator('#fileInput');
+      await fileInput.setInputFiles([
+        path.join(fixtures, 'landscape.jpg'),
+        path.join(fixtures, 'portrait.jpg'),
+      ]);
+      await expect(page.locator('#preview')).toBeVisible();
+      const firstImage = page.locator('#previewGrid img').first();
+      await firstImage.tap();
+      await expect(page.locator('.cell-context-menu')).toBeVisible();
+      await page.waitForTimeout(1900);
+      await expect(page.locator('.cell-context-menu')).toHaveCount(0);
+    });
   });
 
   test('export success shows toast', async ({ page }) => {
