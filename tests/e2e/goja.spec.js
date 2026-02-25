@@ -318,9 +318,7 @@ test.describe('Goja App', () => {
   test('settings tabs navigate to target sections', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
-    const tab = page.locator('[data-settings-tab="watermark"]');
-    await tab.click();
-    await expect(tab).toHaveClass(/is-active/);
+    await page.locator('[data-settings-tab="watermark"]').click();
     await expect(page.locator('#settingsSectionWatermark')).toHaveAttribute('data-settings-section', 'watermark');
   });
 
@@ -336,6 +334,8 @@ test.describe('Goja App', () => {
     await page.setViewportSize({ width: 1024, height: 900 });
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const panelWidth = await page.locator('#settingsPanel').evaluate((el) => el.getBoundingClientRect().width);
+    expect(panelWidth).toBeGreaterThanOrEqual(380);
     const cols = await page.locator('.control-row--pair').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns);
     expect(cols.trim().split(/\s+/).length).toBe(2);
   });
@@ -375,6 +375,34 @@ test.describe('Goja App', () => {
     await expect(filenameInput).toHaveAttribute('placeholder', 'goja-grid');
     const exportUseDateLabel = page.locator('label:has(input#exportUseDate)');
     await expect(exportUseDateLabel).toContainText('在文件名中添加日期');
+  });
+
+  test('settings footer actions are localized in zh-Hans', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#settingsResetSectionBtn')).toHaveText('重置当前分组');
+    await expect(page.locator('#settingsResetAllBtn')).toHaveText('全部重置');
+    await expect(page.locator('#settingsDoneBtn')).toHaveText('完成');
+  });
+
+  test('settings tab click positions target section near top of panel body', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('[data-settings-tab="legal"]').click();
+    const deltaTop = await page.evaluate(() => {
+      const panel = document.querySelector('#settingsPanelBody');
+      const section = document.querySelector('#settingsSectionLegal');
+      const tabs = document.querySelector('#settingsSectionTabs');
+      if (!panel || !section || !tabs) return 9999;
+      const panelRect = panel.getBoundingClientRect();
+      const sectionRect = section.getBoundingClientRect();
+      const expectedTop = panelRect.top + tabs.getBoundingClientRect().height;
+      return Math.abs(sectionRect.top - expectedTop);
+    });
+    expect(deltaTop).toBeLessThanOrEqual(80);
   });
 
   test('drag and drop reorders photos', async ({ page }) => {

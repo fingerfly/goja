@@ -7,7 +7,7 @@ function setActiveTab(tabsEl, key) {
 export function getActiveSectionKey(panelBodyEl) {
   const sections = panelBodyEl?.querySelectorAll('[data-settings-section]');
   if (!sections?.length) return null;
-  const top = panelBodyEl.scrollTop + 12;
+  const top = panelBodyEl.scrollTop + (panelBodyEl.querySelector('#settingsSectionTabs')?.offsetHeight || 0) + 12;
   let active = sections[0];
   sections.forEach((section) => {
     if (section.offsetTop <= top) active = section;
@@ -23,8 +23,10 @@ export function initSettingsTabsNav(panelBodyEl, tabsEl) {
     const key = btn.dataset.settingsTab;
     const section = panelBodyEl.querySelector(`[data-settings-section="${key}"]`);
     if (!section) return;
-    const top = Math.max(0, section.offsetTop - tabsEl.offsetHeight - 8);
-    panelBodyEl.scrollTo({ top, behavior: 'smooth' });
+    const panelRect = panelBodyEl.getBoundingClientRect();
+    const sectionRect = section.getBoundingClientRect();
+    const top = Math.max(0, panelBodyEl.scrollTop + sectionRect.top - panelRect.top - tabsEl.offsetHeight - 8);
+    panelBodyEl.scrollTo({ top, behavior: 'auto' });
     setActiveTab(tabsEl, key);
   };
   const onScroll = () => {

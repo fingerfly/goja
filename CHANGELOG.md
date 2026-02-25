@@ -2,7 +2,22 @@
 
 ## [Unreleased]
 
+
 ## [8.3.0] - 2026-02-25
+
+
+### Added
+- Settings section tab navigation in the modal (`Grid`, `Export`, `Effects`, `Watermark`, `Legal`) with active-tab state and section mapping via new `js/settings-tabs-nav.js`.
+- Sticky settings action bar with `Reset section`, `Reset all`, and `Done` controls to reduce long-scroll friction in the modal.
+- New settings layout design tokens in `css/variables.css` for tabs/footer heights, section/control spacing, card styling, and sticky shadows.
+
+### Changed
+- Settings modal content structure in `index.html` now uses explicit section anchors/ids and paired control rows for denser, clearer scanning.
+- Settings styling in `css/style.css` upgraded to mobile-first sticky tabs/footer, responsive two-column paired controls on tablet/desktop, inset dependent-option cards, and selected-state styling for preset chips.
+- Settings initialization in `js/app-init.js` and `js/app-bootstrap.js` now wires tab navigation, reset actions, visibility synchronization, and preset-button active state updates.
+
+### Tests
+- Added E2E coverage in `tests/e2e/goja.spec.js` for settings sticky tabs/footer visibility, tab activation/navigation behavior, no-horizontal-overflow validation on small phone viewport, and paired-row responsive layout checks (phone single-column vs tablet two-column).
 
 
 ## [8.2.0] - 2026-02-25

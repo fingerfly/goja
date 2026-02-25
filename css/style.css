@@ -508,9 +508,16 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--gap-md);
+  padding-bottom: calc(var(--settings-footer-height) + var(--gap-md) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: var(--settings-section-gap);
+}
+
+.settings-panel__body::after {
+  content: '';
+  display: block;
+  min-height: calc(var(--settings-footer-height) + 40vh);
 }
 
 .settings-section-tabs {
