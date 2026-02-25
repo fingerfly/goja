@@ -170,7 +170,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
   settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());
   settingsResetSectionBtn?.addEventListener('click', () => {
-    const active = settingsSectionTabs?.querySelector('.is-active')?.dataset.settingsTab || 'grid';
+    const active = settingsSectionTabs?.querySelector('.is-active')?.dataset.settingsTab || 'language';
     resetControls(settingsPanelBody?.querySelector(`[data-settings-section="${active}"]`));
     setFormDefaults(refs);
     syncSettingsVisibility(refs);

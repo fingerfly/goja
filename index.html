@@ -62,14 +62,15 @@
     </div>
     <div class="settings-panel__body" id="settingsPanelBody">
       <nav class="settings-section-tabs" id="settingsSectionTabs" aria-label="Settings sections">
+        <button type="button" data-settings-tab="language" data-i18n="language">Language</button>
         <button type="button" data-settings-tab="grid" data-i18n="grid">Grid</button>
         <button type="button" data-settings-tab="export" data-i18n="exportSection">Export</button>
         <button type="button" data-settings-tab="effects" data-i18n="effectsSection">Effects</button>
         <button type="button" data-settings-tab="watermark" data-i18n="watermark">Watermark</button>
         <button type="button" data-settings-tab="legal" data-i18n="legalNoticeTitle">Legal</button>
       </nav>
-      <fieldset class="settings-section" id="settingsSectionGrid" data-settings-section="grid">
-        <legend data-i18n="grid">Grid</legend>
+      <fieldset class="settings-section" id="settingsSectionLanguage" data-settings-section="language">
+        <legend data-i18n="language">Language</legend>
         <div class="control-group">
           <label for="langSelect" data-i18n="language">Language</label>
           <select id="langSelect">
@@ -81,6 +82,9 @@
             <option value="eo" data-i18n="langEo">Esperanto</option>
           </select>
         </div>
+      </fieldset>
+      <fieldset class="settings-section" id="settingsSectionGrid" data-settings-section="grid">
+        <legend data-i18n="grid">Grid</legend>
         <div class="control-row control-row--pair">
           <div class="control-group">
             <label for="frameWidth" data-i18n="width">Width</label>

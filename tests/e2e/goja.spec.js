@@ -304,6 +304,15 @@ test.describe('Goja App', () => {
     await expect(page.locator('#langSelect option')).toHaveCount(6);
   });
 
+  test('language is a standalone settings section and tab', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('[data-settings-tab="language"]')).toBeVisible();
+    await expect(page.locator('#settingsSectionLanguage')).toBeVisible();
+    await expect(page.locator('#settingsSectionLanguage #langSelect')).toBeVisible();
+    await expect(page.locator('#settingsSectionGrid #langSelect')).toHaveCount(0);
+  });
+
   test('settings shell shows sticky section tabs and sticky footer actions', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
