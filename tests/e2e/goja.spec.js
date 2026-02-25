@@ -304,6 +304,50 @@ test.describe('Goja App', () => {
     await expect(page.locator('#langSelect option')).toHaveCount(6);
   });
 
+  test('settings shell shows sticky section tabs and sticky footer actions', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#settingsSectionTabs')).toBeVisible();
+    await expect(page.locator('#settingsActions')).toBeVisible();
+    const tabsPos = await page.locator('#settingsSectionTabs').evaluate((el) => getComputedStyle(el).position);
+    const footerPos = await page.locator('#settingsActions').evaluate((el) => getComputedStyle(el).position);
+    expect(tabsPos).toBe('sticky');
+    expect(footerPos).toBe('sticky');
+  });
+
+  test('settings tabs navigate to target sections', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const tab = page.locator('[data-settings-tab="watermark"]');
+    await tab.click();
+    await expect(tab).toHaveClass(/is-active/);
+    await expect(page.locator('#settingsSectionWatermark')).toHaveAttribute('data-settings-section', 'watermark');
+  });
+
+  test('settings panel has no horizontal overflow on small phone viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const hasOverflow = await page.locator('#settingsPanelBody').evaluate((el) => el.scrollWidth > el.clientWidth);
+    expect(hasOverflow).toBe(false);
+  });
+
+  test('paired control rows switch to two columns on tablet width', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const cols = await page.locator('.control-row--pair').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+    expect(cols.trim().split(/\s+/).length).toBe(2);
+  });
+
+  test('paired control rows remain single column on phone width', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const cols = await page.locator('.control-row--pair').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+    expect(cols.trim().split(/\s+/).length).toBe(1);
+  });
+
   test('switching to Simplified Chinese updates visible text', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

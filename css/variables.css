@@ -38,6 +38,14 @@
   --bottom-bar-height: 60px;
   --settings-panel-width: 320px;
   --settings-sheet-height: 60vh;
+  --settings-header-height: 64px;
+  --settings-tabs-height: 48px;
+  --settings-footer-height: 64px;
+  --settings-section-gap: var(--gap-md);
+  --settings-control-gap: var(--gap-sm);
+  --settings-card-padding: var(--gap-sm);
+  --settings-radius-card: var(--radius-sm);
+  --settings-sticky-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
   --backdrop-color: rgba(0, 0, 0, 0.4);
   --transition-speed: 0.3s;
   --z-resize-overlay: 50;

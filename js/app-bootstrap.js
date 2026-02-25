@@ -30,6 +30,7 @@ import { pushState, undo, redo } from './state.js';
 import { syncActionButtons } from './action-buttons.js';
 import { createPreviewUpdater } from './preview-updater.js';
 import { initApp } from './app-init.js';
+import { initSettingsTabsNav } from './settings-tabs-nav.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -44,6 +45,8 @@ export function bootstrap() {
   const [filterPreset, vignetteEnabled, vignetteOptionsGroup, vignetteStrength] =
     ['#filterPreset', '#vignetteEnabled', '#vignetteOptionsGroup', '#vignetteStrength'].map($);
   const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
+  const [settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn] =
+    ['#settingsPanelBody', '#settingsSectionTabs', '#settingsDoneBtn', '#settingsResetSectionBtn', '#settingsResetAllBtn'].map($);
   const [loadingOverlay, loadingText, offlineBanner] = ['#loadingOverlay', '#loadingText', '#offlineBanner'].map($);
   const langSelect = $('#langSelect');
 
@@ -105,7 +108,7 @@ export function bootstrap() {
   updateActionButtons(0);
   $('#versionLabel').textContent = `v${VERSION_STRING}`;
 
-  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
+  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, initSettingsTabsNav, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
 
   function updateOfflineBanner() { if (offlineBanner) offlineBanner.hidden = navigator.onLine; }
   if (typeof navigator !== 'undefined' && 'onLine' in navigator) { updateOfflineBanner(); window.addEventListener('offline', updateOfflineBanner); window.addEventListener('online', updateOfflineBanner); }

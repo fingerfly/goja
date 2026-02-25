@@ -46,6 +46,27 @@ function setFormDefaults(refs) {
   }
 }
 
+function syncSettingsVisibility(refs) {
+  const show = refs.wmType?.value !== 'none';
+  refs.wmPosGroup?.classList.toggle('hidden', !show);
+  refs.wmOpacityGroup?.classList.toggle('hidden', !show);
+  refs.wmFontSizeGroup?.classList.toggle('hidden', !show);
+  refs.wmTextGroup?.classList.toggle('hidden', refs.wmType?.value !== 'text' && refs.wmType?.value !== 'copyright');
+  refs.captureDateOptionsGroup?.classList.toggle('hidden', !refs.showCaptureDate?.checked);
+  refs.vignetteOptionsGroup?.classList.toggle('hidden', !refs.vignetteEnabled?.checked);
+}
+
+function resetControls(rootEl) {
+  rootEl?.querySelectorAll('input, select, textarea').forEach((el) => {
+    if (el.type === 'checkbox' || el.type === 'radio') el.checked = el.defaultChecked;
+    else if (el.tagName === 'SELECT') {
+      const selected = Array.from(el.options).find((opt) => opt.defaultSelected);
+      el.value = selected ? selected.value : el.options[0]?.value ?? '';
+    } else el.value = el.defaultValue;
+    el.dispatchEvent(new Event(el.type === 'range' ? 'input' : 'change', { bubbles: true }));
+  });
+}
+
 /**
  * Attaches all event listeners.
  * @param {object} refs - DOM refs
@@ -61,14 +82,17 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop,
-    offlineBanner, langSelect,
+    offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn,
+    settingsResetSectionBtn, settingsResetAllBtn,
   } = refs;
   const { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange, openFile } = handlers;
   const { validateFrameInput, debouncedFrameInput, clearToastSessionFor } = frameInput;
   const { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm,
-    formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, refreshRotationHandles } = deps;
+    formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel,
+    initSettingsTabsNav, refreshRotationHandles } = deps;
 
   setFormDefaults(refs);
+  syncSettingsVisibility(refs);
 
   dropZone?.addEventListener('click', openFile);
   addBtn?.addEventListener('click', openFile);
@@ -93,6 +117,8 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   document.getElementById('aspectPresets')?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-w][data-h]');
     if (!btn) return;
+    const presetButtons = document.querySelectorAll('#aspectPresets button[data-w][data-h]');
+    presetButtons.forEach((el) => el.setAttribute('aria-pressed', String(el === btn)));
     frameW.value = btn.dataset.w;
     frameH.value = btn.dataset.h;
     frameW.dispatchEvent(new Event('input', { bubbles: true }));
@@ -120,12 +146,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   });
 
   wmType?.addEventListener('change', () => {
-    const v = wmType.value;
-    const show = v !== 'none';
-    wmPosGroup?.classList.toggle('hidden', !show);
-    wmOpacityGroup?.classList.toggle('hidden', !show);
-    wmFontSizeGroup?.classList.toggle('hidden', !show);
-    wmTextGroup?.classList.toggle('hidden', v !== 'text' && v !== 'copyright');
+    syncSettingsVisibility(refs);
     updatePreview();
   });
   wmPos?.addEventListener('change', updatePreview);
@@ -133,11 +154,11 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   wmFontSize?.addEventListener('change', updatePreview);
   wmText?.addEventListener('input', updatePreview);
   showCaptureDate?.addEventListener('change', () => {
-    captureDateOptionsGroup?.classList.toggle('hidden', !showCaptureDate?.checked);
+    syncSettingsVisibility(refs);
     updatePreview();
   });
   vignetteEnabled?.addEventListener('change', () => {
-    vignetteOptionsGroup?.classList.toggle('hidden', !vignetteEnabled?.checked);
+    syncSettingsVisibility(refs);
     updatePreview();
   });
   filterPreset?.addEventListener('change', updatePreview);
@@ -146,6 +167,22 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   captureDateOpacity?.addEventListener('input', updatePreview);
   captureDateFontSize?.addEventListener('change', updatePreview);
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
+  initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
+  settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());
+  settingsResetSectionBtn?.addEventListener('click', () => {
+    const active = settingsSectionTabs?.querySelector('.is-active')?.dataset.settingsTab || 'grid';
+    resetControls(settingsPanelBody?.querySelector(`[data-settings-section="${active}"]`));
+    setFormDefaults(refs);
+    syncSettingsVisibility(refs);
+    updatePreview();
+  });
+  settingsResetAllBtn?.addEventListener('click', () => {
+    if (!window.confirm('Reset all settings?')) return;
+    resetControls(settingsPanelBody);
+    setFormDefaults(refs);
+    syncSettingsVisibility(refs);
+    updatePreview();
+  });
   deps.enableDragAndDrop(previewGrid, (srcIdx, tgtIdx) => {
     if (!stateRef.currentLayout) return;
     pushState(stateRef.photos, stateRef.currentLayout);
