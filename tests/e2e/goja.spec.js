@@ -2,6 +2,13 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 
 const fixtures = path.resolve('tests/fixtures');
+const mobileSettingsViewports = [
+  { name: 'iphone-12', width: 390, height: 844 },
+  { name: 'small-android', width: 360, height: 800 },
+  { name: 'legacy-small', width: 320, height: 568 },
+  { name: 'large-android', width: 412, height: 915 },
+  { name: 'phone-landscape', width: 844, height: 390 },
+];
 
 test.describe('Goja App', () => {
   test.beforeEach(async ({ page }) => {
@@ -353,6 +360,86 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     const hasOverflow = await page.locator('#settingsPanelBody').evaluate((el) => el.scrollWidth > el.clientWidth);
     expect(hasOverflow).toBe(false);
+  });
+
+  mobileSettingsViewports.forEach(({ name, width, height }) => {
+    test(`settings mobile layout keeps tabs usable on ${name} (${width}x${height})`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+      await page.reload();
+      await page.locator('#settingsBtn').click();
+      await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+      await expect(page.locator('#settingsSectionTabs')).toBeVisible();
+      await expect(page.locator('#settingsActions')).toBeVisible();
+      const layoutState = await page.evaluate(() => {
+        const panel = document.querySelector('#settingsPanel');
+        const body = document.querySelector('#settingsPanelBody');
+        const tabs = document.querySelector('#settingsSectionTabs');
+        const actions = document.querySelector('#settingsActions');
+        if (!panel || !body || !tabs || !actions) {
+          return { ok: false };
+        }
+        const panelRect = panel.getBoundingClientRect();
+        const tabsRect = tabs.getBoundingClientRect();
+        const actionsRect = actions.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const buttons = Array.from(tabs.querySelectorAll('button'));
+        const buttonRects = buttons.map((btn) => btn.getBoundingClientRect());
+        const visibleButtonRects = buttonRects.filter((rect) => {
+          return rect.right > tabsRect.left && rect.left < tabsRect.right && rect.bottom > tabsRect.top && rect.top < tabsRect.bottom;
+        });
+        let overlapCount = 0;
+        for (let i = 0; i < visibleButtonRects.length; i += 1) {
+          for (let j = i + 1; j < visibleButtonRects.length; j += 1) {
+            const a = visibleButtonRects[i];
+            const b = visibleButtonRects[j];
+            const overlapW = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            const overlapH = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+            if (overlapW > 1 && overlapH > 1) overlapCount += 1;
+          }
+        }
+        const minVisibleTabHeight = visibleButtonRects.reduce((min, rect) => Math.min(min, rect.height), Infinity);
+        return {
+          ok: true,
+          panelHeightRatio: panelRect.height / viewportHeight,
+          hasHorizontalOverflow: body.scrollWidth > body.clientWidth,
+          tabsVisibleButtonCount: visibleButtonRects.length,
+          overlapCount,
+          minVisibleTabHeight: Number.isFinite(minVisibleTabHeight) ? minVisibleTabHeight : 0,
+          actionsWithinPanel: actionsRect.bottom <= panelRect.bottom + 1 && actionsRect.top >= panelRect.top - 1,
+          tabsInsidePanel: tabsRect.top >= panelRect.top - 1 && tabsRect.bottom <= panelRect.bottom + 1,
+        };
+      });
+      expect(layoutState.ok).toBe(true);
+      expect(layoutState.panelHeightRatio).toBeGreaterThanOrEqual(0.8);
+      expect(layoutState.hasHorizontalOverflow).toBe(false);
+      expect(layoutState.tabsVisibleButtonCount).toBeGreaterThanOrEqual(2);
+      expect(layoutState.overlapCount).toBe(0);
+      expect(layoutState.minVisibleTabHeight).toBeGreaterThanOrEqual(38);
+      expect(layoutState.actionsWithinPanel).toBe(true);
+      expect(layoutState.tabsInsidePanel).toBe(true);
+    });
+  });
+
+  test('settings tabs use horizontal snap affordance on ultra narrow phones', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const tabsState = await page.locator('#settingsSectionTabs').evaluate((tabs) => {
+      const css = getComputedStyle(tabs);
+      const firstButton = tabs.querySelector('button');
+      const firstCss = firstButton ? getComputedStyle(firstButton) : null;
+      return {
+        overflowX: css.overflowX,
+        scrollSnapType: css.scrollSnapType,
+        firstButtonSnapAlign: firstCss ? firstCss.scrollSnapAlign : '',
+      };
+    });
+    expect(tabsState.overflowX).toBe('auto');
+    expect(tabsState.scrollSnapType).toContain('x');
+    expect(tabsState.firstButtonSnapAlign).toBe('start');
   });
 
   test('paired control rows switch to two columns on tablet width', async ({ page }) => {

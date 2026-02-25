@@ -2,7 +2,20 @@
 
 ## [Unreleased]
 
+## [8.4.3] - 2026-02-25
+
+
 ## [8.4.2] - 2026-02-25
+
+### Changed
+- Hardened Playwright CI behavior in `playwright.config.js`: CI now uses `retries: 2`, `workers: 1`, and bundled Chromium (no forced Chrome channel), while local runs keep fast/no-retry defaults and local Chrome channel usage.
+- Updated GitHub Actions test workflow (`.github/workflows/test.yml`) to include an explicit E2E timeout and automatic Playwright artifact upload (`playwright-report`, `test-results`) on failure for faster diagnosis.
+- Reduced E2E timing flakiness in `tests/e2e/goja.spec.js` by replacing fixed sleeps with condition-based assertions/timeouts and aligning desktop settings layout assertions with current responsive UI behavior.
+
+### Tests
+- Added unit coverage in `tests/unit/playwright-config.test.js` to enforce CI-vs-local Playwright config behavior.
+- Updated E2E coverage in `tests/e2e/goja.spec.js` for timeout-free async waits and stable desktop settings layout checks.
+- Regression verification completed with `npm run test:unit` and `npm run test:e2e` (all passing).
 
 
 ## [8.4.1] - 2026-02-25
