@@ -26,7 +26,7 @@ jobs:
       - name: Collect app files
         run: |
           mkdir _site
-          cp index.html sw.js manifest.json CHANGELOG.md README.md _site/
+          cp index.html sw.js manifest.json CHANGELOG.md README.md LICENSE TRADEMARK.md _site/
           cp -r css js assets _site/
 
       - uses: actions/configure-pages@v5

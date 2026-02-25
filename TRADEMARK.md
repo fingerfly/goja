@@ -2,7 +2,7 @@
 
 ## Trademarks
 
-"Goja", "Goja 宫将", the Goja logo, and the tagline "拼图成格." are trademarks of Luke Wu.
+"Goja", "Goja 宫将", the Goja logo, and the tagline "拼图成格." are trademarks of the Goja project maintainers.
 These trademarks are not licensed under the AGPL-3.0 license that covers the Goja source code.
 
 ## Permitted Uses (No Permission Required)
@@ -29,8 +29,8 @@ If you distribute a fork or modified version, you must:
 
 ## Permission Requests
 
-For trademark permissions, contact:
-wu.luke@gmail.com
+For trademark permissions, open an issue in this repository and label it `trademark`:
+https://github.com/fingerfly/goja/issues
 
 ## Reservation of Rights
 
