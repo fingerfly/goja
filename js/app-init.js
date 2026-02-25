@@ -177,7 +177,6 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     updatePreview();
   });
   settingsResetAllBtn?.addEventListener('click', () => {
-    if (!window.confirm(t('settingsResetAllConfirm'))) return;
     resetControls(settingsPanelBody);
     setFormDefaults(refs);
     syncSettingsVisibility(refs);

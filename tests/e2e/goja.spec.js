@@ -413,6 +413,38 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsDoneBtn')).toHaveText('完成');
   });
 
+  test('reset all applies defaults immediately without confirmation dialog', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+
+    await page.locator('#frameWidth').fill('777');
+    await page.locator('#frameHeight').fill('888');
+    await page.locator('#gapSlider').fill('12');
+    await page.locator('#gapSlider').dispatchEvent('input');
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkText').fill('Demo');
+    await page.locator('#showCaptureDate').check();
+    await page.locator('#langSelect').selectOption('zh-Hans');
+
+    let dialogShown = false;
+    page.on('dialog', async (dialog) => {
+      dialogShown = true;
+      await dialog.dismiss();
+    });
+
+    await page.locator('#settingsResetAllBtn').click();
+    await page.waitForTimeout(100);
+
+    expect(dialogShown).toBe(false);
+    await expect(page.locator('#frameWidth')).toHaveValue('1080');
+    await expect(page.locator('#frameHeight')).toHaveValue('1350');
+    await expect(page.locator('#gapSlider')).toHaveValue('4');
+    await expect(page.locator('#watermarkType')).toHaveValue('none');
+    await expect(page.locator('#watermarkText')).toHaveValue('');
+    await expect(page.locator('#showCaptureDate')).not.toBeChecked();
+    await expect(page.locator('#langSelect')).toHaveValue('en');
+  });
+
   test('settings tab click positions target section near top of panel body', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 900 });
     await page.locator('#settingsBtn').click();
