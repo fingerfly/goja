@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goja-v8.5.1-2';
+const CACHE_NAME = 'goja-v8.5.1-3';
 const ASSETS = [
   './',
   './index.html',
@@ -48,12 +48,7 @@ const ASSETS = [
   './js/locales/en.js',
   './js/locales/zh-Hans.js',
   './js/locales/zh-Hant.js',
-  './js/locales/de.js',
-  './js/locales/nl.js',
   './js/locales/es.js',
-  './js/locales/it.js',
-  './js/locales/tr.js',
-  './js/locales/fi.js',
   './js/locales/ja.js',
   './js/locales/eo.js',
   './assets/logo.svg',
@@ -89,6 +84,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).catch(() => new Response('', { status: 504, statusText: 'Gateway Timeout' }));
+    })
   );
 });
