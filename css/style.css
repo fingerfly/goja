@@ -872,8 +872,37 @@ body {
   .export-options-sheet__handle { display: none; }
 }
 
-/* --- Desktop (>1024px) --- */
-@media (min-width: 1025px) {
+/* --- Desktop (>=1024px) --- */
+@media (min-width: 1024px) {
+  .settings-panel {
+    width: var(--settings-desktop-panel-width);
+  }
+
+  .settings-panel__body {
+    padding: var(--settings-desktop-section-padding);
+    padding-bottom: 0;
+    gap: var(--settings-desktop-section-gap);
+  }
+
+  .settings-section {
+    padding: var(--settings-desktop-section-padding);
+    border-radius: var(--settings-desktop-section-radius);
+    gap: var(--settings-desktop-section-gap);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  }
+
+  .settings-section legend {
+    font-size: 0.9375rem;
+  }
+
+  .settings-section.settings-section--dense {
+    gap: var(--settings-desktop-section-gap);
+  }
+
+  .settings-section-tabs button {
+    padding-inline: var(--settings-desktop-tabs-pad-x);
+  }
+
   .drop-zone { min-height: 160px; padding: var(--gap-xl); }
 }
 

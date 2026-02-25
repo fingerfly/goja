@@ -218,37 +218,41 @@
       </fieldset>
       <fieldset class="settings-section settings-section--dense" id="settingsSectionWatermark" data-settings-section="watermark">
         <legend data-i18n="watermark">Watermark</legend>
-        <div class="control-group">
-          <label for="watermarkType" data-i18n="watermarkType">Type</label>
-          <select id="watermarkType">
-            <option value="none" data-i18n="watermarkNone">None</option>
-            <option value="text" data-i18n="watermarkText">Free text</option>
-            <option value="datetime" data-i18n="watermarkDatetime">Date/time</option>
-            <option value="copyright" data-i18n="watermarkCopyright">Copyright</option>
-          </select>
+        <div class="control-row control-row--pair">
+          <div class="control-group">
+            <label for="watermarkType" data-i18n="watermarkType">Type</label>
+            <select id="watermarkType">
+              <option value="none" data-i18n="watermarkNone">None</option>
+              <option value="text" data-i18n="watermarkText">Free text</option>
+              <option value="datetime" data-i18n="watermarkDatetime">Date/time</option>
+              <option value="copyright" data-i18n="watermarkCopyright">Copyright</option>
+            </select>
+          </div>
+          <div class="control-group hidden" id="watermarkPosGroup">
+            <label for="watermarkPos" data-i18n="watermarkPos">Position</label>
+            <select id="watermarkPos">
+              <option value="bottom-right" data-i18n="posBottomRight">Bottom-right</option>
+              <option value="bottom-left" data-i18n="posBottomLeft">Bottom-left</option>
+              <option value="top-left" data-i18n="posTopLeft">Top-left</option>
+              <option value="top-right" data-i18n="posTopRight">Top-right</option>
+              <option value="center" data-i18n="posCenter">Center</option>
+              <option value="tiled" data-i18n="posTiled">Tiled</option>
+            </select>
+          </div>
         </div>
-        <div class="control-group hidden" id="watermarkPosGroup">
-          <label for="watermarkPos" data-i18n="watermarkPos">Position</label>
-          <select id="watermarkPos">
-            <option value="bottom-right" data-i18n="posBottomRight">Bottom-right</option>
-            <option value="bottom-left" data-i18n="posBottomLeft">Bottom-left</option>
-            <option value="top-left" data-i18n="posTopLeft">Top-left</option>
-            <option value="top-right" data-i18n="posTopRight">Top-right</option>
-            <option value="center" data-i18n="posCenter">Center</option>
-            <option value="tiled" data-i18n="posTiled">Tiled</option>
-          </select>
-        </div>
-        <div class="control-group hidden" id="watermarkOpacityGroup">
-          <label for="watermarkOpacity" data-i18n="watermarkOpacity">Opacity</label>
-          <input type="range" id="watermarkOpacity" min="0.3" max="0.9" step="0.1" value="0.8">
-        </div>
-        <div class="control-group hidden" id="watermarkFontSizeGroup">
-          <label for="watermarkFontSize" data-i18n="watermarkFontSize">Font size</label>
-          <select id="watermarkFontSize">
-            <option value="0.8" data-i18n="fontSizeSmall">Small</option>
-            <option value="1" data-i18n="fontSizeMedium" selected>Medium</option>
-            <option value="1.2" data-i18n="fontSizeLarge">Large</option>
-          </select>
+        <div class="control-row control-row--pair">
+          <div class="control-group hidden" id="watermarkOpacityGroup">
+            <label for="watermarkOpacity" data-i18n="watermarkOpacity">Opacity</label>
+            <input type="range" id="watermarkOpacity" min="0.3" max="0.9" step="0.1" value="0.8">
+          </div>
+          <div class="control-group hidden" id="watermarkFontSizeGroup">
+            <label for="watermarkFontSize" data-i18n="watermarkFontSize">Font size</label>
+            <select id="watermarkFontSize">
+              <option value="0.8" data-i18n="fontSizeSmall">Small</option>
+              <option value="1" data-i18n="fontSizeMedium" selected>Medium</option>
+              <option value="1.2" data-i18n="fontSizeLarge">Large</option>
+            </select>
+          </div>
         </div>
         <div class="control-group control-group--full hidden" id="watermarkTextGroup">
           <label for="watermarkText" data-i18n="watermarkTextLabel">Text</label>

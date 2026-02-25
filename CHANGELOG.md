@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [8.4.6] - 2026-02-25
+
+### Changed
+- Hardened the desktop Settings visual hierarchy for `>=1024px` while keeping the right-side panel architecture: larger desktop-only section padding/radius/gaps, improved tab button spacing, and clearer section-card separation.
+- Polished desktop information grouping in Watermark settings by pairing related controls (`type`+`position`, `opacity`+`font size`) for faster scanning without changing existing control ids/hooks.
+
+### Tests
+- Upgraded desktop E2E assertions in `tests/e2e/goja.spec.js` to validate desktop shell quality (section padding/gap/radius and tab spacing) in addition to width and multi-column layout.
+- Regression verification completed with `npm run test:unit`, `CI= npx playwright test --reporter=list`, and `npm test` (all passing).
+
 ## [8.4.5] - 2026-02-25
 
 ### Changed

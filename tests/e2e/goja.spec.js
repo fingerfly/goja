@@ -458,20 +458,39 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     const panelWidth = await page.locator('#settingsPanel').evaluate((el) => el.getBoundingClientRect().width);
     expect(panelWidth).toBeGreaterThanOrEqual(600);
-    const sectionLayout = await page.evaluate(() => {
+    const desktopMetrics = await page.evaluate(() => {
       const ids = ['settingsSectionGrid', 'settingsSectionExport', 'settingsSectionWatermark'];
-      return ids.map((id) => {
+      const sectionLayout = ids.map((id) => {
         const section = document.getElementById(id);
         if (!section) return { id, display: 'none', columns: 0 };
         const style = getComputedStyle(section);
         const columns = style.gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
-        return { id, display: style.display, columns };
+        return {
+          id,
+          display: style.display,
+          columns,
+          paddingInline: parseFloat(style.paddingLeft) || 0,
+          sectionGap: parseFloat(style.gap) || 0,
+          radius: parseFloat(style.borderTopLeftRadius) || 0,
+        };
       });
+      const firstTab = document.querySelector('#settingsSectionTabs button');
+      const firstTabStyle = firstTab ? getComputedStyle(firstTab) : null;
+      return {
+        sectionLayout,
+        tabsPaddingX: firstTabStyle ? parseFloat(firstTabStyle.paddingLeft) || 0 : 0,
+        tabsMinHeight: firstTabStyle ? parseFloat(firstTabStyle.minHeight) || 0 : 0,
+      };
     });
-    sectionLayout.forEach(({ display, columns }) => {
+    desktopMetrics.sectionLayout.forEach(({ display, columns, paddingInline, sectionGap, radius }) => {
       expect(display).toBe('grid');
       expect(columns).toBeGreaterThanOrEqual(2);
+      expect(paddingInline).toBeGreaterThanOrEqual(20);
+      expect(sectionGap).toBeGreaterThanOrEqual(12);
+      expect(radius).toBeGreaterThanOrEqual(12);
     });
+    expect(desktopMetrics.tabsPaddingX).toBeGreaterThanOrEqual(12);
+    expect(desktopMetrics.tabsMinHeight).toBeGreaterThanOrEqual(44);
   });
 
   test('paired control rows remain single column on phone width', async ({ page }) => {
