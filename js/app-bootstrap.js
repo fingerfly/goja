@@ -112,5 +112,17 @@ export function bootstrap() {
 
   function updateOfflineBanner() { if (offlineBanner) offlineBanner.hidden = navigator.onLine; }
   if (typeof navigator !== 'undefined' && 'onLine' in navigator) { updateOfflineBanner(); window.addEventListener('offline', updateOfflineBanner); window.addEventListener('online', updateOfflineBanner); }
-  if ('serviceWorker' in navigator) { let r = false; navigator.serviceWorker.register('./sw.js').then((reg) => { initServiceWorkerUpdate(reg, () => { r = true; }); }); navigator.serviceWorker.addEventListener('controllerchange', () => { if (r) window.location.reload(); }); }
+  if ('serviceWorker' in navigator) {
+    let r = false;
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+      initServiceWorkerUpdate(reg, () => { r = true; });
+      // Re-check for updates when the tab regains focus/visibility.
+      const checkForUpdates = () => reg.update?.().catch(() => {});
+      window.addEventListener('focus', checkForUpdates);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForUpdates();
+      });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (r) window.location.reload(); });
+  }
 }

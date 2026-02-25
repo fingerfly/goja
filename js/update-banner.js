@@ -43,12 +43,25 @@ export function showUpdateBanner(reg, onRefreshClick) {
  * @param {() => void} onSkipWaiting
  */
 export function initServiceWorkerUpdate(reg, onSkipWaiting) {
+  const tryActivateWaitingWorker = () => {
+    if (!reg.waiting || !navigator.serviceWorker?.controller) return false;
+    onSkipWaiting?.();
+    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    return true;
+  };
+
+  tryActivateWaitingWorker();
+  if (typeof reg.update === 'function') {
+    reg.update().catch(() => {});
+  }
   reg.addEventListener('updatefound', () => {
     const newWorker = reg.installing;
     if (!newWorker) return;
     newWorker.addEventListener('statechange', () => {
       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-        showUpdateBanner(reg, onSkipWaiting);
+        if (!tryActivateWaitingWorker()) {
+          showUpdateBanner(reg, onSkipWaiting);
+        }
       }
     });
   });
