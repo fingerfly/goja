@@ -69,9 +69,9 @@
         <button type="button" data-settings-tab="watermark" data-i18n="watermark">Watermark</button>
         <button type="button" data-settings-tab="legal" data-i18n="legalNoticeTitle">Legal</button>
       </nav>
-      <fieldset class="settings-section" id="settingsSectionLanguage" data-settings-section="language">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionLanguage" data-settings-section="language">
         <legend data-i18n="language">Language</legend>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <label for="langSelect" data-i18n="language">Language</label>
           <select id="langSelect">
             <option value="en" data-i18n="langEn">English</option>
@@ -83,7 +83,7 @@
           </select>
         </div>
       </fieldset>
-      <fieldset class="settings-section" id="settingsSectionGrid" data-settings-section="grid">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionGrid" data-settings-section="grid">
         <legend data-i18n="grid">Grid</legend>
         <div class="control-row control-row--pair">
           <div class="control-group">
@@ -100,7 +100,7 @@
           </div>
         </div>
         <p class="control-hint" id="frameDimensionHint" data-i18n="frameDimensionHint">320–4096 px</p>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <span class="control-label" data-i18n="aspectPresets">Aspect presets</span>
           <div class="preset-buttons" id="aspectPresets">
             <button type="button" data-w="1080" data-h="1080" data-i18n="preset11">1:1</button>
@@ -114,7 +114,7 @@
             <button type="button" data-w="1080" data-h="1920" data-i18n="presetWechatChannels">视频号</button>
           </div>
         </div>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <label for="gapSlider" data-i18n="gap">Gap</label>
           <input type="range" id="gapSlider" min="0" max="20" value="4" step="1">
         </div>
@@ -132,25 +132,25 @@
           </select>
         </div>
       </fieldset>
-      <fieldset class="settings-section" id="settingsSectionExport" data-settings-section="export">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionExport" data-settings-section="export">
         <legend data-i18n="exportSection">Export</legend>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <label for="exportFilename" data-i18n="exportFilename">Filename</label>
           <input type="text" id="exportFilename" data-i18n-placeholder="exportFilenamePlaceholder" placeholder="goja-grid" maxlength="60">
         </div>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <label>
             <input type="checkbox" id="exportUseDate">
             <span data-i18n="exportUseDate">Add date to filename</span>
           </label>
         </div>
-        <div class="control-group">
+        <div class="control-group control-group--full">
           <label>
             <input type="checkbox" id="showCaptureDate">
             <span data-i18n="showCaptureDate">Show capture date on photos</span>
           </label>
         </div>
-        <div id="captureDateOptionsGroup" class="hidden control-subgroup">
+        <div id="captureDateOptionsGroup" class="hidden control-subgroup control-group--full">
           <div class="control-group">
             <label for="captureDatePos" data-i18n="captureDatePos">Position</label>
             <select id="captureDatePos">
@@ -187,7 +187,7 @@
           </div>
         </div>
       </fieldset>
-      <fieldset class="settings-section" id="settingsSectionEffects" data-settings-section="effects">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionEffects" data-settings-section="effects">
         <legend data-i18n="effectsSection">Effects</legend>
         <div class="control-group">
           <label for="filterPreset" data-i18n="filterPreset">Filter</label>
@@ -209,14 +209,14 @@
             <span data-i18n="vignetteEnabled">Vignette</span>
           </label>
         </div>
-        <div id="vignetteOptionsGroup" class="hidden control-subgroup">
+        <div id="vignetteOptionsGroup" class="hidden control-subgroup control-group--full">
           <div class="control-group">
             <label for="vignetteStrength" data-i18n="vignetteStrength">Intensity</label>
             <input type="range" id="vignetteStrength" min="0.2" max="0.8" step="0.1" value="0.5">
           </div>
         </div>
       </fieldset>
-      <fieldset class="settings-section" id="settingsSectionWatermark" data-settings-section="watermark">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionWatermark" data-settings-section="watermark">
         <legend data-i18n="watermark">Watermark</legend>
         <div class="control-group">
           <label for="watermarkType" data-i18n="watermarkType">Type</label>
@@ -250,15 +250,15 @@
             <option value="1.2" data-i18n="fontSizeLarge">Large</option>
           </select>
         </div>
-        <div class="control-group hidden" id="watermarkTextGroup">
+        <div class="control-group control-group--full hidden" id="watermarkTextGroup">
           <label for="watermarkText" data-i18n="watermarkTextLabel">Text</label>
           <input type="text" id="watermarkText" data-i18n-placeholder="watermarkPlaceholder" placeholder="Your name or text" maxlength="50">
         </div>
       </fieldset>
-      <fieldset class="settings-section" id="settingsSectionLegal" data-settings-section="legal">
+      <fieldset class="settings-section settings-section--dense" id="settingsSectionLegal" data-settings-section="legal">
         <legend data-i18n="legalNoticeTitle">Legal</legend>
-        <p class="control-hint" data-i18n="agplSourceNotice">This service runs Goja under AGPL-3.0-only. Source code for this running version is available here.</p>
-        <div class="control-group">
+        <p class="control-hint control-group--full" data-i18n="agplSourceNotice">This service runs Goja under AGPL-3.0-only. Source code for this running version is available here.</p>
+        <div class="control-group control-group--full">
           <a href="https://github.com/fingerfly/00_Mundo/tree/main/02product/01_coding/project/goja" target="_blank" rel="noopener noreferrer" data-i18n="viewSourceCode">View source code</a>
           <a href="./LICENSE" target="_blank" rel="noopener noreferrer" data-i18n="viewLicense">View license</a>
         </div>

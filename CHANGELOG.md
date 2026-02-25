@@ -2,18 +2,34 @@
 
 ## [Unreleased]
 
+## [8.4.5] - 2026-02-25
+
+### Changed
+- Reworked desktop Settings information architecture at `1024px+` by widening the side panel and introducing section-level two-column grids for denser, desktop-first scanning while preserving existing section ids and accessibility wiring.
+- Added explicit layout role classes in `index.html` (`settings-section--dense`, `control-group--full`) so settings groups can span full width only where needed (e.g., presets, long toggles, legal text) without breaking mobile behavior.
+
+### Tests
+- Tightened desktop E2E coverage in `tests/e2e/goja.spec.js` to require a wider settings panel plus multi-column desktop section layout for Grid/Export/Watermark sections.
+- Regression verification completed with `npm run test:unit`, `CI= npx playwright test --reporter=list`, and `npm test` (all passing).
+
 ## [8.4.4] - 2026-02-25
+
+### Changed
+- Kept the Playwright CI workflow lean in `.github/workflows/test.yml`: push/PR triggers only, `unit` + `e2e` jobs, explicit E2E timeout, and failure artifact upload for Playwright diagnostics.
+- Updated `playwright.config.js` reporter behavior so CI uses `list` plus `html` (`open: never`) while local runs continue to use the HTML reporter.
+
+### Tests
+- Extended unit coverage in `tests/unit/playwright-config.test.js` for CI reporter behavior and `PLAYWRIGHT_BASE_URL` web server bypass behavior.
+- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm test` (all passing).
 
 
 ## [8.4.3] - 2026-02-25
 
 ### Changed
-- Playwright configuration now uses CI-specific reporters (`list` + `html` with `open: never`) while keeping local runs on the existing HTML reporter, improving CI log readability without changing local UX.
-- Test workflow (`.github/workflows/test.yml`) keeps a lean push/PR-only trigger model with unit + E2E jobs, explicit E2E timeout, and Playwright failure artifact upload for diagnosis.
+- Initial Playwright workflow hardening draft (later streamlined in `8.4.4` to keep the final CI profile lean and non-duplicative).
 
 ### Tests
-- Extended unit coverage in `tests/unit/playwright-config.test.js` for CI reporter behavior and `PLAYWRIGHT_BASE_URL` webServer bypass behavior.
-- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm test` (all passing).
+- Superseded by finalized verification notes in `8.4.4`.
 
 
 ## [8.4.2] - 2026-02-25

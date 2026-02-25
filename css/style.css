@@ -835,6 +835,22 @@ body {
   .settings-panel.open { transform: translateX(0); }
   .settings-panel__handle { display: none; }
   .settings-section-tabs { overflow-x: visible; }
+  .settings-section.settings-section--dense {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--settings-control-gap);
+  }
+  .settings-section.settings-section--dense > legend,
+  .settings-section.settings-section--dense > .control-hint,
+  .settings-section.settings-section--dense > .control-row,
+  .settings-section.settings-section--dense > .control-subgroup,
+  .settings-section.settings-section--dense > .control-group--full {
+    grid-column: 1 / -1;
+  }
+  .settings-section.settings-section--dense > .control-group {
+    min-width: 0;
+  }
   .control-row--pair { grid-template-columns: 1fr 1fr; }
 
   .export-options-sheet {

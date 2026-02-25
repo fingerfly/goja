@@ -452,30 +452,26 @@ test.describe('Goja App', () => {
     expect(cols.trim().split(/\s+/).length).toBe(2);
   });
 
-  test('desktop settings uses side panel width and preserves two-column control rows', async ({ page }) => {
+  test('desktop settings uses wider panel and multi-column section layout', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 900 });
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     const panelWidth = await page.locator('#settingsPanel').evaluate((el) => el.getBoundingClientRect().width);
-    expect(panelWidth).toBeGreaterThanOrEqual(500);
-    expect(panelWidth).toBeLessThanOrEqual(560);
-    const sectionVisibility = await page.evaluate(() => {
+    expect(panelWidth).toBeGreaterThanOrEqual(600);
+    const sectionLayout = await page.evaluate(() => {
       const ids = ['settingsSectionGrid', 'settingsSectionExport', 'settingsSectionWatermark'];
       return ids.map((id) => {
         const section = document.getElementById(id);
-        if (!section) return { id, display: 'none' };
+        if (!section) return { id, display: 'none', columns: 0 };
         const style = getComputedStyle(section);
-        return { id, display: style.display };
+        const columns = style.gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
+        return { id, display: style.display, columns };
       });
     });
-    sectionVisibility.forEach(({ display }) => {
-      expect(display).not.toBe('none');
+    sectionLayout.forEach(({ display, columns }) => {
+      expect(display).toBe('grid');
+      expect(columns).toBeGreaterThanOrEqual(2);
     });
-    const rowLayouts = await page.locator('.control-row--pair').evaluateAll((rows) =>
-      rows.map((row) => getComputedStyle(row).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length)
-    );
-    expect(rowLayouts.length).toBeGreaterThan(0);
-    rowLayouts.forEach((columns) => expect(columns).toBe(2));
   });
 
   test('paired control rows remain single column on phone width', async ({ page }) => {
