@@ -50,7 +50,7 @@
   --resize-handle-width: 4px;
   --rotation-handle-size: 28px;
   --rotation-handle-offset: 8px;
-  --context-menu-bg: rgba(255, 255, 255, 0.85);
+  --context-menu-bg: rgba(255, 255, 255, 0.82);
   --context-menu-fallback-bg: rgba(255, 255, 255, 0.94);
   --context-menu-border: rgba(148, 163, 184, 0.35);
   --context-menu-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
@@ -67,7 +67,7 @@
     --color-border: #334155;
     --color-drop-zone: #042f2e;
     --color-drop-zone-hover: #134e4a;
-    --context-menu-bg: rgba(30, 41, 59, 0.84);
+  --context-menu-bg: rgba(30, 41, 59, 0.82);
     --context-menu-fallback-bg: rgba(30, 41, 59, 0.94);
     --context-menu-border: rgba(148, 163, 184, 0.32);
     --context-menu-shadow: 0 8px 24px rgba(2, 6, 23, 0.45);
