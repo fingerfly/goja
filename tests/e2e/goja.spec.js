@@ -324,6 +324,21 @@ test.describe('Goja App', () => {
     expect(footerPos).toBe('sticky');
   });
 
+  test('settings footer actions sit flush with settings panel bottom edge', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const bottomDelta = await page.evaluate(() => {
+      const panel = document.querySelector('#settingsPanel');
+      const actions = document.querySelector('#settingsActions');
+      if (!panel || !actions) return 9999;
+      const panelRect = panel.getBoundingClientRect();
+      const actionsRect = actions.getBoundingClientRect();
+      return Math.abs(panelRect.bottom - actionsRect.bottom);
+    });
+    expect(bottomDelta).toBeLessThanOrEqual(2);
+  });
+
   test('settings tabs navigate to target sections', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

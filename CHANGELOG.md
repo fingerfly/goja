@@ -2,8 +2,19 @@
 
 ## [Unreleased]
 
+## [8.4.1] - 2026-02-25
+
+
 ## [8.4.0] - 2026-02-25
 
+### Changed
+- Settings modal now separates `Language` into its own standalone section (`#settingsSectionLanguage`) instead of nesting it inside `Grid`, improving scanability and section-level reset behavior.
+- Settings quick-navigation tabs now include a dedicated `Language` tab so users can jump directly to language controls.
+- Section-reset fallback in `js/app-init.js` now defaults to `language` when no active section tab is detected, matching the new section order.
+
+### Tests
+- Added E2E coverage in `tests/e2e/goja.spec.js` to verify language is exposed as an independent section/tab and is no longer present inside the Grid section.
+- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm test` (all passing).
 
 
 ## [8.3.0] - 2026-02-25

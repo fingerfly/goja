@@ -508,7 +508,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--gap-md);
-  padding-bottom: calc(var(--settings-footer-height) + var(--gap-md) + env(safe-area-inset-bottom));
+  padding-bottom: 0;
   scroll-padding-top: calc(var(--settings-tabs-height) + var(--gap-sm));
   display: flex;
   flex-direction: column;
@@ -518,7 +518,7 @@ body {
 .settings-panel__body::after {
   content: '';
   display: block;
-  min-height: calc(var(--settings-footer-height) + 40vh);
+  min-height: calc((2 * var(--settings-footer-height)) + var(--gap-md) + env(safe-area-inset-bottom) + 40vh);
 }
 
 .settings-section-tabs {
@@ -663,8 +663,10 @@ body {
   z-index: 2;
   display: flex;
   gap: var(--gap-xs);
-  padding: var(--gap-sm) 0 calc(var(--gap-sm) + env(safe-area-inset-bottom)) 0;
+  margin-inline: calc(-1 * var(--gap-md));
+  padding: var(--gap-sm) var(--gap-md) calc(var(--gap-sm) + env(safe-area-inset-bottom)) var(--gap-md);
   background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
   box-shadow: var(--settings-sticky-shadow);
 }
 
