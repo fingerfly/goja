@@ -194,6 +194,31 @@ test.describe('Goja App', () => {
       await page.waitForTimeout(1900);
       await expect(page.locator('.cell-context-menu')).toHaveCount(0);
     });
+
+    test('touch menu uses translucent visual style and blur when supported', async ({ page }) => {
+      const fileInput = page.locator('#fileInput');
+      await fileInput.setInputFiles([
+        path.join(fixtures, 'landscape.jpg'),
+        path.join(fixtures, 'portrait.jpg'),
+      ]);
+      await expect(page.locator('#preview')).toBeVisible();
+      await page.locator('#previewGrid img').first().tap();
+      await expect(page.locator('.cell-context-menu')).toBeVisible();
+      const styleState = await page.evaluate(() => {
+        const menu = document.querySelector('.cell-context-menu');
+        if (!menu) throw new Error('Context menu not found');
+        const css = getComputedStyle(menu);
+        const parts = css.backgroundColor.match(/rgba?\(([^)]+)\)/)?.[1].split(',').map((p) => p.trim()) ?? [];
+        const alpha = parts.length === 4 ? Number.parseFloat(parts[3]) : 1;
+        const blurSupported = CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)');
+        return { alpha, blurSupported, backdropFilter: css.backdropFilter, webkitBackdropFilter: css.webkitBackdropFilter };
+      });
+      expect(styleState.alpha).toBeGreaterThanOrEqual(0.82);
+      expect(styleState.alpha).toBeLessThanOrEqual(0.9);
+      if (styleState.blurSupported) {
+        expect(styleState.backdropFilter !== 'none' || styleState.webkitBackdropFilter !== 'none').toBe(true);
+      }
+    });
   });
 
   test('export success shows toast', async ({ page }) => {

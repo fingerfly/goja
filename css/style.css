@@ -203,11 +203,14 @@ body {
   position: fixed;
   min-width: 120px;
   padding: 4px 0;
-  background: var(--color-surface, #fff);
-  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--context-menu-bg, rgba(255, 255, 255, 0.85));
+  border: 1px solid var(--context-menu-border, rgba(148, 163, 184, 0.35));
   border-radius: var(--radius-md, 10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--context-menu-shadow, 0 8px 24px rgba(15, 23, 42, 0.18));
+  -webkit-backdrop-filter: blur(var(--context-menu-backdrop-blur, 10px));
+  backdrop-filter: blur(var(--context-menu-backdrop-blur, 10px));
   z-index: 10000;
+  transition: opacity 140ms ease, transform 140ms ease;
 }
 
 .cell-context-menu__btn {
@@ -224,7 +227,18 @@ body {
 }
 
 .cell-context-menu__btn:hover {
-  background: var(--color-drop-zone, #f0fdfa);
+  background: var(--context-menu-btn-hover, rgba(13, 148, 136, 0.12));
+}
+
+.cell-context-menu__btn:focus-visible {
+  outline: 2px solid var(--color-primary, #0d9488);
+  outline-offset: -2px;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .cell-context-menu {
+    background: var(--context-menu-fallback-bg, rgba(255, 255, 255, 0.94));
+  }
 }
 
 .capture-date-overlay {
