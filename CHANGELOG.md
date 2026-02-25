@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+## [8.1.3] - 2026-02-25
+
+
 ## [8.1.2] - 2026-02-25
 
 
-## [8.1.1] - 2026-02-25
+### Changed
+- Fine-tuned context menu transparency for stronger visual comfort: lower translucency in both light and dark mode so the underlying photo remains more visible with less visual obstruction
 
+
+## [8.1.1] - 2026-02-24
 
 ### Changed
 - Touch photo removal now uses tap-to-open context menu on grid photos instead of long-press timing, with tap gesture thresholds (`TAP_MAX_MOVE_PX`, `TAP_MAX_DURATION_MS`) to avoid drag conflicts

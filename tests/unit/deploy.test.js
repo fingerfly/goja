@@ -63,3 +63,65 @@ describe('deploy git helpers', () => {
     expect(execSync).not.toHaveBeenCalled();
   });
 });
+
+describe('deploy commit identity', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.GOJA_DEPLOY_GIT_NAME;
+    delete process.env.GOJA_DEPLOY_GIT_EMAIL;
+  });
+
+  it('commitRelease() forces explicit author and committer defaults', async () => {
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+
+    mod.commitRelease('Release v1.2.3 (4)', '/tmp/test');
+
+    expect(execFileSync).toHaveBeenCalledWith(
+      'git',
+      [
+        'commit',
+        '--author',
+        'goja-release <10357401+fingerfly@users.noreply.github.com>',
+        '-m',
+        'Release v1.2.3 (4)',
+        '--no-verify',
+      ],
+      expect.objectContaining({
+        cwd: '/tmp/test',
+        env: expect.objectContaining({
+          GIT_COMMITTER_NAME: 'goja-release',
+          GIT_COMMITTER_EMAIL: '10357401+fingerfly@users.noreply.github.com',
+        }),
+      }),
+    );
+  });
+
+  it('commitRelease() honors GOJA_DEPLOY_GIT_NAME/EMAIL overrides', async () => {
+    process.env.GOJA_DEPLOY_GIT_NAME = 'Test User';
+    process.env.GOJA_DEPLOY_GIT_EMAIL = 'test@demo.invalid';
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+
+    mod.commitRelease('Release v1.2.3 (5)', '/tmp/test');
+
+    expect(execFileSync).toHaveBeenCalledWith(
+      'git',
+      [
+        'commit',
+        '--author',
+        'Test User <test@demo.invalid>',
+        '-m',
+        'Release v1.2.3 (5)',
+        '--no-verify',
+      ],
+      expect.objectContaining({
+        cwd: '/tmp/test',
+        env: expect.objectContaining({
+          GIT_COMMITTER_NAME: 'Test User',
+          GIT_COMMITTER_EMAIL: 'test@demo.invalid',
+        }),
+      }),
+    );
+  });
+});

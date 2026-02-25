@@ -28,6 +28,8 @@ const projectRoot = path.join(__dirname, '..');
 const SOURCE = projectRoot;
 const DEPLOY_DIR = path.join(process.env.TMPDIR || process.env.TEMP || process.env.TMP || '/tmp', 'goja-deploy');
 const REMOTE = 'git@github.com:fingerfly/goja.git';
+const DEFAULT_DEPLOY_GIT_NAME = 'goja-release';
+const DEFAULT_DEPLOY_GIT_EMAIL = '10357401+fingerfly@users.noreply.github.com';
 
 const VALID_TYPES = ['build', 'patch', 'minor', 'major'];
 
@@ -50,6 +52,31 @@ export function git(args, cwd = DEPLOY_DIR) {
 
 export function gitLive(args, cwd = DEPLOY_DIR) {
   execFileSync('git', args, { cwd, stdio: 'inherit' });
+}
+
+function resolveDeployIdentity() {
+  return {
+    name: process.env.GOJA_DEPLOY_GIT_NAME || DEFAULT_DEPLOY_GIT_NAME,
+    email: process.env.GOJA_DEPLOY_GIT_EMAIL || DEFAULT_DEPLOY_GIT_EMAIL,
+  };
+}
+
+export function commitRelease(message, cwd = DEPLOY_DIR) {
+  const identity = resolveDeployIdentity();
+  const author = `${identity.name} <${identity.email}>`;
+  execFileSync(
+    'git',
+    ['commit', '--author', author, '-m', message, '--no-verify'],
+    {
+      cwd,
+      stdio: 'pipe',
+      env: {
+        ...process.env,
+        GIT_COMMITTER_NAME: identity.name,
+        GIT_COMMITTER_EMAIL: identity.email,
+      },
+    },
+  );
 }
 
 function copyRecursive(src, dest) {
@@ -144,7 +171,7 @@ function runDeploy(bumpType) {
   console.log('');
 
   const commitMsg = `Release ${getVersionForCommitMessage()}`;
-  git(['commit', '-m', commitMsg, '--no-verify']);
+  commitRelease(commitMsg);
 
   const deployRemote = git(['remote', 'get-url', 'origin']);
   const expected = 'fingerfly/goja';
