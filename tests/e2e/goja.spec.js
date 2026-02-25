@@ -318,7 +318,9 @@ test.describe('Goja App', () => {
   test('settings tabs navigate to target sections', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
-    await page.locator('[data-settings-tab="watermark"]').click();
+    const tab = page.locator('[data-settings-tab="watermark"]');
+    await tab.click();
+    await expect(tab).toHaveClass(/is-active/);
     await expect(page.locator('#settingsSectionWatermark')).toHaveAttribute('data-settings-section', 'watermark');
   });
 

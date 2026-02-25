@@ -17,20 +17,26 @@ export function getActiveSectionKey(panelBodyEl) {
 
 export function initSettingsTabsNav(panelBodyEl, tabsEl) {
   if (!panelBodyEl || !tabsEl) return () => {};
+  let lockedKey = null;
+  let lockUntil = 0;
   const onClick = (e) => {
     const btn = e.target.closest('[data-settings-tab]');
     if (!btn) return;
     const key = btn.dataset.settingsTab;
     const section = panelBodyEl.querySelector(`[data-settings-section="${key}"]`);
     if (!section) return;
-    const panelRect = panelBodyEl.getBoundingClientRect();
-    const sectionRect = section.getBoundingClientRect();
-    const top = Math.max(0, panelBodyEl.scrollTop + sectionRect.top - panelRect.top - tabsEl.offsetHeight - 8);
-    panelBodyEl.scrollTo({ top, behavior: 'auto' });
+    section.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+    lockedKey = key;
+    lockUntil = Date.now() + 300;
     setActiveTab(tabsEl, key);
   };
   const onScroll = () => {
     if (panelBodyEl.scrollHeight <= panelBodyEl.clientHeight) return;
+    if (lockedKey && Date.now() < lockUntil) {
+      setActiveTab(tabsEl, lockedKey);
+      return;
+    }
+    lockedKey = null;
     const key = getActiveSectionKey(panelBodyEl);
     if (key) setActiveTab(tabsEl, key);
   };

@@ -509,6 +509,7 @@ body {
   -webkit-overflow-scrolling: touch;
   padding: var(--gap-md);
   padding-bottom: calc(var(--settings-footer-height) + var(--gap-md) + env(safe-area-inset-bottom));
+  scroll-padding-top: calc(var(--settings-tabs-height) + var(--gap-sm));
   display: flex;
   flex-direction: column;
   gap: var(--settings-section-gap);
