@@ -301,7 +301,7 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await expect(page.locator('#langSelect')).toBeVisible();
-    await expect(page.locator('#langSelect option')).toHaveCount(11);
+    await expect(page.locator('#langSelect option')).toHaveCount(6);
   });
 
   test('switching to Simplified Chinese updates visible text', async ({ page }) => {

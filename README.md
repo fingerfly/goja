@@ -33,7 +33,7 @@ Create photo grid collages directly in your browser. Drop in your photos, choose
 - Aspect presets (1:1, 3:4, 16:9, Instagram, Stories, 抖音, 小红书, 快手, 视频号)
 
 ### App
-- 11 languages: English, 简体中文, 繁體中文, Deutsch, Nederlands, Español, Italiano, Türkçe, Suomi, 日本語, Esperanto
+- 6 languages: English, 简体中文, 繁體中文, Español, 日本語, Esperanto
 - PWA with update notification and offline support
 - Toast notifications for export success/failure
 
@@ -78,4 +78,10 @@ Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. GitHub Acti
 
 ## License
 
-[GPL-3.0-only](LICENSE)
+[AGPL-3.0-only](LICENSE)
+
+## Trademark Notice
+
+"Goja", "Goja 宫将", the Goja logo, and the tagline "拼图成格." are trademarks of Luke Wu.
+The source code is licensed under AGPL-3.0-only, but trademarks are not licensed under AGPL.
+See [TRADEMARK.md](TRADEMARK.md) for details.

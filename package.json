@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "8.1.3-1",
+  "version": "8.2.0-1",
   "description": "Goja",
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
     "pwa"
   ],
   "author": "fingerfly",
-  "license": "GPL-3.0-only",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "exifr": "^7.1.3",

@@ -6,8 +6,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: 0,
+  workers: undefined,
   reporter: 'html',
   use: {
     baseURL,
@@ -15,10 +15,10 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    // CI installs Chromium only; locally Chrome works. Use Chromium in CI to match workflow.
+    // Local-only workflow: run E2E with installed Google Chrome.
     {
       name: 'chromium',
-      use: process.env.CI ? { ...devices['Chromium'] } : { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
@@ -26,7 +26,7 @@ export default defineConfig({
     : {
         command: 'npx http-server . -p 5501 -c-1',
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: true,
         timeout: 120000,
       },
 });

@@ -69,12 +69,7 @@
             <option value="en" data-i18n="langEn">English</option>
             <option value="zh-Hans" data-i18n="langZhHans">简体中文</option>
             <option value="zh-Hant" data-i18n="langZhHant">繁體中文</option>
-            <option value="de" data-i18n="langDe">Deutsch</option>
-            <option value="nl" data-i18n="langNl">Nederlands</option>
             <option value="es" data-i18n="langEs">Español</option>
-            <option value="it" data-i18n="langIt">Italiano</option>
-            <option value="tr" data-i18n="langTr">Türkçe</option>
-            <option value="fi" data-i18n="langFi">Suomi</option>
             <option value="ja" data-i18n="langJa">日本語</option>
             <option value="eo" data-i18n="langEo">Esperanto</option>
           </select>
@@ -243,6 +238,14 @@
         <div class="control-group hidden" id="watermarkTextGroup">
           <label for="watermarkText" data-i18n="watermarkTextLabel">Text</label>
           <input type="text" id="watermarkText" data-i18n-placeholder="watermarkPlaceholder" placeholder="Your name or text" maxlength="50">
+        </div>
+      </fieldset>
+      <fieldset class="settings-section">
+        <legend data-i18n="legalNoticeTitle">Legal</legend>
+        <p class="control-hint" data-i18n="agplSourceNotice">This service runs Goja under AGPL-3.0-only. Source code for this running version is available here.</p>
+        <div class="control-group">
+          <a href="https://github.com/fingerfly/00_Mundo/tree/main/02product/01_coding/project/goja" target="_blank" rel="noopener noreferrer" data-i18n="viewSourceCode">View source code</a>
+          <a href="./LICENSE" target="_blank" rel="noopener noreferrer" data-i18n="viewLicense">View license</a>
         </div>
       </fieldset>
     </div>

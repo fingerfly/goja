@@ -3,12 +3,7 @@ import { t, setLocale, getLocale, init, applyToDOM, getAvailableLocales } from '
 import en from '../../js/locales/en.js';
 import zhHans from '../../js/locales/zh-Hans.js';
 import zhHant from '../../js/locales/zh-Hant.js';
-import de from '../../js/locales/de.js';
-import nl from '../../js/locales/nl.js';
 import es from '../../js/locales/es.js';
-import itLocale from '../../js/locales/it.js';
-import tr from '../../js/locales/tr.js';
-import fi from '../../js/locales/fi.js';
 import ja from '../../js/locales/ja.js';
 import eo from '../../js/locales/eo.js';
 
@@ -19,17 +14,13 @@ const REQUIRED_EFFECTS_KEYS = [
   'filterBrightness', 'filterContrast', 'filterSaturated', 'filterFaded', 'filterVintage', 'filterBlur',
   'vignetteEnabled', 'vignetteStrength',
 ];
+const REQUIRED_LEGAL_KEYS = ['legalNoticeTitle', 'agplSourceNotice', 'viewSourceCode', 'viewLicense'];
 const REQUIRED_FRAME_HINT_KEY = 'frameDimensionHint';
 const ALL_LOCALES = [
   ['en', en],
   ['zh-Hans', zhHans],
   ['zh-Hant', zhHant],
-  ['de', de],
-  ['nl', nl],
   ['es', es],
-  ['it', itLocale],
-  ['tr', tr],
-  ['fi', fi],
   ['ja', ja],
   ['eo', eo],
 ];
@@ -47,7 +38,7 @@ describe('i18n', () => {
 
   describe('getAvailableLocales', () => {
     it('returns all available locales', () => {
-      expect(getAvailableLocales()).toEqual(['en', 'zh-Hans', 'zh-Hant', 'de', 'nl', 'es', 'it', 'tr', 'fi', 'ja', 'eo']);
+      expect(getAvailableLocales()).toEqual(['en', 'zh-Hans', 'zh-Hant', 'es', 'ja', 'eo']);
     });
   });
 
@@ -87,6 +78,15 @@ describe('i18n', () => {
     it('all locales have required effects i18n keys', () => {
       for (const [name, dict] of ALL_LOCALES) {
         for (const key of REQUIRED_EFFECTS_KEYS) {
+          expect(dict[key], `${name} missing ${key}`).toBeDefined();
+          expect(typeof dict[key], `${name} ${key} must be string`).toBe('string');
+        }
+      }
+    });
+
+    it('all locales have required legal notice i18n keys', () => {
+      for (const [name, dict] of ALL_LOCALES) {
+        for (const key of REQUIRED_LEGAL_KEYS) {
           expect(dict[key], `${name} missing ${key}`).toBeDefined();
           expect(typeof dict[key], `${name} ${key} must be string`).toBe('string');
         }

@@ -2,7 +2,27 @@
 
 ## [Unreleased]
 
+## [8.2.0] - 2026-02-25
+
+
+### Changed
+- Relicensed Goja from `GPL-3.0-only` to `AGPL-3.0-only` and replaced the root `LICENSE` text with GNU AGPL v3.
+- Added `TRADEMARK.md` and README trademark notice clarifying that Goja name/logo/branding are not licensed under AGPL.
+- Added a Settings panel legal section with AGPL source-availability notice and links to source code and license.
+- Reduced i18n language support from 11 to 6 locales: English, Simplified Chinese, Traditional Chinese, Spanish, Japanese, and Esperanto; removed German, Dutch, Italian, Turkish, and Finnish locale packs and selector options.
+
+### Tests
+- Added i18n unit coverage requiring legal notice translation keys across all shipped locale dictionaries.
+
+
 ## [8.1.3] - 2026-02-25
+
+### Changed
+- Deploy commit identity is now explicitly set in `scripts/deploy.js` to avoid accidental bot/session attribution: default author/committer uses `goja-release <10357401+fingerfly@users.noreply.github.com>`, with optional overrides via `GOJA_DEPLOY_GIT_NAME` and `GOJA_DEPLOY_GIT_EMAIL`
+
+### Tests
+- Added deploy identity unit coverage in `tests/unit/deploy.test.js` for default identity and environment override paths
+- Replaced test override email with reserved non-routable domain `test@demo.invalid` to avoid personal data and real-address ambiguity
 
 
 ## [8.1.2] - 2026-02-25
