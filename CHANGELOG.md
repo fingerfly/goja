@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [8.5.1] - 2026-02-25
+
+
+### Changed
+- Hardened PWA upgrade behavior so new releases activate without manual cache/history clearing: service worker registration now uses `updateViaCache: 'none'`, startup checks call `registration.update()`, and waiting workers are auto-activated via `SKIP_WAITING` when possible.
+- Added proactive foreground update checks (`focus` and `visibilitychange`) so returning users pick up newly deployed builds sooner during normal usage.
+- Added OPPO-safe Background control fallback in Settings Export: `#bgColor` now switches to a normalized hex text mode on risky Android/OPPO-like browser profiles to avoid native color-picker crashes while preserving native color input on iPhone and known-safe environments.
+- Added dedicated background color compatibility module (`js/bg-color-control.js`) with pure helpers for risk decision and hex normalization, preserving the existing `#bgColor` preview/export data contract.
+
+### Tests
+- Extended `tests/unit/update-banner.test.js` with TDD coverage for waiting-worker auto-activation, install-to-activation flow, and startup update checks.
+- Regression verification completed with `npm test` and `npm run test:e2e` (all passing).
+- Added TDD coverage in `tests/unit/bg-color-control.test.js` for OPPO risk detection hints, iPhone-safe native behavior, hex normalization, and fallback event compatibility (`input`/`change` behavior).
+- Added E2E coverage in `tests/e2e/goja.spec.js` to emulate OPPO-like user-agent behavior and verify safe background fallback (`type="text"` + invalid input normalization to `#ffffff`).
+- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, `npm run test`, and `cloc --by-file --include-lang=JavaScript js tests/unit tests/e2e` (all passing).
+
 ## [8.5.0] - 2026-02-25
 
 

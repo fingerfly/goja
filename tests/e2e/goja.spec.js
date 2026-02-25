@@ -362,6 +362,27 @@ test.describe('Goja App', () => {
     expect(hasOverflow).toBe(false);
   });
 
+  test('uses safe background fallback control on OPPO-like user agents', async ({ page }) => {
+    const oppoUa = 'Mozilla/5.0 (Linux; Android 14; CPH2651 Build/UP1A) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 OPPOReno';
+    await page.addInitScript((ua) => {
+      Object.defineProperty(window.navigator, 'userAgent', {
+        configurable: true,
+        get: () => ua,
+      });
+    }, oppoUa);
+    await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'en'));
+    await page.reload();
+
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const bgInput = page.locator('#bgColor');
+    await expect(bgInput).toHaveAttribute('type', 'text');
+    await bgInput.fill('bad-value');
+    await bgInput.dispatchEvent('change');
+    await expect(bgInput).toHaveValue('#ffffff');
+  });
+
   mobileSettingsViewports.forEach(({ name, width, height }) => {
     test(`settings mobile layout keeps tabs usable on ${name} (${width}x${height})`, async ({ page }) => {
       await page.setViewportSize({ width, height });
