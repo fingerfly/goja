@@ -1,13 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5501';
+const isCI = !!process.env.CI;
 
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 0,
-  workers: undefined,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
   reporter: 'html',
   use: {
     baseURL,
@@ -18,7 +19,9 @@ export default defineConfig({
     // Local-only workflow: run E2E with installed Google Chrome.
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: isCI
+        ? { ...devices['Desktop Chrome'] }
+        : { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL

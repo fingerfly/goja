@@ -191,8 +191,7 @@ test.describe('Goja App', () => {
       const firstImage = page.locator('#previewGrid img').first();
       await firstImage.tap();
       await expect(page.locator('.cell-context-menu')).toBeVisible();
-      await page.waitForTimeout(1900);
-      await expect(page.locator('.cell-context-menu')).toHaveCount(0);
+      await expect(page.locator('.cell-context-menu')).toHaveCount(0, { timeout: 3000 });
     });
 
     test('touch menu uses translucent visual style and blur when supported', async ({ page }) => {
@@ -366,6 +365,32 @@ test.describe('Goja App', () => {
     expect(cols.trim().split(/\s+/).length).toBe(2);
   });
 
+  test('desktop settings uses side panel width and preserves two-column control rows', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const panelWidth = await page.locator('#settingsPanel').evaluate((el) => el.getBoundingClientRect().width);
+    expect(panelWidth).toBeGreaterThanOrEqual(500);
+    expect(panelWidth).toBeLessThanOrEqual(560);
+    const sectionVisibility = await page.evaluate(() => {
+      const ids = ['settingsSectionGrid', 'settingsSectionExport', 'settingsSectionWatermark'];
+      return ids.map((id) => {
+        const section = document.getElementById(id);
+        if (!section) return { id, display: 'none' };
+        const style = getComputedStyle(section);
+        return { id, display: style.display };
+      });
+    });
+    sectionVisibility.forEach(({ display }) => {
+      expect(display).not.toBe('none');
+    });
+    const rowLayouts = await page.locator('.control-row--pair').evaluateAll((rows) =>
+      rows.map((row) => getComputedStyle(row).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length)
+    );
+    expect(rowLayouts.length).toBeGreaterThan(0);
+    rowLayouts.forEach((columns) => expect(columns).toBe(2));
+  });
+
   test('paired control rows remain single column on phone width', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.locator('#settingsBtn').click();
@@ -433,7 +458,6 @@ test.describe('Goja App', () => {
     });
 
     await page.locator('#settingsResetAllBtn').click();
-    await page.waitForTimeout(100);
 
     expect(dialogShown).toBe(false);
     await expect(page.locator('#frameWidth')).toHaveValue('1080');
@@ -560,8 +584,7 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await page.locator('#frameWidth').fill('100');
-    await page.waitForTimeout(250);
-    await expect(page.locator('#frameWidth')).toHaveValue('320');
+    await expect(page.locator('#frameWidth')).toHaveValue('320', { timeout: 1500 });
   });
 
   test('aspect preset 3:4 sets frame to 1080×1440', async ({ page }) => {

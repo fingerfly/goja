@@ -2,7 +2,20 @@
 
 ## [Unreleased]
 
+## [8.4.2] - 2026-02-25
+
+
 ## [8.4.1] - 2026-02-25
+
+### Fixed
+- Settings footer action bar now sits flush with the settings panel bottom edge on mobile sheet layout (no visual floating gap), while preserving section-tab navigation behavior.
+- `Reset all` in Settings now applies immediately without a confirmation dialog.
+- `Reset all` now correctly restores settings to default values (including frame size, gap, watermark/capture-date controls, and language).
+
+### Tests
+- Added E2E coverage in `tests/e2e/goja.spec.js` to assert the settings footer action bar is flush with the panel bottom edge.
+- Added E2E coverage in `tests/e2e/goja.spec.js` to assert `Reset all` performs an immediate full reset without opening a confirmation dialog.
+- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm test` (all passing).
 
 
 ## [8.4.0] - 2026-02-25
