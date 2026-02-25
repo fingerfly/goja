@@ -1,11 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 
-async function loadPlaywrightConfigWithEnv(ciValue) {
+async function loadPlaywrightConfigWithEnv(ciValue, baseUrlValue) {
   const previousCI = process.env.CI;
+  const previousBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
   if (ciValue === undefined) {
     delete process.env.CI;
   } else {
     process.env.CI = ciValue;
+  }
+  if (baseUrlValue === undefined) {
+    delete process.env.PLAYWRIGHT_BASE_URL;
+  } else {
+    process.env.PLAYWRIGHT_BASE_URL = baseUrlValue;
   }
 
   try {
@@ -18,6 +24,11 @@ async function loadPlaywrightConfigWithEnv(ciValue) {
     } else {
       process.env.CI = previousCI;
     }
+    if (previousBaseUrl === undefined) {
+      delete process.env.PLAYWRIGHT_BASE_URL;
+    } else {
+      process.env.PLAYWRIGHT_BASE_URL = previousBaseUrl;
+    }
   }
 }
 
@@ -28,6 +39,10 @@ describe('playwright config', () => {
     expect(config.workers).toBe(1);
     expect(config.projects[0].name).toBe('chromium');
     expect(config.projects[0].use.channel).toBeUndefined();
+    expect(config.reporter).toEqual([
+      ['list'],
+      ['html', { open: 'never' }],
+    ]);
   });
 
   it('keeps local browser channel settings outside CI', async () => {
@@ -36,5 +51,13 @@ describe('playwright config', () => {
     expect(config.workers).toBeUndefined();
     expect(config.projects[0].name).toBe('chromium');
     expect(config.projects[0].use.channel).toBe('chrome');
+    expect(config.reporter).toBe('html');
+    expect(config.webServer).toBeDefined();
+  });
+
+  it('disables local webServer when PLAYWRIGHT_BASE_URL is provided', async () => {
+    const config = await loadPlaywrightConfigWithEnv(undefined, 'http://127.0.0.1:3000');
+    expect(config.use.baseURL).toBe('http://127.0.0.1:3000');
+    expect(config.webServer).toBeUndefined();
   });
 });

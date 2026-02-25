@@ -2,7 +2,18 @@
 
 ## [Unreleased]
 
+## [8.4.4] - 2026-02-25
+
+
 ## [8.4.3] - 2026-02-25
+
+### Changed
+- Playwright configuration now uses CI-specific reporters (`list` + `html` with `open: never`) while keeping local runs on the existing HTML reporter, improving CI log readability without changing local UX.
+- Test workflow (`.github/workflows/test.yml`) keeps a lean push/PR-only trigger model with unit + E2E jobs, explicit E2E timeout, and Playwright failure artifact upload for diagnosis.
+
+### Tests
+- Extended unit coverage in `tests/unit/playwright-config.test.js` for CI reporter behavior and `PLAYWRIGHT_BASE_URL` webServer bypass behavior.
+- Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm test` (all passing).
 
 
 ## [8.4.2] - 2026-02-25

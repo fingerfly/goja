@@ -9,7 +9,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
-  reporter: 'html',
+  reporter: isCI
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+      ]
+    : 'html',
   use: {
     baseURL,
     trace: 'on-first-retry',
