@@ -378,9 +378,17 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     const bgInput = page.locator('#bgColor');
     await expect(bgInput).toHaveAttribute('type', 'text');
+    await expect(page.locator('#bgColorPalette')).toBeVisible();
     await bgInput.fill('bad-value');
     await bgInput.dispatchEvent('change');
     await expect(bgInput).toHaveValue('#ffffff');
+  });
+
+  test('keeps native background color picker UI on non-fallback desktop browsers', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#bgColor')).toHaveAttribute('type', 'color');
+    await expect(page.locator('#bgColorPalette')).toBeHidden();
   });
 
   mobileSettingsViewports.forEach(({ name, width, height }) => {

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [8.5.2] - 2026-03-04
+
+
+
+## [8.5.1] - 2026-02-26
+
+
 ### Changed
 - Fixed service worker precache coverage for module imports used at startup by adding `js/action-buttons.js`, `js/frame-validation.js`, and `js/bg-color-control.js` to `sw.js` `ASSETS`, preventing runtime `net::ERR_FAILED` module load errors under cache/offline paths.
 - Removed stale locale asset paths from `sw.js` (`de`, `nl`, `it`, `tr`, `fi`) that were not present in the repository and could cause `cache.addAll()` install failure; this blocked reliable precache population and surfaced module load failures.
@@ -11,8 +18,6 @@
 ### Tests
 - Regression verification completed with `npm run test:unit`, `npm run test:e2e`, and `npm run test` (all passing).
 
-
-## [8.5.1] - 2026-02-26
 
 ### Changed
 - Hardened PWA upgrade behavior so new releases activate without manual cache/history clearing: service worker registration now uses `updateViaCache: 'none'`, startup checks call `registration.update()`, and waiting workers are auto-activated via `SKIP_WAITING` when possible.

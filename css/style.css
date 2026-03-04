@@ -634,6 +634,25 @@ body {
   padding: 2px;
 }
 
+.bg-color-palette {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-xs);
+}
+
+.bg-color-swatch {
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.bg-color-swatch.is-active {
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-surface) inset;
+}
+
 .control-group select {
   min-height: var(--touch-min);
   padding: 0 var(--gap-sm);

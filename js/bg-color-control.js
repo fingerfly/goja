@@ -1,6 +1,7 @@
 const HEX_SHORT_RE = /^#?([0-9a-fA-F]{3})$/;
 const HEX_LONG_RE = /^#?([0-9a-fA-F]{6})$/;
 const DEFAULT_BG_COLOR = '#ffffff';
+const PALETTE_BUTTON_SELECTOR = '[data-bg-color]';
 
 function normalizeHexBody(hexBody) {
   if (hexBody.length === 3) {
@@ -39,15 +40,42 @@ function emitInput(inputEl) {
 
 function normalizeAndEmit(inputEl) {
   const normalized = normalizeHexColor(inputEl.value);
-  const changed = inputEl.value !== normalized;
   inputEl.value = normalized;
   emitInput(inputEl);
-  return changed;
+}
+
+function bindPalette(inputEl, paletteRoot) {
+  if (!paletteRoot) return;
+  const buttons = Array.from(paletteRoot.querySelectorAll(PALETTE_BUTTON_SELECTOR));
+  if (buttons.length === 0) return;
+
+  const syncActiveButton = () => {
+    const current = normalizeHexColor(inputEl.value);
+    buttons.forEach((btn) => {
+      const swatch = normalizeHexColor(btn.getAttribute('data-bg-color'));
+      const selected = swatch === current;
+      btn.classList.toggle('is-active', selected);
+      btn.setAttribute('aria-pressed', String(selected));
+    });
+  };
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const swatch = normalizeHexColor(btn.getAttribute('data-bg-color'));
+      inputEl.value = swatch;
+      emitInput(inputEl);
+      syncActiveButton();
+    });
+  });
+
+  inputEl.addEventListener('input', syncActiveButton);
+  syncActiveButton();
 }
 
 export function initBackgroundColorControl(inputEl, options = {}) {
   if (!inputEl) return false;
   inputEl.value = normalizeHexColor(inputEl.value);
+  bindPalette(inputEl, options.paletteRoot);
   const useFallback = shouldUseSafeBgColorFallback({
     userAgent: options.userAgent ?? navigator?.userAgent ?? '',
     forceSafeFallback: options.forceSafeFallback ?? false,
@@ -59,6 +87,7 @@ export function initBackgroundColorControl(inputEl, options = {}) {
   inputEl.setAttribute('spellcheck', 'false');
   inputEl.setAttribute('autocapitalize', 'off');
   inputEl.setAttribute('autocomplete', 'off');
+  inputEl.setAttribute('placeholder', '#rrggbb');
   inputEl.setAttribute('pattern', '#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?');
   inputEl.addEventListener('change', () => { normalizeAndEmit(inputEl); });
   inputEl.addEventListener('blur', () => { normalizeAndEmit(inputEl); });

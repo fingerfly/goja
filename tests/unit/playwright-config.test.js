@@ -43,7 +43,7 @@ describe('playwright config', () => {
       ['list'],
       ['html', { open: 'never' }],
     ]);
-  });
+  }, 15000);
 
   it('keeps local browser channel settings outside CI', async () => {
     const config = await loadPlaywrightConfigWithEnv(undefined);

@@ -51,4 +51,47 @@ describe('initBackgroundColorControl', () => {
     expect(input.value).toBe('#ffffff');
     expect(onInput).toHaveBeenCalled();
   });
+
+  it('keeps native color picker mode for non-fallback user agents', () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.id = 'bgColor';
+    input.value = '#abcdef';
+
+    const changed = initBackgroundColorControl(input, {
+      forceSafeFallback: false,
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1',
+    });
+
+    expect(changed).toBe(false);
+    expect(input.type).toBe('color');
+  });
+
+  it('binds safe palette buttons and emits input on tap', () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.id = 'bgColor';
+    input.value = '#ffffff';
+    const paletteRoot = document.createElement('div');
+    const black = document.createElement('button');
+    black.type = 'button';
+    black.setAttribute('data-bg-color', '#000000');
+    const blue = document.createElement('button');
+    blue.type = 'button';
+    blue.setAttribute('data-bg-color', '#1976d2');
+    paletteRoot.append(black, blue);
+
+    const onInput = vi.fn();
+    input.addEventListener('input', onInput);
+
+    initBackgroundColorControl(input, {
+      forceSafeFallback: true,
+      userAgent: 'test-agent',
+      paletteRoot,
+    });
+
+    blue.click();
+    expect(input.value).toBe('#1976d2');
+    expect(onInput).toHaveBeenCalled();
+  });
 });
