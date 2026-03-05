@@ -10,7 +10,7 @@ export function normalizeEdgeAmplitude(value) {
 }
 
 export function normalizeEdgeFrequency(value) {
-  return Math.round(clamp(value, 1, 12, 4));
+  return Math.round(clamp(value, 1, 20, 4));
 }
 
 export function normalizeEdgeSeed(value) {

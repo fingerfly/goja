@@ -39,7 +39,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
   const capture = getCaptureDateOptions(form);
   const vignette = getVignetteOptions(form);
   const filterCss = getFilterCss(form.filterPreset ?? 'none');
-  const edgeFrequency = Math.max(1, Math.min(12, Math.round(Number(form.edgeFrequency ?? 4) || 4)));
+  const edgeFrequency = Math.max(1, Math.min(20, Math.round(Number(form.edgeFrequency ?? 4) || 4)));
   const edgeIntensity = Number(form.edgeAmplitude ?? form.edgeIntensity ?? 0.5);
 
   for (let i = 0; i < layout.cells.length; i++) {

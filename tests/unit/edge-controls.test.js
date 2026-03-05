@@ -16,6 +16,8 @@ describe('edge-controls', () => {
   it('normalizes frequency and seed as bounded integers', () => {
     expect(normalizeEdgeFrequency('4.8')).toBe(5);
     expect(normalizeEdgeFrequency('abc')).toBe(4);
+    expect(normalizeEdgeFrequency('20.2')).toBe(20);
+    expect(normalizeEdgeFrequency('999')).toBe(20);
     expect(normalizeEdgeSeed('100000')).toBe(99999);
     expect(normalizeEdgeSeed('-1')).toBe(0);
   });

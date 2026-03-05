@@ -2,10 +2,45 @@
 
 ## [Unreleased]
 
+## [9.0.4] - 2026-03-05
+
+
+
 ## [9.0.3] - 2026-03-05
+
+### Changed
+- Enforced a single canonical irregular-edge path pipeline for preview/export by introducing shared local/global path pairing in `js/edge-shape-engine.js` and updating both clip adapters (`js/edge-preview-clip.js`, `js/edge-export-clip.js`) to consume the same geometry chain.
+- Redesigned advanced edge controls for usability and micro-tuning: edge amplitude now uses a synced slider + numeric input pattern, with improved responsive layout for edge controls in `index.html` and `css/style.css`.
+- Added cross-platform numeric-input handling for edge frequency/seed through `js/edge-controls.js`, including iPhone-class fallback to text+numeric keyboard mode for better mobile reliability.
+- Improved soft-wave aesthetic profile in `js/edge-style-presets.js` to reduce harshness (lower jitter/frequency envelope) and keep boundaries visually smoother.
+- Added curated style-candidate metadata in `js/edge-style-presets.js` to support aesthetic shortlist selection workflow while preserving approved presets.
+- Extended edge option schema compatibility in `js/grid-effects-settings.js` (`edgeAmplitude` with backward-compatible `edgeIntensity` fallback) and updated preview parsing in `js/preview-renderer.js`.
+- Completed i18n updates for redesigned edge UX hints/labels in locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`).
+
+### Tests
+- Added unit tests for canonical path pairing and export clip parity (`tests/unit/edge-shape-engine.test.js`, `tests/unit/edge-export-clip.test.js`).
+- Added unit tests for edge control normalization/platform behavior and curated preset constraints (`tests/unit/edge-controls.test.js`, `tests/unit/edge-style-presets.test.js`).
+- Expanded unit coverage for migration fallback behavior (`tests/unit/grid-effects-settings.test.js`) and required i18n keys (`tests/unit/i18n.test.js`).
+- Added E2E coverage for updated edge controls (including iPhone-class numeric input behavior) in `tests/e2e/goja.spec.js`.
+
 
 
 ## [9.0.2] - 2026-03-05
+
+### Changed
+- Enforced a single canonical irregular-edge path pipeline for preview/export by introducing shared local/global path pairing in `js/edge-shape-engine.js` and updating both clip adapters (`js/edge-preview-clip.js`, `js/edge-export-clip.js`) to consume the same geometry chain.
+- Redesigned advanced edge controls for usability and micro-tuning: edge amplitude now uses a synced slider + numeric input pattern, with improved responsive layout for edge controls in `index.html` and `css/style.css`.
+- Added cross-platform numeric-input handling for edge frequency/seed through `js/edge-controls.js`, including iPhone-class fallback to text+numeric keyboard mode for better mobile reliability.
+- Improved soft-wave aesthetic profile in `js/edge-style-presets.js` to reduce harshness (lower jitter/frequency envelope) and keep boundaries visually smoother.
+- Added curated style-candidate metadata in `js/edge-style-presets.js` to support aesthetic shortlist selection workflow while preserving approved presets.
+- Extended edge option schema compatibility in `js/grid-effects-settings.js` (`edgeAmplitude` with backward-compatible `edgeIntensity` fallback) and updated preview parsing in `js/preview-renderer.js`.
+- Completed i18n updates for redesigned edge UX hints/labels in locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`).
+
+### Tests
+- Added unit tests for canonical path pairing and export clip parity (`tests/unit/edge-shape-engine.test.js`, `tests/unit/edge-export-clip.test.js`).
+- Added unit tests for edge control normalization/platform behavior and curated preset constraints (`tests/unit/edge-controls.test.js`, `tests/unit/edge-style-presets.test.js`).
+- Expanded unit coverage for migration fallback behavior (`tests/unit/grid-effects-settings.test.js`) and required i18n keys (`tests/unit/i18n.test.js`).
+- Added E2E coverage for updated edge controls (including iPhone-class numeric input behavior) in `tests/e2e/goja.spec.js`.
 
 
 ## [9.0.1] - 2026-03-05

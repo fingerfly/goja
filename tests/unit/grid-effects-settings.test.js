@@ -165,6 +165,17 @@ describe('getGridEffectsOptions', () => {
     expect(opts.edgeFrequency).toBe(5);
   });
 
+  it('clamps edge frequency with new upper bound 20', () => {
+    const form = {
+      edgeStyle: 'soft-wave',
+      edgeIntensity: '0.5',
+      edgeFrequency: '88',
+      edgeFeatureAvailable: 'true',
+    };
+    const opts = getGridEffectsOptions(form, [], formatDateTimeOriginal, getLocale);
+    expect(opts.edgeFrequency).toBe(20);
+  });
+
   it('supports migrated edgeAmplitude while keeping legacy edgeIntensity fallback', () => {
     const migrated = getGridEffectsOptions({
       edgeStyle: 'soft-wave',

@@ -581,6 +581,10 @@ test.describe('Goja App', () => {
     await expect(page.locator('#edgeStyle option[value="paper-torn"]')).toHaveText('纸张撕边');
     await expect(page.locator('#edgeStyle option[value="film-scallop"]')).toHaveText('胶片齿孔');
     await expect(page.locator('#edgeStyle option[value="graphic-zigzag"]')).toHaveText('图形锯齿');
+    await expect(page.locator('#edgeStyle option[value="silk-wave"]')).toHaveText('丝绸波纹');
+    await expect(page.locator('#edgeStyle option[value="linen-deckle"]')).toHaveText('亚麻毛边');
+    await expect(page.locator('#edgeStyle option[value="postage-perf"]')).toHaveText('邮票齿孔');
+    await expect(page.locator('#edgeFrequencyHint')).toHaveText('每条边的整数周期（1-20）');
   });
 
   test('reset all applies defaults immediately without confirmation dialog', async ({ page }) => {
@@ -873,6 +877,7 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await expect(page.locator('#edgeOptionsGroup')).not.toHaveClass(/hidden/);
     await expect(page.locator('#edgeIntensityInput')).toBeVisible();
+    await expect(page.locator('#edgeFrequency')).toHaveAttribute('max', '20');
     await page.locator('#edgeStyle').selectOption('soft-wave');
     await page.locator('.settings-backdrop').click();
     const clipPath = await page.locator('#previewGrid .preview-cell').first().evaluate((el) =>

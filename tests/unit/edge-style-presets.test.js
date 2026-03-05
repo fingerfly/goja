@@ -16,5 +16,13 @@ describe('edge-style-presets', () => {
 
   it('exposes curated shortlist candidates marked approved', () => {
     expect(EDGE_STYLE_CANDIDATES.filter((c) => c.approved)).toHaveLength(4);
+    expect(EDGE_STYLE_CANDIDATES).toHaveLength(7);
+  });
+
+  it('includes new selectable style ids with profiles', () => {
+    expect(normalizeEdgeStyle('silk-wave')).toBe('silk-wave');
+    expect(normalizeEdgeStyle('linen-deckle')).toBe('linen-deckle');
+    expect(normalizeEdgeStyle('postage-perf')).toBe('postage-perf');
+    expect(getEdgeStyleProfile('postage-perf').waveform).toBe('scallop');
   });
 });

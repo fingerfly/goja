@@ -123,7 +123,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     dateOriginals,
     edgeStyle,
     edgeIntensity: parseNum(form.edgeAmplitude ?? form.edgeIntensity, 0.5),
-    edgeFrequency: parseIntBounded(form.edgeFrequency, 4, 1, 12),
+    edgeFrequency: parseIntBounded(form.edgeFrequency, 4, 1, 20),
     edgeSeed: parseNum(form.edgeSeed, 0),
     edgeAdvancedSupported,
   };

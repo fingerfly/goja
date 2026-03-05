@@ -59,7 +59,7 @@ function setFormDefaults(refs) {
   }
   if (edgeFrequency) {
     edgeFrequency.min = '1';
-    edgeFrequency.max = '12';
+    edgeFrequency.max = '20';
     edgeFrequency.step = '1';
     edgeFrequency.value = edgeFrequency.value || '4';
   }

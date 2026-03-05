@@ -56,7 +56,7 @@ function sidePoints(cell, side, opts, baseCell) {
   const profile = getEdgeStyleProfile(style);
   const ampBase = Math.min(cell.width, cell.height) * clampNum(opts.edgeIntensity, 0, 1, 0) * 0.16;
   const amp = ampBase * profile.ampScale;
-  const cycles = clampInt(opts.edgeFrequency, 1, 12, 4);
+  const cycles = clampInt(opts.edgeFrequency, 1, 20, 4);
   const freq = cycles * profile.freqScale;
   if (style === 'straight' || amp <= 0) {
     if (side === 'top') return [[cell.x, cell.y], [cell.x + cell.width, cell.y]];

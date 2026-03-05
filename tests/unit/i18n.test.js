@@ -14,6 +14,7 @@ const REQUIRED_EFFECTS_KEYS = [
   'filterBrightness', 'filterContrast', 'filterSaturated', 'filterFaded', 'filterVintage', 'filterBlur',
   'vignetteEnabled', 'vignetteStrength', 'edgeStyleLabel', 'edgeStyleStraight', 'edgeStyleSoftWave',
   'edgeStylePaperTorn', 'edgeStyleFilmScallop', 'edgeStyleGraphicZigzag',
+  'edgeStyleSilkWave', 'edgeStyleLinenDeckle', 'edgeStylePostagePerf',
   'edgeIntensity', 'edgeIntensityHint', 'edgeFrequency', 'edgeFrequencyHint', 'edgeSeed', 'edgeSeedHint',
 ];
 const REQUIRED_LEGAL_KEYS = ['legalNoticeTitle', 'agplSourceNotice', 'viewSourceCode', 'viewLicense'];
