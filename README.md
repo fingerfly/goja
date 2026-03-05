@@ -76,6 +76,41 @@ npm run deploy -- <build|patch|minor|major>
 
 Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. GitHub Actions deploys to Pages at https://fingerfly.github.io/goja/
 
+`deploy` defaults by OS:
+- Windows: HTTPS `https://github.com/fingerfly/goja.git`
+- macOS and other OS: SSH `git@github.com:fingerfly/goja.git`
+
+You can override remote per shell with `GOJA_DEPLOY_REMOTE`.
+
+Non-destructive remote check before deploy:
+
+```bash
+git ls-remote <your-remote-url> HEAD
+```
+
+PowerShell:
+
+```powershell
+$env:GOJA_DEPLOY_REMOTE='https://github.com/fingerfly/goja.git'; npm run deploy -- patch
+$env:GOJA_DEPLOY_REMOTE='git@github.com:fingerfly/goja.git'; npm run deploy -- patch
+```
+
+CMD:
+
+```cmd
+cmd /C "set GOJA_DEPLOY_REMOTE=https://github.com/fingerfly/goja.git && npm run deploy -- patch"
+set GOJA_DEPLOY_REMOTE=https://github.com/fingerfly/goja.git
+npm run deploy -- patch
+```
+
+bash/zsh:
+
+```bash
+GOJA_DEPLOY_REMOTE=https://github.com/fingerfly/goja.git npm run deploy -- patch
+export GOJA_DEPLOY_REMOTE=https://github.com/fingerfly/goja.git && npm run deploy -- patch
+GOJA_DEPLOY_REMOTE=git@github.com:fingerfly/goja.git npm run deploy -- patch
+```
+
 ## License
 
 [AGPL-3.0-only](LICENSE)

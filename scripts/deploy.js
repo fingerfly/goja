@@ -27,7 +27,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(__dirname, '..');
 const SOURCE = projectRoot;
 const DEPLOY_DIR = path.join(process.env.TMPDIR || process.env.TEMP || process.env.TMP || '/tmp', 'goja-deploy');
-const REMOTE = 'git@github.com:fingerfly/goja.git';
+const DEFAULT_REMOTE = 'git@github.com:fingerfly/goja.git';
+const WINDOWS_DEFAULT_REMOTE = 'https://github.com/fingerfly/goja.git';
+const EXPECTED_REPO = 'fingerfly/goja';
 const DEFAULT_DEPLOY_GIT_NAME = 'goja-release';
 const DEFAULT_DEPLOY_GIT_EMAIL = '10357401+fingerfly@users.noreply.github.com';
 
@@ -52,6 +54,43 @@ export function git(args, cwd = DEPLOY_DIR) {
 
 export function gitLive(args, cwd = DEPLOY_DIR) {
   execFileSync('git', args, { cwd, stdio: 'inherit' });
+}
+
+export function getDefaultDeployRemoteForPlatform(platform = process.platform) {
+  if (platform === 'win32') return WINDOWS_DEFAULT_REMOTE;
+  return DEFAULT_REMOTE;
+}
+
+export function resolveDeployRemote(platform = process.platform) {
+  const override = String(process.env.GOJA_DEPLOY_REMOTE ?? '').trim();
+  if (override) return override;
+  return getDefaultDeployRemoteForPlatform(platform);
+}
+
+export function normalizeRemoteRepo(remoteUrl) {
+  const text = String(remoteUrl ?? '')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\.git$/i, '');
+  const matched = text.match(/github\.com[:/]([^/]+)\/([^/]+)$/i);
+  if (!matched) return null;
+  return `${matched[1]}/${matched[2]}`.toLowerCase();
+}
+
+export function isExpectedDeployRepo(remoteUrl) {
+  return normalizeRemoteRepo(remoteUrl) === EXPECTED_REPO;
+}
+
+export function preflightRemoteAccess(remoteUrl) {
+  try {
+    execFileSync('git', ['ls-remote', remoteUrl, 'HEAD'], { stdio: 'pipe', encoding: 'utf-8' });
+  } catch (err) {
+    const message = err?.message || String(err);
+    throw new Error(
+      `Deploy preflight failed: cannot access remote "${remoteUrl}". ${message} ` +
+      'Tip: configure GOJA_DEPLOY_REMOTE for your shell (SSH or HTTPS) and verify credentials.'
+    );
+  }
 }
 
 function resolveDeployIdentity() {
@@ -114,7 +153,10 @@ function getVersionForCommitMessage() {
   return `v${semver} (${build})`;
 }
 
-function runDeploy(bumpType) {
+export function runDeploy(bumpType) {
+  const deployRemote = resolveDeployRemote();
+  preflightRemoteAccess(deployRemote);
+
   // Step 1: Bump version, sync files, update CHANGELOG
   console.log('🚀 Step 1/2: Upgrading version...\n');
   execFileSync('node', [path.join(projectRoot, 'scripts/upgrade-version.js'), bumpType], { cwd: projectRoot, stdio: 'inherit' });
@@ -129,7 +171,7 @@ function runDeploy(bumpType) {
   if (fs.existsSync(path.join(DEPLOY_DIR, '.git'))) {
     try {
       const remote = git(['remote', 'get-url', 'origin']);
-      if (remote.includes('fingerfly/goja')) {
+      if (isExpectedDeployRepo(remote)) {
         needClone = false;
         console.log('[1/4] Pulling latest from remote...');
         gitLive(['pull', '--ff-only', 'origin', 'main']);
@@ -142,11 +184,11 @@ function runDeploy(bumpType) {
       if (fs.existsSync(DEPLOY_DIR)) {
         fs.rmSync(DEPLOY_DIR, { recursive: true, force: true });
       }
-      execFileSync('git', ['clone', REMOTE, DEPLOY_DIR], { stdio: 'inherit' });
+      execFileSync('git', ['clone', deployRemote, DEPLOY_DIR], { stdio: 'inherit' });
     }
   } else {
     console.log('[1/4] Cloning repo...');
-    execFileSync('git', ['clone', REMOTE, DEPLOY_DIR], { stdio: 'inherit' });
+    execFileSync('git', ['clone', deployRemote, DEPLOY_DIR], { stdio: 'inherit' });
   }
 
   console.log('[2/4] Syncing files...');
@@ -173,10 +215,9 @@ function runDeploy(bumpType) {
   const commitMsg = `Release ${getVersionForCommitMessage()}`;
   commitRelease(commitMsg);
 
-  const deployRemote = git(['remote', 'get-url', 'origin']);
-  const expected = 'fingerfly/goja';
-  if (!deployRemote.includes(expected)) {
-    throw new Error(`Safety check failed: deploy repo remote is "${deployRemote}", expected "${expected}". Refusing to push.`);
+  const actualRemote = git(['remote', 'get-url', 'origin']);
+  if (!isExpectedDeployRepo(actualRemote)) {
+    throw new Error(`Safety check failed: deploy repo remote is "${actualRemote}", expected "${EXPECTED_REPO}". Refusing to push.`);
   }
 
   console.log('\n[4/4] Pushing to GitHub...');

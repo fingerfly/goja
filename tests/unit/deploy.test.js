@@ -125,3 +125,68 @@ describe('deploy commit identity', () => {
     );
   });
 });
+
+describe('deploy remote resolution and safety', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.GOJA_DEPLOY_REMOTE;
+  });
+
+  it('resolveDeployRemote() prefers GOJA_DEPLOY_REMOTE override', async () => {
+    process.env.GOJA_DEPLOY_REMOTE = 'https://github.com/fingerfly/goja.git';
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+    expect(mod.resolveDeployRemote()).toBe('https://github.com/fingerfly/goja.git');
+  });
+
+  it('resolveDeployRemote() uses OS-aware defaults when override is unset', async () => {
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+    expect(mod.resolveDeployRemote('win32')).toBe('https://github.com/fingerfly/goja.git');
+    expect(mod.resolveDeployRemote('darwin')).toBe('git@github.com:fingerfly/goja.git');
+    expect(mod.resolveDeployRemote('freebsd')).toBe('git@github.com:fingerfly/goja.git');
+  });
+
+  it('isExpectedDeployRepo() accepts canonical SSH and HTTPS remotes', async () => {
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+    expect(mod.isExpectedDeployRepo('git@github.com:fingerfly/goja.git')).toBe(true);
+    expect(mod.isExpectedDeployRepo('https://github.com/fingerfly/goja.git')).toBe(true);
+    expect(mod.isExpectedDeployRepo('https://github.com/fingerfly/00_Mundo.git')).toBe(false);
+  });
+
+  it('normalizeRemoteRepo() handles ssh URL form and trailing separators', async () => {
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+    expect(mod.normalizeRemoteRepo('ssh://git@github.com/fingerfly/goja.git')).toBe('fingerfly/goja');
+    expect(mod.normalizeRemoteRepo('https://github.com/fingerfly/goja.git/')).toBe('fingerfly/goja');
+    expect(mod.normalizeRemoteRepo('https://github.com/fingerfly/goja/')).toBe('fingerfly/goja');
+    expect(mod.normalizeRemoteRepo('https://github.com/fingerfly/00_Mundo.git')).toBe('fingerfly/00_mundo');
+  });
+});
+
+describe('deploy preflight ordering', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.GOJA_DEPLOY_REMOTE;
+  });
+
+  it('runDeploy() fails preflight before running upgrade-version side effects', async () => {
+    execFileSync.mockImplementation((cmd, args = []) => {
+      if (cmd === 'git' && args[0] === 'ls-remote') {
+        throw new Error('Permission denied (publickey)');
+      }
+      return '';
+    });
+
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+
+    expect(() => mod.runDeploy('patch')).toThrow(/Permission denied|Deploy preflight failed/i);
+
+    const upgradeCalls = execFileSync.mock.calls.filter(
+      ([cmd, args = []]) => cmd === 'node' && Array.isArray(args) && args.some((arg) => String(arg).includes('upgrade-version.js'))
+    );
+    expect(upgradeCalls).toHaveLength(0);
+  });
+});
