@@ -848,6 +848,43 @@ test.describe('Goja App', () => {
     await expect(page.locator('#filterPreset option')).toHaveCount(9);
   });
 
+  test('edge controls are shown on supported browsers and apply clip path', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#edgeOptionsGroup')).not.toHaveClass(/hidden/);
+    await page.locator('#edgeStyle').selectOption('wavy');
+    await page.locator('.settings-backdrop').click();
+    const clipPath = await page.locator('#previewGrid .preview-cell').first().evaluate((el) =>
+      getComputedStyle(el).clipPath
+    );
+    expect(clipPath).toContain('path(');
+  });
+
+  test('edge controls stay hidden when capability check fails', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      const css = window.CSS;
+      if (css?.supports) {
+        css.supports = (...args) => {
+          if (args[0] === 'clip-path') return false;
+          return false;
+        };
+      }
+      window.Path2D = undefined;
+    });
+    await page.goto('/');
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#edgeOptionsGroup')).toHaveClass(/hidden/);
+    await context.close();
+  });
+
   test('image fit setting switches preview to contain and export works', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([

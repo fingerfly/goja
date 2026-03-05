@@ -24,12 +24,18 @@ describe('buildFormFromRefs', () => {
       filterPreset: { value: 'grayscale' },
       imageFit: { value: 'cover' },
       bgColor: { value: '#fff' },
+      edgeStyle: { value: 'wavy' },
+      edgeIntensity: { value: '0.6' },
+      edgeFrequency: { value: '5' },
+      edgeSeed: { value: '22' },
+      edgeFeatureAvailable: { value: 'true' },
     };
     const form = buildFormFromRefs(refs);
     expect(form.wmType).toBe('text');
     expect(form.wmText).toBe('Hi');
     expect(form.showCaptureDate).toBe(true);
     expect(form.filterPreset).toBe('grayscale');
+    expect(form.edgeStyle).toBe('wavy');
   });
 
   it('includes format when includeFormat is true', () => {
@@ -107,6 +113,7 @@ describe('getGridEffectsOptions', () => {
       wmType: 'text', wmText: 'X', wmPos: 'bottom-right', wmOpacity: '0.8', wmFontSize: '1', bgColor: '#ffffff',
       showCaptureDate: true, captureDatePos: 'bottom-left', captureDateOpacity: '0.7', captureDateFontSize: '1',
       vignetteEnabled: true, vignetteStrength: '0.5', filterPreset: 'none', imageFit: 'cover',
+      edgeStyle: 'jagged', edgeIntensity: '0.6', edgeFrequency: '4', edgeSeed: '8', edgeFeatureAvailable: 'true',
     };
     const photos = [
       { dateOriginal: new Date('2025-02-22T12:00:00') },
@@ -118,6 +125,11 @@ describe('getGridEffectsOptions', () => {
     expect(opts.dateOriginals).toEqual(['2025-02-22', null]);
     expect(opts.vignetteEnabled).toBe(true);
     expect(opts.fitMode).toBe('cover');
+    expect(opts.edgeStyle).toBe('jagged');
+    expect(opts.edgeIntensity).toBe(0.6);
+    expect(opts.edgeFrequency).toBe(4);
+    expect(opts.edgeSeed).toBe(8);
+    expect(opts.edgeAdvancedSupported).toBe(true);
   });
 
   it('returns empty dateOriginals when showCaptureDate is false', () => {

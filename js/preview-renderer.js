@@ -9,6 +9,7 @@ import { getWatermarkOptions, getCaptureDateOptions, getVignetteOptions } from '
 import { ROTATION_DEFAULT_ANGLE } from './config.js';
 import { fitScaleFactor } from './rotation-math.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
+import { applyPreviewEdgeClip } from './edge-preview-clip.js';
 
 /**
  * Renders the grid preview into container and optionally watermark overlay into preview.
@@ -78,6 +79,14 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       cell.style.setProperty('--cell-scale', '1');
       cell.style.setProperty('--cell-angle', '0deg');
     }
+
+    applyPreviewEdgeClip(cell, c, i, {
+      edgeStyle: form.edgeStyle ?? 'straight',
+      edgeIntensity: form.edgeIntensity ?? 0.5,
+      edgeFrequency: form.edgeFrequency ?? 4,
+      edgeSeed: form.edgeSeed ?? 0,
+      edgeAdvancedSupported: form.edgeAdvancedSupported === true || form.edgeFeatureAvailable === true || form.edgeFeatureAvailable === 'true',
+    });
 
     if (vignette.enabled && vignette.strength > 0) {
       const vignetteEl = document.createElement('div');

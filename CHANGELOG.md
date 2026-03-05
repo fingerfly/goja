@@ -2,8 +2,31 @@
 
 ## [Unreleased]
 
+## [9.0.0] - 2026-03-05
+
+
+### Changed
+- Added advanced irregular collage edge rendering for preview/export with new styles (`wavy`, `jagged`) and deterministic parameters (`style`, `intensity`, `frequency`, `seed`).
+- Added runtime capability probing for advanced edge rendering and enforced minimal-surprise behavior: unsupported browsers/devices keep controls hidden and safely fall back to straight rectangular edges.
+- Refactored edge rendering into small cooperating modules (`js/edge-capability.js`, `js/edge-shape-engine.js`, `js/edge-preview-clip.js`, `js/edge-export-clip.js`, `js/edge-rng.js`) to improve modularity and maintainability.
+
+### Tests
+- Added unit coverage for edge capability resolution and deterministic edge path generation (`tests/unit/edge-capability.test.js`, `tests/unit/edge-shape-engine.test.js`).
+- Extended unit coverage for preview/export integration paths (`tests/unit/preview-renderer.test.js`, `tests/unit/cell-draw.test.js`, `tests/unit/grid-effects-settings.test.js`).
+- Added E2E coverage for advanced edge settings visibility and fallback behavior on unsupported capabilities (`tests/e2e/goja.spec.js`).
+- Validation runs completed with `npm test`, integration subset `npx vitest run tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js`, `npm run test:e2e`, and `cloc --by-file --include-lang=JavaScript ...` (all passing).
+
 ## [8.5.3] - 2026-03-05
 
+### Changed
+- Hardened deploy remote selection in `scripts/deploy.js` for cross-platform defaults: Windows now defaults to HTTPS (`https://github.com/fingerfly/goja.git`) while macOS keeps SSH (`git@github.com:fingerfly/goja.git`); `GOJA_DEPLOY_REMOTE` remains highest-priority override.
+- Added explicit deploy preflight (`git ls-remote <remote> HEAD`) before version bump side effects so auth/remote failures exit early without mutating version/changelog files.
+- Strengthened deploy remote safety checks with normalized owner/repo matching (`fingerfly/goja`) across SSH/HTTPS URL shapes.
+- Updated deploy documentation in `README.md` with OS-aware defaults, shell-specific override examples (PowerShell/CMD/bash-zsh), and non-destructive remote verification guidance.
+
+### Tests
+- Extended deploy unit coverage in `tests/unit/deploy.test.js` for OS-aware default remote resolution (`win32`, `darwin`, unknown fallback), override precedence, preflight ordering (no upgrade-version on preflight failure), and remote normalization edge cases.
+- Regression verification completed with `npm run test:unit`, `npm test`, `npm run test:e2e`, and `cloc --by-file scripts/deploy.js tests/unit/deploy.test.js` (all passing).
 
 ## [8.5.2] - 2026-03-04
 

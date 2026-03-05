@@ -19,6 +19,12 @@ function parseNum(val, defaultVal) {
   return Number.isNaN(n) ? defaultVal : n;
 }
 
+function parseBoolish(val, fallback = false) {
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') return val.toLowerCase() === 'true';
+  return fallback;
+}
+
 export function getWatermarkOptions(form, locale = 'en') {
   return {
     type: form.wmType ?? 'none',
@@ -68,6 +74,11 @@ export function buildFormFromRefs(refs, includeFormat = false) {
     filterPreset: refs.filterPreset?.value,
     imageFit: refs.imageFit?.value,
     bgColor: refs.bgColor?.value,
+    edgeStyle: refs.edgeStyle?.value,
+    edgeIntensity: refs.edgeIntensity?.value,
+    edgeFrequency: refs.edgeFrequency?.value,
+    edgeSeed: refs.edgeSeed?.value,
+    edgeFeatureAvailable: refs.edgeFeatureAvailable?.value,
   };
   if (includeFormat) f.format = refs.formatSelect?.value;
   return f;
@@ -100,5 +111,10 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     captureDateOpacity: capture.opacity,
     captureDateFontScale: capture.fontScale,
     dateOriginals,
+    edgeStyle: form.edgeStyle ?? 'straight',
+    edgeIntensity: parseNum(form.edgeIntensity, 0.5),
+    edgeFrequency: parseNum(form.edgeFrequency, 4),
+    edgeSeed: parseNum(form.edgeSeed, 0),
+    edgeAdvancedSupported: parseBoolish(form.edgeFeatureAvailable, false),
   };
 }

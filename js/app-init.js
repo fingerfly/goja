@@ -22,7 +22,7 @@ import {
  * Sets form default values from config.
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeFrequency, edgeSeed } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -44,6 +44,9 @@ function setFormDefaults(refs) {
     vignetteStrength.max = String(VIGNETTE_STRENGTH_MAX);
     vignetteStrength.value = String(VIGNETTE_STRENGTH_DEFAULT);
   }
+  if (edgeIntensity) edgeIntensity.value = edgeIntensity.value || '0.5';
+  if (edgeFrequency) edgeFrequency.value = edgeFrequency.value || '4';
+  if (edgeSeed) edgeSeed.value = edgeSeed.value || '0';
 }
 
 function syncSettingsVisibility(refs) {
@@ -81,7 +84,8 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup,
     wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
-    captureDateOpacity, captureDateFontSize, previewGrid, preview, sPanel, sBackdrop,
+    captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeFrequency, edgeSeed,
+    previewGrid, preview, sPanel, sBackdrop,
     offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn,
     settingsResetSectionBtn, settingsResetAllBtn,
   } = refs;
@@ -166,6 +170,10 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   captureDatePos?.addEventListener('change', updatePreview);
   captureDateOpacity?.addEventListener('input', updatePreview);
   captureDateFontSize?.addEventListener('change', updatePreview);
+  edgeStyle?.addEventListener('change', updatePreview);
+  edgeIntensity?.addEventListener('input', updatePreview);
+  edgeFrequency?.addEventListener('input', updatePreview);
+  edgeSeed?.addEventListener('input', updatePreview);
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
   settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());

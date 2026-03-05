@@ -46,6 +46,12 @@ self.onmessage = async (e) => {
         captureDateOpacity,
         captureDateFontScale,
         angle: angles[photoOrder[i]] || 0,
+        edgeStyle: options.edgeStyle ?? 'straight',
+        edgeIntensity: options.edgeIntensity ?? 0.5,
+        edgeFrequency: options.edgeFrequency ?? 4,
+        edgeSeed: options.edgeSeed ?? 0,
+        edgeAdvancedSupported: options.edgeAdvancedSupported ?? false,
+        cellIndex: i,
       });
     }
 

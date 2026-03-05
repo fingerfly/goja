@@ -45,6 +45,12 @@ function exportMainThread(photos, layout, options) {
         captureDateOpacity,
         captureDateFontScale,
         angle: photos[photoOrder[i]]?.angle || 0,
+        edgeStyle: options.edgeStyle ?? 'straight',
+        edgeIntensity: options.edgeIntensity ?? 0.5,
+        edgeFrequency: options.edgeFrequency ?? 4,
+        edgeSeed: options.edgeSeed ?? 0,
+        edgeAdvancedSupported: options.edgeAdvancedSupported ?? false,
+        cellIndex: i,
       });
     }
     drawWatermark(ctx, canvas.width, canvas.height, {

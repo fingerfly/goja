@@ -94,4 +94,32 @@ describe('renderGrid', () => {
     expect(cell.style.transform).toContain('rotate(45deg)');
     expect(cell.style.getPropertyValue('--cell-scale')).not.toBe('');
   });
+
+  it('applies non-rect edge clip when advanced support is enabled', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 100,
+      canvasHeight: 100,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 100, height: 100 }],
+      photoOrder: [0],
+    };
+    const form = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'wavy',
+      edgeIntensity: 0.5,
+      edgeFrequency: 5,
+      edgeSeed: 7,
+      edgeAdvancedSupported: true,
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const cell = container.querySelector('.preview-cell');
+    expect(cell.style.clipPath).toContain('path(');
+  });
 });

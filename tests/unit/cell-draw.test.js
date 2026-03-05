@@ -11,6 +11,7 @@ describe('drawCellContent', () => {
     translate: vi.fn(),
     rotate: vi.fn(),
     scale: vi.fn(),
+    clip: vi.fn(),
   };
   const img = { naturalWidth: 100, naturalHeight: 100 };
   const cell = { x: 0, y: 0, width: 100, height: 100 };
@@ -76,5 +77,18 @@ describe('drawCellContent', () => {
     expect(ctx.rotate).toHaveBeenCalledTimes(1);
     expect(ctx.scale).toHaveBeenCalledTimes(1);
     expect(ctx.restore).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies clip path when advanced edge is enabled', () => {
+    vi.spyOn(imageProcessor, 'drawPhotoOnCanvas').mockImplementation(() => {});
+    drawCellContent(ctx, img, cell, {
+      edgeStyle: 'wavy',
+      edgeIntensity: 0.5,
+      edgeFrequency: 4,
+      edgeSeed: 9,
+      edgeAdvancedSupported: true,
+      cellIndex: 0,
+    });
+    expect(ctx.clip).toHaveBeenCalledTimes(1);
   });
 });
