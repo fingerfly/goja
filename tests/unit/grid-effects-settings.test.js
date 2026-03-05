@@ -156,7 +156,7 @@ describe('getGridEffectsOptions', () => {
 
   it('normalizes edge frequency to bounded integer for number-stepper control', () => {
     const form = {
-      edgeStyle: 'soft-wave',
+      edgeStyle: 'silk-wave',
       edgeIntensity: '0.5',
       edgeFrequency: '4.9',
       edgeFeatureAvailable: 'true',
@@ -167,7 +167,7 @@ describe('getGridEffectsOptions', () => {
 
   it('clamps edge frequency with new upper bound 20', () => {
     const form = {
-      edgeStyle: 'soft-wave',
+      edgeStyle: 'silk-wave',
       edgeIntensity: '0.5',
       edgeFrequency: '88',
       edgeFeatureAvailable: 'true',
@@ -178,7 +178,7 @@ describe('getGridEffectsOptions', () => {
 
   it('supports migrated edgeAmplitude while keeping legacy edgeIntensity fallback', () => {
     const migrated = getGridEffectsOptions({
-      edgeStyle: 'soft-wave',
+      edgeStyle: 'silk-wave',
       edgeAmplitude: '0.33',
       edgeIntensity: '0.8',
       edgeFeatureAvailable: 'true',
@@ -186,10 +186,17 @@ describe('getGridEffectsOptions', () => {
     expect(migrated.edgeIntensity).toBe(0.33);
 
     const legacy = getGridEffectsOptions({
-      edgeStyle: 'soft-wave',
+      edgeStyle: 'silk-wave',
       edgeIntensity: '0.41',
       edgeFeatureAvailable: 'true',
     }, [], formatDateTimeOriginal, getLocale);
     expect(legacy.edgeIntensity).toBe(0.41);
+  });
+
+  it('throws fail-fast error for removed legacy soft-wave style', () => {
+    expect(() => getGridEffectsOptions({
+      edgeStyle: 'soft-wave',
+      edgeFeatureAvailable: 'true',
+    }, [], formatDateTimeOriginal, getLocale)).toThrow(/soft-wave/);
   });
 });

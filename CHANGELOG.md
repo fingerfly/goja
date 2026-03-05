@@ -2,7 +2,51 @@
 
 ## [Unreleased]
 
+## [9.0.5] - 2026-03-05
+
+
+### Changed
+- Removed `soft-wave` from user-facing edge style options and style registry; approved/candidate sets now exclude this template.
+- Added strict fail-fast handling for legacy `soft-wave` config values in `js/grid-effects-settings.js` (explicit error instead of silent remap).
+- Kept backward compatibility for older `wavy` alias by remapping it to `silk-wave`.
+- Updated locale dictionaries and i18n bindings to remove `edgeStyleSoftWave`.
+
+### Tests
+- Updated unit/E2E expectations for soft-wave removal and fail-fast behavior:
+  - `tests/unit/edge-style-presets.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/i18n.test.js`
+  - `tests/unit/edge-shape-engine.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npm test`
+  - `npx vitest run tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js`
+  - `npm run test:e2e`
+  - `npx --yes cloc --by-file --csv ...` (SLOC checks recorded for changed files)
+
 ## [9.0.4] - 2026-03-05
+
+### Changed
+- Expanded edge cycle range from `1..12` to `1..20` across settings UI, parsing/normalization, preview rendering, export rendering, and shape-engine safety clamps.
+- Added additional curated edge template candidates using low-noise, continuity-first border design constraints:
+  - `silk-wave`
+  - `linen-deckle`
+  - `postage-perf`
+- Updated edge-style selector and locale dictionaries to expose the new template candidates and revised cycle-range hint text (`1-20`) across supported languages.
+
+### Tests
+- Extended unit coverage for frequency bound normalization at the new upper limit (`20`) and style-candidate/profile behavior:
+  - `tests/unit/edge-controls.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/edge-style-presets.test.js`
+- Expanded i18n and E2E assertions for new style options and updated frequency range hints:
+  - `tests/unit/i18n.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npm test`
+  - `npx vitest run tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js`
+  - `npm run test:e2e`
+  - `npx --yes cloc --by-file --csv ...` (SLOC gates verified)
 
 
 

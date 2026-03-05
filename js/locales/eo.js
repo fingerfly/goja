@@ -55,7 +55,6 @@ export default {
   vignetteStrength: 'Intenseco',
   edgeStyleLabel: 'Randa stilo',
   edgeStyleStraight: 'Rekta',
-  edgeStyleSoftWave: 'Mola ondo',
   edgeStylePaperTorn: 'Ŝirita papero',
   edgeStyleFilmScallop: 'Filma dentumo',
   edgeStyleGraphicZigzag: 'Grafika zigzago',

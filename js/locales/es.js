@@ -55,7 +55,6 @@ export default {
   vignetteStrength: 'Intensidad',
   edgeStyleLabel: 'Estilo de borde',
   edgeStyleStraight: 'Recto',
-  edgeStyleSoftWave: 'Onda suave',
   edgeStylePaperTorn: 'Papel rasgado',
   edgeStyleFilmScallop: 'Borde de película',
   edgeStyleGraphicZigzag: 'Zigzag gráfico',

@@ -67,7 +67,6 @@ export default {
   vignetteStrength: '强度',
   edgeStyleLabel: '边缘样式',
   edgeStyleStraight: '直线',
-  edgeStyleSoftWave: '柔和波纹',
   edgeStylePaperTorn: '纸张撕边',
   edgeStyleFilmScallop: '胶片齿孔',
   edgeStyleGraphicZigzag: '图形锯齿',

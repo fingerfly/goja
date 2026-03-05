@@ -32,6 +32,12 @@ function parseBoolish(val, fallback = false) {
   return fallback;
 }
 
+function assertSupportedEdgeStyle(style) {
+  if (style === 'soft-wave') {
+    throw new Error('Removed edge style: soft-wave');
+  }
+}
+
 export function getWatermarkOptions(form, locale = 'en') {
   return {
     type: form.wmType ?? 'none',
@@ -102,6 +108,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     ? photos.map((p) => (p?.dateOriginal ? formatDateTimeOriginal(p.dateOriginal, locale) : null))
     : [];
   const edgeAdvancedSupported = parseBoolish(form.edgeFeatureAvailable, false);
+  assertSupportedEdgeStyle(form.edgeStyle);
   const edgeStyle = edgeAdvancedSupported ? normalizeEdgeStyle(form.edgeStyle ?? 'straight') : 'straight';
   return {
     backgroundColor: form.bgColor ?? '#ffffff',

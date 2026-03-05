@@ -68,7 +68,6 @@ export default {
   vignetteStrength: 'Intensity',
   edgeStyleLabel: 'Edge style',
   edgeStyleStraight: 'Straight',
-  edgeStyleSoftWave: 'Soft wave',
   edgeStylePaperTorn: 'Paper torn',
   edgeStyleFilmScallop: 'Film scallop',
   edgeStyleGraphicZigzag: 'Graphic zigzag',

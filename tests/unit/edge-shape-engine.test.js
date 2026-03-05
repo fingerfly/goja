@@ -52,7 +52,7 @@ describe('buildCellEdgePathD', () => {
 
   it('uses one normalized local geometry source for preview/export parity', () => {
     const cell = makeCell();
-    const opts = { edgeStyle: 'soft-wave', edgeIntensity: 0.5, edgeFrequency: 6, edgeSeed: 42 };
+    const opts = { edgeStyle: 'silk-wave', edgeIntensity: 0.5, edgeFrequency: 6, edgeSeed: 42 };
     const local = buildLocalCellEdgePathD(cell, 3, opts);
     const translated = translatePathD(local, cell.x, cell.y);
     const global = buildCellEdgePathD(cell, 3, opts);
@@ -62,7 +62,7 @@ describe('buildCellEdgePathD', () => {
   it('maps legacy style names to curated presets', () => {
     const cell = makeCell();
     const legacy = buildCellEdgePathD(cell, 1, { edgeStyle: 'wavy', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
-    const curated = buildCellEdgePathD(cell, 1, { edgeStyle: 'soft-wave', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
+    const curated = buildCellEdgePathD(cell, 1, { edgeStyle: 'silk-wave', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
     expect(legacy).toBe(curated);
   });
 

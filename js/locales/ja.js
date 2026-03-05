@@ -55,7 +55,6 @@ export default {
   vignetteStrength: '強度',
   edgeStyleLabel: '縁スタイル',
   edgeStyleStraight: '直線',
-  edgeStyleSoftWave: 'ソフトウェーブ',
   edgeStylePaperTorn: '紙のちぎり縁',
   edgeStyleFilmScallop: 'フィルムスカラップ',
   edgeStyleGraphicZigzag: 'グラフィックジグザグ',
