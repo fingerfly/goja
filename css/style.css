@@ -625,6 +625,13 @@ body {
   accent-color: var(--color-primary);
 }
 
+.edge-amplitude-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: var(--gap-sm);
+  align-items: center;
+}
+
 .control-group input[type="color"] {
   min-width: var(--touch-min);
   min-height: var(--touch-min);
@@ -929,6 +936,12 @@ body {
 @media (max-width: 480px) {
   .top-bar__brand { font-size: var(--font-size-lg); }
   .drop-zone { padding: var(--gap-md); min-height: 100px; }
+  .edge-amplitude-control {
+    grid-template-columns: 1fr;
+  }
+  .control-row--edge-advanced {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 360px) {

@@ -17,12 +17,18 @@ import {
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
 } from './config.js';
+import {
+  normalizeEdgeAmplitude,
+  normalizeEdgeFrequency,
+  normalizeEdgeSeed,
+  applyPlatformNumericInputMode,
+} from './edge-controls.js';
 
 /**
  * Sets form default values from config.
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeFrequency, edgeSeed } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -45,6 +51,12 @@ function setFormDefaults(refs) {
     vignetteStrength.value = String(VIGNETTE_STRENGTH_DEFAULT);
   }
   if (edgeIntensity) edgeIntensity.value = edgeIntensity.value || '0.5';
+  if (edgeIntensityInput) {
+    edgeIntensityInput.min = '0';
+    edgeIntensityInput.max = '1';
+    edgeIntensityInput.step = '0.01';
+    edgeIntensityInput.value = edgeIntensityInput.value || edgeIntensity?.value || '0.5';
+  }
   if (edgeFrequency) {
     edgeFrequency.min = '1';
     edgeFrequency.max = '12';
@@ -54,14 +66,22 @@ function setFormDefaults(refs) {
   if (edgeSeed) edgeSeed.value = edgeSeed.value || '0';
 }
 
+function syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, source = 'slider') {
+  if (!edgeIntensity || !edgeIntensityInput) return;
+  const normalized = normalizeEdgeAmplitude(source === 'slider' ? edgeIntensity.value : edgeIntensityInput.value);
+  const v = normalized.toFixed(2);
+  edgeIntensity.value = v;
+  edgeIntensityInput.value = v;
+}
+
 function normalizeEdgeFrequencyInput(edgeFrequency) {
   if (!edgeFrequency) return;
-  const n = Math.round(Number(edgeFrequency.value));
-  if (Number.isNaN(n)) {
-    edgeFrequency.value = '4';
-    return;
-  }
-  edgeFrequency.value = String(Math.max(1, Math.min(12, n)));
+  edgeFrequency.value = String(normalizeEdgeFrequency(edgeFrequency.value));
+}
+
+function normalizeEdgeSeedInput(edgeSeed) {
+  if (!edgeSeed) return;
+  edgeSeed.value = String(normalizeEdgeSeed(edgeSeed.value));
 }
 
 function syncSettingsVisibility(refs) {
@@ -99,7 +119,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup,
     wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
-    captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeFrequency, edgeSeed,
+    captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
     previewGrid, preview, sPanel, sBackdrop,
     offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn,
     settingsResetSectionBtn, settingsResetAllBtn,
@@ -111,6 +131,12 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     initSettingsTabsNav, refreshRotationHandles } = deps;
 
   setFormDefaults(refs);
+  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  applyPlatformNumericInputMode(edgeFrequency, userAgent);
+  applyPlatformNumericInputMode(edgeSeed, userAgent);
+  syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'slider');
+  normalizeEdgeFrequencyInput(edgeFrequency);
+  normalizeEdgeSeedInput(edgeSeed);
   syncSettingsVisibility(refs);
 
   dropZone?.addEventListener('click', openFile);
@@ -186,7 +212,18 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   captureDateOpacity?.addEventListener('input', updatePreview);
   captureDateFontSize?.addEventListener('change', updatePreview);
   edgeStyle?.addEventListener('change', updatePreview);
-  edgeIntensity?.addEventListener('input', updatePreview);
+  edgeIntensity?.addEventListener('input', () => {
+    syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'slider');
+    updatePreview();
+  });
+  edgeIntensityInput?.addEventListener('input', () => {
+    syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'input');
+    updatePreview();
+  });
+  edgeIntensityInput?.addEventListener('change', () => {
+    syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'input');
+    updatePreview();
+  });
   edgeFrequency?.addEventListener('input', () => {
     normalizeEdgeFrequencyInput(edgeFrequency);
     updatePreview();
@@ -195,7 +232,14 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     normalizeEdgeFrequencyInput(edgeFrequency);
     updatePreview();
   });
-  edgeSeed?.addEventListener('input', updatePreview);
+  edgeSeed?.addEventListener('input', () => {
+    normalizeEdgeSeedInput(edgeSeed);
+    updatePreview();
+  });
+  edgeSeed?.addEventListener('change', () => {
+    normalizeEdgeSeedInput(edgeSeed);
+    updatePreview();
+  });
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
   settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());

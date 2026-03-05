@@ -45,8 +45,8 @@ export function bootstrap() {
     ['#showCaptureDate', '#captureDateOptionsGroup', '#captureDatePos', '#captureDateOpacity', '#captureDateFontSize'].map($);
   const [filterPreset, vignetteEnabled, vignetteOptionsGroup, vignetteStrength] =
     ['#filterPreset', '#vignetteEnabled', '#vignetteOptionsGroup', '#vignetteStrength'].map($);
-  const [edgeOptionsGroup, edgeStyle, edgeIntensity, edgeFrequency, edgeSeed] =
-    ['#edgeOptionsGroup', '#edgeStyle', '#edgeIntensity', '#edgeFrequency', '#edgeSeed'].map($);
+  const [edgeOptionsGroup, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed] =
+    ['#edgeOptionsGroup', '#edgeStyle', '#edgeIntensity', '#edgeIntensityInput', '#edgeFrequency', '#edgeSeed'].map($);
   const [sPanel, sBackdrop] = ['#settingsPanel', '#settingsBackdrop'].map($);
   const [settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn] =
     ['#settingsPanelBody', '#settingsSectionTabs', '#settingsDoneBtn', '#settingsResetSectionBtn', '#settingsResetAllBtn'].map($);
@@ -58,7 +58,7 @@ export function bootstrap() {
   const formRefs = {
     wmType, wmText, wmPos, wmOpacity, wmFontSize, showCaptureDate, captureDatePos, captureDateOpacity, captureDateFontSize,
     vignetteEnabled, vignetteStrength, filterPreset, imageFit, bgColor, formatSelect,
-    edgeStyle, edgeIntensity, edgeFrequency, edgeSeed,
+    edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
     edgeFeatureAvailable: { value: String(edgeSupport.advancedSupported) },
   };
   const buildForm = (inc) => buildFormFromRefs(formRefs, inc);
@@ -118,7 +118,7 @@ export function bootstrap() {
   updateActionButtons(0);
   $('#versionLabel').textContent = `v${VERSION_STRING}`;
 
-  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, edgeOptionsGroup, edgeStyle, edgeIntensity, edgeFrequency, edgeSeed, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, initSettingsTabsNav, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
+  initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, edgeOptionsGroup, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, initSettingsTabsNav, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
 
   function updateOfflineBanner() { if (offlineBanner) offlineBanner.hidden = navigator.onLine; }
   if (typeof navigator !== 'undefined' && 'onLine' in navigator) { updateOfflineBanner(); window.addEventListener('offline', updateOfflineBanner); window.addEventListener('online', updateOfflineBanner); }

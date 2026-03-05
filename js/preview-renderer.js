@@ -40,6 +40,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
   const vignette = getVignetteOptions(form);
   const filterCss = getFilterCss(form.filterPreset ?? 'none');
   const edgeFrequency = Math.max(1, Math.min(12, Math.round(Number(form.edgeFrequency ?? 4) || 4)));
+  const edgeIntensity = Number(form.edgeAmplitude ?? form.edgeIntensity ?? 0.5);
 
   for (let i = 0; i < layout.cells.length; i++) {
     const idx = order[i];
@@ -84,7 +85,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
 
     applyPreviewEdgeClip(cell, c, i, {
       edgeStyle: normalizeEdgeStyle(form.edgeStyle ?? 'straight'),
-      edgeIntensity: form.edgeIntensity ?? 0.5,
+      edgeIntensity,
       edgeFrequency,
       edgeSeed: form.edgeSeed ?? 0,
       edgeAdvancedSupported: form.edgeAdvancedSupported === true || form.edgeFeatureAvailable === true || form.edgeFeatureAvailable === 'true',

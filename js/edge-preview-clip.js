@@ -1,4 +1,4 @@
-import { buildLocalCellEdgePathD } from './edge-shape-engine.js';
+import { buildEdgePathPair } from './edge-shape-engine.js';
 
 export function applyPreviewEdgeClip(cellEl, cell, cellIndex, options = {}) {
   const supported = options.edgeAdvancedSupported === true;
@@ -8,11 +8,11 @@ export function applyPreviewEdgeClip(cellEl, cell, cellIndex, options = {}) {
     cellEl?.style.removeProperty('-webkit-clip-path');
     return;
   }
-  const d = buildLocalCellEdgePathD(cell, cellIndex, {
+  const { localD } = buildEdgePathPair(cell, cellIndex, {
     ...options,
     boundaryCell: cell,
   });
-  const pathExpr = `path('${d}')`;
+  const pathExpr = `path('${localD}')`;
   cellEl.style.clipPath = pathExpr;
   cellEl.style.setProperty('-webkit-clip-path', pathExpr);
 }

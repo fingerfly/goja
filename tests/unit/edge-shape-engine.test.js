@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { buildCellEdgePathD, buildLocalCellEdgePathD, translatePathD } from '../../js/edge-shape-engine.js';
+import {
+  buildCellEdgePathD,
+  buildLocalCellEdgePathD,
+  translatePathD,
+  buildEdgePathPair,
+} from '../../js/edge-shape-engine.js';
 
 function makeCell() {
   return { x: 10, y: 20, width: 100, height: 80 };
@@ -59,5 +64,14 @@ describe('buildCellEdgePathD', () => {
     const legacy = buildCellEdgePathD(cell, 1, { edgeStyle: 'wavy', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
     const curated = buildCellEdgePathD(cell, 1, { edgeStyle: 'soft-wave', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
     expect(legacy).toBe(curated);
+  });
+
+  it('provides canonical local/global path pair for both adapters', () => {
+    const cell = makeCell();
+    const opts = { edgeStyle: 'paper-torn', edgeIntensity: 0.55, edgeFrequency: 5, edgeSeed: 99 };
+    const pair = buildEdgePathPair(cell, 6, opts);
+    expect(pair.localD).toBe(buildLocalCellEdgePathD(cell, 6, opts));
+    expect(pair.globalD).toBe(buildCellEdgePathD(cell, 6, opts));
+    expect(pair.globalD).toBe(translatePathD(pair.localD, cell.x, cell.y));
   });
 });

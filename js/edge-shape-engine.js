@@ -93,5 +93,13 @@ export function translatePathD(pathD, dx, dy) {
 }
 
 export function buildCellEdgePathD(cell, cellIndex, options = {}) {
-  return translatePathD(buildLocalCellEdgePathD(cell, cellIndex, options), cell.x, cell.y);
+  return buildEdgePathPair(cell, cellIndex, options).globalD;
+}
+
+export function buildEdgePathPair(cell, cellIndex, options = {}) {
+  const localD = buildLocalCellEdgePathD(cell, cellIndex, options);
+  return {
+    localD,
+    globalD: translatePathD(localD, cell.x, cell.y),
+  };
 }

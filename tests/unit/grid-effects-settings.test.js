@@ -164,4 +164,21 @@ describe('getGridEffectsOptions', () => {
     const opts = getGridEffectsOptions(form, [], formatDateTimeOriginal, getLocale);
     expect(opts.edgeFrequency).toBe(5);
   });
+
+  it('supports migrated edgeAmplitude while keeping legacy edgeIntensity fallback', () => {
+    const migrated = getGridEffectsOptions({
+      edgeStyle: 'soft-wave',
+      edgeAmplitude: '0.33',
+      edgeIntensity: '0.8',
+      edgeFeatureAvailable: 'true',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(migrated.edgeIntensity).toBe(0.33);
+
+    const legacy = getGridEffectsOptions({
+      edgeStyle: 'soft-wave',
+      edgeIntensity: '0.41',
+      edgeFeatureAvailable: 'true',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(legacy.edgeIntensity).toBe(0.41);
+  });
 });

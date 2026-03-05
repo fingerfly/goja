@@ -872,12 +872,29 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await expect(page.locator('#edgeOptionsGroup')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#edgeIntensityInput')).toBeVisible();
     await page.locator('#edgeStyle').selectOption('soft-wave');
     await page.locator('.settings-backdrop').click();
     const clipPath = await page.locator('#previewGrid .preview-cell').first().evaluate((el) =>
       getComputedStyle(el).clipPath
     );
     expect(clipPath).toContain('path(');
+  });
+
+  test('iPhone class devices use text numeric controls for edge cycles and seed', async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#edgeFrequency')).toHaveAttribute('type', 'text');
+    await expect(page.locator('#edgeSeed')).toHaveAttribute('type', 'text');
+    await context.close();
   });
 
   test('edge controls stay hidden when capability check fails', async ({ browser }) => {
