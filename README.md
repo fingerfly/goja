@@ -25,8 +25,9 @@ Create photo grid collages directly in your browser. Drop in your photos, choose
 ### Effects
 - Eight filter presets: grayscale, sepia, brightness, contrast, saturated, faded, vintage, blur
 - Vignette effect (darkened edges) with adjustable intensity
-- Artistic cell-edge styles for collage cuts (`wavy`, `jagged`) with deterministic seed/frequency/intensity controls
+- Artistic cell-edge styles for collage cuts (`wavy`, `jagged`) with deterministic seed/frequency/intensity controls and improved template-based edge quality
 - Minimal-surprise capability policy: advanced edge controls are hidden automatically on unsupported devices/browsers
+- Edge style labels/options are fully localized in all supported app languages
 - Live preview for filters and vignette on the grid before export
 
 ### Export

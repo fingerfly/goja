@@ -12,7 +12,8 @@ const REQUIRED_CAPTURE_DATE_KEYS = ['showCaptureDate', 'captureDatePos', 'captur
 const REQUIRED_EFFECTS_KEYS = [
   'effectsSection', 'filterPreset', 'filterNone', 'filterGrayscale', 'filterSepia',
   'filterBrightness', 'filterContrast', 'filterSaturated', 'filterFaded', 'filterVintage', 'filterBlur',
-  'vignetteEnabled', 'vignetteStrength',
+  'vignetteEnabled', 'vignetteStrength', 'edgeStyleLabel', 'edgeStyleStraight', 'edgeStyleWavy',
+  'edgeStyleJagged', 'edgeIntensity', 'edgeFrequency', 'edgeSeed',
 ];
 const REQUIRED_LEGAL_KEYS = ['legalNoticeTitle', 'agplSourceNotice', 'viewSourceCode', 'viewLicense'];
 const REQUIRED_FRAME_HINT_KEY = 'frameDimensionHint';
@@ -140,6 +141,19 @@ describe('i18n', () => {
       localStorage.getItem.mockReturnValue(null);
       init();
       expect(getLocale()).toBe('en');
+    });
+  });
+
+  describe('applyToDOM', () => {
+    it('updates edge labels/options when locale changes', () => {
+      document.body.innerHTML = `
+        <label data-i18n="edgeStyleLabel"></label>
+        <option data-i18n="edgeStyleWavy"></option>
+      `;
+      setLocale('zh-Hans');
+      applyToDOM();
+      expect(document.querySelector('label').textContent).toBe('边缘样式');
+      expect(document.querySelector('option').textContent).toBe('波浪');
     });
   });
 });

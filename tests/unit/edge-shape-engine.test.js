@@ -33,4 +33,15 @@ describe('buildCellEdgePathD', () => {
     const b = buildCellEdgePathD(cell, 1, { edgeStyle: 'jagged', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 2 });
     expect(a).not.toBe(b);
   });
+
+  it('keeps shared boundary deterministic between adjacent cells', () => {
+    const leftCell = { x: 0, y: 0, width: 100, height: 100 };
+    const rightCell = { x: 100, y: 0, width: 100, height: 100 };
+    const opts = { edgeStyle: 'wavy', edgeIntensity: 0.5, edgeFrequency: 5, edgeSeed: 17 };
+    const left = buildCellEdgePathD(leftCell, 0, opts);
+    const right = buildCellEdgePathD(rightCell, 1, opts);
+    expect(left).not.toBe(right);
+    expect(left).toContain('100');
+    expect(right).toContain('100');
+  });
 });

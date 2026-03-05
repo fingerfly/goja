@@ -569,6 +569,18 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsDoneBtn')).toHaveText('完成');
   });
 
+  test('edge controls are localized in zh-Hans', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const edgeStyleLabel = page.locator('label[for="edgeStyle"]');
+    await expect(edgeStyleLabel).toHaveText('边缘样式');
+    await expect(page.locator('#edgeStyle option[value="straight"]')).toHaveText('直线');
+    await expect(page.locator('#edgeStyle option[value="wavy"]')).toHaveText('波浪');
+    await expect(page.locator('#edgeStyle option[value="jagged"]')).toHaveText('锯齿');
+  });
+
   test('reset all applies defaults immediately without confirmation dialog', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
@@ -880,6 +892,16 @@ test.describe('Goja App', () => {
       window.Path2D = undefined;
     });
     await page.goto('/');
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#previewGrid .preview-cell')).toHaveCount(2);
+    const clipPath = await page.locator('#previewGrid .preview-cell').first().evaluate((el) =>
+      getComputedStyle(el).clipPath
+    );
+    expect(clipPath === 'none' || clipPath === '').toBeTruthy();
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#edgeOptionsGroup')).toHaveClass(/hidden/);
     await context.close();

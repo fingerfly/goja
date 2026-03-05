@@ -8,7 +8,11 @@ export function applyPreviewEdgeClip(cellEl, cell, cellIndex, options = {}) {
     cellEl?.style.removeProperty('-webkit-clip-path');
     return;
   }
-  const d = buildCellEdgePathD(cell, cellIndex, options);
+  const localCell = { x: 0, y: 0, width: cell.width, height: cell.height };
+  const d = buildCellEdgePathD(localCell, cellIndex, {
+    ...options,
+    boundaryCell: cell,
+  });
   const pathExpr = `path('${d}')`;
   cellEl.style.clipPath = pathExpr;
   cellEl.style.setProperty('-webkit-clip-path', pathExpr);

@@ -93,6 +93,8 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
   const dateOriginals = showCaptureDate && Array.isArray(photos) && formatDateTimeOriginal
     ? photos.map((p) => (p?.dateOriginal ? formatDateTimeOriginal(p.dateOriginal, locale) : null))
     : [];
+  const edgeAdvancedSupported = parseBoolish(form.edgeFeatureAvailable, false);
+  const edgeStyle = edgeAdvancedSupported ? (form.edgeStyle ?? 'straight') : 'straight';
   return {
     backgroundColor: form.bgColor ?? '#ffffff',
     format: form.format ?? 'image/jpeg',
@@ -111,10 +113,10 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     captureDateOpacity: capture.opacity,
     captureDateFontScale: capture.fontScale,
     dateOriginals,
-    edgeStyle: form.edgeStyle ?? 'straight',
+    edgeStyle,
     edgeIntensity: parseNum(form.edgeIntensity, 0.5),
     edgeFrequency: parseNum(form.edgeFrequency, 4),
     edgeSeed: parseNum(form.edgeSeed, 0),
-    edgeAdvancedSupported: parseBoolish(form.edgeFeatureAvailable, false),
+    edgeAdvancedSupported,
   };
 }

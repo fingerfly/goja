@@ -139,4 +139,18 @@ describe('getGridEffectsOptions', () => {
     expect(opts.showCaptureDate).toBe(false);
     expect(opts.dateOriginals).toEqual([]);
   });
+
+  it('forces edgeStyle to straight when advanced edge support is unavailable', () => {
+    const form = {
+      edgeStyle: 'jagged',
+      edgeIntensity: '0.7',
+      edgeFrequency: '5',
+      edgeSeed: '10',
+      edgeFeatureAvailable: 'false',
+    };
+    const opts = getGridEffectsOptions(form, [], formatDateTimeOriginal, getLocale);
+    expect(opts.edgeAdvancedSupported).toBe(false);
+    expect(opts.edgeStyle).toBe('straight');
+    expect(opts.edgeIntensity).toBe(0.7);
+  });
 });

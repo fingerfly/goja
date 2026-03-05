@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [9.0.1] - 2026-03-05
+
+
+### Changed
+- Fixed irregular-edge preview clipping so multi-photo grids remain fully visible by using local per-cell clip-path coordinates instead of global cell offsets.
+- Upgraded edge generation from raw random offsets to deterministic template-style wave/jagged profiles for smoother, less noisy exported boundaries.
+- Added full i18n coverage for edge controls (`edge style`, style options, intensity, frequency, seed) across all supported locales.
+- Hardened unsupported-capability fallback by forcing `edgeStyle=straight` when advanced edge support is unavailable.
+
+### Tests
+- Added unit coverage for preview clip local-coordinate behavior in `tests/unit/edge-preview-clip.test.js`.
+- Expanded unit i18n assertions in `tests/unit/i18n.test.js` and fallback normalization in `tests/unit/grid-effects-settings.test.js`.
+- Expanded E2E coverage in `tests/e2e/goja.spec.js` for zh-Hans edge-control localization and unsupported-capability rectangular preview safety.
+- Verification runs completed with `npm test`, integration subset `npx vitest run tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js`, `npm run test:e2e`, and `cloc --by-file --include-lang=JavaScript` checks (all passing).
+
 ## [9.0.0] - 2026-03-05
 
 
