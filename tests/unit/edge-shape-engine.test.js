@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildCellEdgePathD } from '../../js/edge-shape-engine.js';
+import { buildCellEdgePathD, buildLocalCellEdgePathD, translatePathD } from '../../js/edge-shape-engine.js';
 
 function makeCell() {
   return { x: 10, y: 20, width: 100, height: 80 };
@@ -43,5 +43,21 @@ describe('buildCellEdgePathD', () => {
     expect(left).not.toBe(right);
     expect(left).toContain('100');
     expect(right).toContain('100');
+  });
+
+  it('uses one normalized local geometry source for preview/export parity', () => {
+    const cell = makeCell();
+    const opts = { edgeStyle: 'soft-wave', edgeIntensity: 0.5, edgeFrequency: 6, edgeSeed: 42 };
+    const local = buildLocalCellEdgePathD(cell, 3, opts);
+    const translated = translatePathD(local, cell.x, cell.y);
+    const global = buildCellEdgePathD(cell, 3, opts);
+    expect(translated).toBe(global);
+  });
+
+  it('maps legacy style names to curated presets', () => {
+    const cell = makeCell();
+    const legacy = buildCellEdgePathD(cell, 1, { edgeStyle: 'wavy', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
+    const curated = buildCellEdgePathD(cell, 1, { edgeStyle: 'soft-wave', edgeIntensity: 0.6, edgeFrequency: 5, edgeSeed: 1 });
+    expect(legacy).toBe(curated);
   });
 });

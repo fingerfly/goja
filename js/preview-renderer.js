@@ -10,6 +10,7 @@ import { ROTATION_DEFAULT_ANGLE } from './config.js';
 import { fitScaleFactor } from './rotation-math.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { applyPreviewEdgeClip } from './edge-preview-clip.js';
+import { normalizeEdgeStyle } from './edge-style-presets.js';
 
 /**
  * Renders the grid preview into container and optionally watermark overlay into preview.
@@ -38,6 +39,7 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
   const capture = getCaptureDateOptions(form);
   const vignette = getVignetteOptions(form);
   const filterCss = getFilterCss(form.filterPreset ?? 'none');
+  const edgeFrequency = Math.max(1, Math.min(12, Math.round(Number(form.edgeFrequency ?? 4) || 4)));
 
   for (let i = 0; i < layout.cells.length; i++) {
     const idx = order[i];
@@ -81,9 +83,9 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     }
 
     applyPreviewEdgeClip(cell, c, i, {
-      edgeStyle: form.edgeStyle ?? 'straight',
+      edgeStyle: normalizeEdgeStyle(form.edgeStyle ?? 'straight'),
       edgeIntensity: form.edgeIntensity ?? 0.5,
-      edgeFrequency: form.edgeFrequency ?? 4,
+      edgeFrequency,
       edgeSeed: form.edgeSeed ?? 0,
       edgeAdvancedSupported: form.edgeAdvancedSupported === true || form.edgeFeatureAvailable === true || form.edgeFeatureAvailable === 'true',
     });

@@ -45,8 +45,23 @@ function setFormDefaults(refs) {
     vignetteStrength.value = String(VIGNETTE_STRENGTH_DEFAULT);
   }
   if (edgeIntensity) edgeIntensity.value = edgeIntensity.value || '0.5';
-  if (edgeFrequency) edgeFrequency.value = edgeFrequency.value || '4';
+  if (edgeFrequency) {
+    edgeFrequency.min = '1';
+    edgeFrequency.max = '12';
+    edgeFrequency.step = '1';
+    edgeFrequency.value = edgeFrequency.value || '4';
+  }
   if (edgeSeed) edgeSeed.value = edgeSeed.value || '0';
+}
+
+function normalizeEdgeFrequencyInput(edgeFrequency) {
+  if (!edgeFrequency) return;
+  const n = Math.round(Number(edgeFrequency.value));
+  if (Number.isNaN(n)) {
+    edgeFrequency.value = '4';
+    return;
+  }
+  edgeFrequency.value = String(Math.max(1, Math.min(12, n)));
 }
 
 function syncSettingsVisibility(refs) {
@@ -172,7 +187,14 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   captureDateFontSize?.addEventListener('change', updatePreview);
   edgeStyle?.addEventListener('change', updatePreview);
   edgeIntensity?.addEventListener('input', updatePreview);
-  edgeFrequency?.addEventListener('input', updatePreview);
+  edgeFrequency?.addEventListener('input', () => {
+    normalizeEdgeFrequencyInput(edgeFrequency);
+    updatePreview();
+  });
+  edgeFrequency?.addEventListener('change', () => {
+    normalizeEdgeFrequencyInput(edgeFrequency);
+    updatePreview();
+  });
   edgeSeed?.addEventListener('input', updatePreview);
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);

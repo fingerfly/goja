@@ -1,4 +1,5 @@
 import { makeSeededRng } from './edge-rng.js';
+import { getEdgeStyleProfile, normalizeEdgeStyle } from './edge-style-presets.js';
 
 function clampNum(v, min, max, fallback) {
   const n = Number(v);
@@ -28,6 +29,18 @@ function triangleWave(x) {
   return 1 - 4 * Math.abs(f - 0.5);
 }
 
+function clampInt(v, min, max, fallback) {
+  return Math.round(clampNum(v, min, max, fallback));
+}
+
+function waveformAt(kind, t) {
+  if (kind === 'sine') return Math.sin(t * Math.PI * 2);
+  if (kind === 'triangle') return triangleWave(t);
+  if (kind === 'scallop') return Math.abs(Math.sin(t * Math.PI * 2)) * 2 - 1;
+  if (kind === 'zigzag') return triangleWave(t) >= 0 ? 1 : -1;
+  return 0;
+}
+
 function boundaryKey(side, baseCell) {
   const x1 = side === 'left' ? baseCell.x : (side === 'right' ? baseCell.x + baseCell.width : baseCell.x);
   const y1 = side === 'top' ? baseCell.y : (side === 'bottom' ? baseCell.y + baseCell.height : baseCell.y);
@@ -39,9 +52,12 @@ function boundaryKey(side, baseCell) {
 }
 
 function sidePoints(cell, side, opts, baseCell) {
-  const amp = Math.min(cell.width, cell.height) * clampNum(opts.edgeIntensity, 0, 1, 0) * 0.16;
-  const freq = clampNum(opts.edgeFrequency, 1, 12, 4) * 0.5;
-  const style = opts.edgeStyle ?? 'straight';
+  const style = normalizeEdgeStyle(opts.edgeStyle);
+  const profile = getEdgeStyleProfile(style);
+  const ampBase = Math.min(cell.width, cell.height) * clampNum(opts.edgeIntensity, 0, 1, 0) * 0.16;
+  const amp = ampBase * profile.ampScale;
+  const cycles = clampInt(opts.edgeFrequency, 1, 12, 4);
+  const freq = cycles * profile.freqScale;
   if (style === 'straight' || amp <= 0) {
     if (side === 'top') return [[cell.x, cell.y], [cell.x + cell.width, cell.y]];
     if (side === 'right') return [[cell.x + cell.width, cell.y], [cell.x + cell.width, cell.y + cell.height]];
@@ -50,25 +66,32 @@ function sidePoints(cell, side, opts, baseCell) {
   }
   const rng = makeSeededRng(`${style}:${opts.edgeSeed ?? 0}:${boundaryKey(side, baseCell)}`);
   const phase = rng();
-  const jitter = 0.85 + rng() * 0.3;
-  const offsetAt = (t) => {
-    if (style === 'wavy') return Math.sin((t * freq + phase) * Math.PI * 2) * amp * jitter;
-    return triangleWave(t * freq + phase) * amp * jitter;
-  };
-  if (side === 'top') return edgePoints(cell.x, cell.y, cell.x + cell.width, cell.y, amp, Math.max(8, Math.round(freq * 8)), offsetAt, 'y');
-  if (side === 'right') return edgePoints(cell.x + cell.width, cell.y, cell.x + cell.width, cell.y + cell.height, amp, Math.max(8, Math.round(freq * 8)), offsetAt, 'x');
-  if (side === 'bottom') return edgePoints(cell.x + cell.width, cell.y + cell.height, cell.x, cell.y + cell.height, amp, Math.max(8, Math.round(freq * 8)), offsetAt, 'y');
-  return edgePoints(cell.x, cell.y + cell.height, cell.x, cell.y, amp, Math.max(8, Math.round(freq * 8)), offsetAt, 'x');
+  const jitter = 1 - profile.jitter + rng() * profile.jitter * 2;
+  const steps = Math.max(10, Math.round(cycles * 8));
+  const offsetAt = (t) => waveformAt(profile.waveform, t * freq + phase) * amp * jitter;
+  if (side === 'top') return edgePoints(cell.x, cell.y, cell.x + cell.width, cell.y, amp, steps, offsetAt, 'y');
+  if (side === 'right') return edgePoints(cell.x + cell.width, cell.y, cell.x + cell.width, cell.y + cell.height, amp, steps, offsetAt, 'x');
+  if (side === 'bottom') return edgePoints(cell.x + cell.width, cell.y + cell.height, cell.x, cell.y + cell.height, amp, steps, offsetAt, 'y');
+  return edgePoints(cell.x, cell.y + cell.height, cell.x, cell.y, amp, steps, offsetAt, 'x');
+}
+
+export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
+  const style = normalizeEdgeStyle(options.edgeStyle);
+  const opts = { ...options, edgeStyle: style };
+  const localCell = { x: 0, y: 0, width: cell.width, height: cell.height };
+  const baseCell = options.boundaryCell ?? cell;
+  const top = sidePoints(localCell, 'top', opts, baseCell);
+  const right = sidePoints(localCell, 'right', opts, baseCell);
+  const bottom = sidePoints(localCell, 'bottom', opts, baseCell);
+  const left = sidePoints(localCell, 'left', opts, baseCell);
+  const pts = [top, right.slice(1), bottom.slice(1), left.slice(1)].flat();
+  return `M ${pts.map(([x, y]) => `${x} ${y}`).join(' L ')} Z`;
+}
+
+export function translatePathD(pathD, dx, dy) {
+  return pathD.replace(/(-?\d*\.?\d+)\s+(-?\d*\.?\d+)/g, (_, x, y) => `${Number(x) + dx} ${Number(y) + dy}`);
 }
 
 export function buildCellEdgePathD(cell, cellIndex, options = {}) {
-  const style = options.edgeStyle ?? 'straight';
-  const opts = { ...options, edgeStyle: style };
-  const baseCell = options.boundaryCell ?? cell;
-  const top = sidePoints(cell, 'top', opts, baseCell);
-  const right = sidePoints(cell, 'right', opts, baseCell);
-  const bottom = sidePoints(cell, 'bottom', opts, baseCell);
-  const left = sidePoints(cell, 'left', opts, baseCell);
-  const pts = [top, right.slice(1), bottom.slice(1), left.slice(1)].flat();
-  return `M ${pts.map(([x, y]) => `${x} ${y}`).join(' L ')} Z`;
+  return translatePathD(buildLocalCellEdgePathD(cell, cellIndex, options), cell.x, cell.y);
 }

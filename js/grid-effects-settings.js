@@ -12,11 +12,18 @@ import {
   VIGNETTE_STRENGTH_DEFAULT,
 } from './config.js';
 import { getFilterCss } from './image-effects.js';
+import { normalizeEdgeStyle } from './edge-style-presets.js';
 
 function parseNum(val, defaultVal) {
   if (val == null || val === '') return defaultVal;
   const n = parseFloat(val);
   return Number.isNaN(n) ? defaultVal : n;
+}
+
+function parseIntBounded(val, defaultVal, min, max) {
+  const n = Math.round(Number(val));
+  if (Number.isNaN(n)) return defaultVal;
+  return Math.max(min, Math.min(max, n));
 }
 
 function parseBoolish(val, fallback = false) {
@@ -94,7 +101,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     ? photos.map((p) => (p?.dateOriginal ? formatDateTimeOriginal(p.dateOriginal, locale) : null))
     : [];
   const edgeAdvancedSupported = parseBoolish(form.edgeFeatureAvailable, false);
-  const edgeStyle = edgeAdvancedSupported ? (form.edgeStyle ?? 'straight') : 'straight';
+  const edgeStyle = edgeAdvancedSupported ? normalizeEdgeStyle(form.edgeStyle ?? 'straight') : 'straight';
   return {
     backgroundColor: form.bgColor ?? '#ffffff',
     format: form.format ?? 'image/jpeg',
@@ -115,7 +122,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     dateOriginals,
     edgeStyle,
     edgeIntensity: parseNum(form.edgeIntensity, 0.5),
-    edgeFrequency: parseNum(form.edgeFrequency, 4),
+    edgeFrequency: parseIntBounded(form.edgeFrequency, 4, 1, 12),
     edgeSeed: parseNum(form.edgeSeed, 0),
     edgeAdvancedSupported,
   };
