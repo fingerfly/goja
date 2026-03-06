@@ -141,7 +141,7 @@ describe('renderGrid', () => {
       showCaptureDate: false,
       edgeStyle: 'straight',
       edgeAdvancedSupported: true,
-      globalFrameShape: 'regular-hexagon',
+      globalFrameShape: 'regular-nonagon',
       globalFrameStrokeEnabled: true,
       globalFrameStrokeWidth: 2,
       globalFrameStrokeColor: '#ff0000',
@@ -153,8 +153,8 @@ describe('renderGrid', () => {
     const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
     renderGrid(container, preview, photos, layout, form, deps);
     const cell = container.querySelector('.preview-cell');
-    expect(container.style.clipPath).toContain('path(');
-    expect(cell.style.clipPath).toContain('path(');
+    expect(container.style.clipPath).toContain('polygon(');
+    expect(cell.style.clipPath).toContain('circle(');
     expect(preview.querySelector('.preview-frame-stroke-overlay')).toBeTruthy();
   });
 
@@ -182,8 +182,37 @@ describe('renderGrid', () => {
     const circleClip = container.style.clipPath;
     renderGrid(container, preview, photos, layout, { ...base, globalFrameShape: 'ellipse' }, deps);
     const ellipseClip = container.style.clipPath;
-    expect(circleClip).toContain('path(');
-    expect(ellipseClip).toContain('path(');
+    expect(circleClip).toContain('circle(');
+    expect(ellipseClip).toContain('ellipse(');
     expect(ellipseClip).not.toBe(circleClip);
+  });
+
+  it('keeps centered circle clip anchors in preview', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 240,
+      canvasHeight: 120,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 240, height: 120 }],
+      photoOrder: [0],
+    };
+    const form = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'straight',
+      edgeAdvancedSupported: true,
+      globalFrameShape: 'circle',
+      cellShapeTemplate: 'circle',
+      cellShapeOrientation: 'auto',
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const cell = container.querySelector('.preview-cell');
+    expect(container.style.clipPath).toContain('50% at 50% 50%');
+    expect(cell.style.clipPath).toContain('50% at 50% 50%');
   });
 });

@@ -9,9 +9,8 @@ export function getShapeCssClip(shape, orientation = 'auto') {
     if (normalizedOrientation === 'vertical') return 'ellipse(41% 50% at 50% 50%)';
     return 'ellipse(50% 42% at 50% 50%)';
   }
-  if (normalizedShape === 'regular-hexagon') {
-    return 'polygon(50% 0%, 78% 0%, 100% 50%, 78% 100%, 22% 100%, 0% 50%)';
-  }
+  if (normalizedShape === 'regular-nonagon') return 'polygon(50% 0%, 82% 12%, 100% 40%, 94% 72%, 68% 96%, 32% 96%, 6% 72%, 0% 40%, 18% 12%)';
+  if (normalizedShape === 'heart') return 'polygon(50% 100%, 40% 88%, 28% 74%, 18% 58%, 14% 43%, 21% 29%, 33% 22%, 43% 25%, 50% 34%, 57% 25%, 67% 22%, 79% 29%, 86% 43%, 82% 58%, 72% 74%, 60% 88%)';
   return 'none';
 }
 

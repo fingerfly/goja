@@ -160,7 +160,7 @@ describe('getGridEffectsOptions', () => {
     expect(opts.globalFrameStrokeColor).toBe('#eeeeee');
     expect(opts.globalFrameStrokeOpacity).toBe(0.7);
     expect(opts.outsideBackgroundColor).toBe('#000000');
-    expect(opts.cellShapeTemplate).toBe('regular-hexagon');
+    expect(opts.cellShapeTemplate).toBe('regular-nonagon');
     expect(opts.cellShapeOrientation).toBe('horizontal');
   });
 
@@ -234,5 +234,27 @@ describe('getGridEffectsOptions', () => {
       edgeStyle: 'soft-wave',
       edgeFeatureAvailable: 'true',
     }, [], formatDateTimeOriginal, getLocale)).toThrow(/soft-wave/);
+  });
+
+  it('migrates global and cell regular-hexagon values to regular-nonagon', () => {
+    const opts = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      globalFrameShape: 'regular-hexagon',
+      cellShapeTemplate: 'regular-hexagon',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(opts.globalFrameShape).toBe('regular-nonagon');
+    expect(opts.cellShapeTemplate).toBe('regular-nonagon');
+  });
+
+  it('accepts heart as frame and cell shape template', () => {
+    const opts = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      globalFrameShape: 'heart',
+      cellShapeTemplate: 'heart',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(opts.globalFrameShape).toBe('heart');
+    expect(opts.cellShapeTemplate).toBe('heart');
   });
 });

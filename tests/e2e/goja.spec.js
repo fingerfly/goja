@@ -936,7 +936,7 @@ test.describe('Goja App', () => {
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await page.locator('#globalFrameShape').selectOption('ellipse');
     await page.locator('#cellShapeTemplate').selectOption('circle');
-    await page.locator('#edgeStyle').selectOption('silk-wave');
+    await page.locator('#edgeStyle').selectOption('straight');
     await page.locator('#settingsCloseBtn').click();
     const clipState = await page.evaluate(() => {
       const container = document.querySelector('#previewGrid');
@@ -947,10 +947,21 @@ test.describe('Goja App', () => {
       const img = firstImg ? getComputedStyle(firstImg).clipPath : '';
       return { c, cell, img };
     });
-    expect(clipState.c).toContain('path(');
-    expect(clipState.cell).toContain('path(');
-    expect(clipState.img).toContain('path(');
+    expect(clipState.c).toContain('ellipse(');
+    expect(clipState.cell).toContain('circle(50% at 50% 50%)');
+    expect(clipState.img === 'none' || clipState.img === '').toBeTruthy();
     await context.close();
+  });
+
+  test('shape catalog shows nonagon and heart, and hides regular-hexagon', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#globalFrameShape option[value="regular-nonagon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="heart"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-hexagon"]')).toHaveCount(0);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-nonagon"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="heart"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-hexagon"]')).toHaveCount(0);
   });
 
   test('edge controls stay hidden when capability check fails', async ({ browser }) => {

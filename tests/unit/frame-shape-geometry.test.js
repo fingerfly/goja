@@ -17,8 +17,10 @@ describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
     expect(normalizeFrameShape('ellipse')).toBe('ellipse');
-    expect(normalizeFrameShape('hexagon')).toBe('regular-hexagon');
-    expect(normalizeFrameShape('regular-hexagon')).toBe('regular-hexagon');
+    expect(normalizeFrameShape('hexagon')).toBe('regular-nonagon');
+    expect(normalizeFrameShape('regular-hexagon')).toBe('regular-nonagon');
+    expect(normalizeFrameShape('regular-nonagon')).toBe('regular-nonagon');
+    expect(normalizeFrameShape('heart')).toBe('heart');
     expect(normalizeFrameShape('bad-shape')).toBe('rect');
   });
 
@@ -33,15 +35,18 @@ describe('frame-shape-geometry', () => {
     const rectD = buildShapePathD(200, 100, { shape: 'rect' });
     const circleD = buildShapePathD(200, 100, { shape: 'circle' });
     const ellipseD = buildShapePathD(200, 100, { shape: 'ellipse' });
-    const hexD = buildShapePathD(200, 100, { shape: 'regular-hexagon' });
+    const nonagonD = buildShapePathD(200, 100, { shape: 'regular-nonagon' });
+    const heartD = buildShapePathD(200, 100, { shape: 'heart' });
     expect(rectD.startsWith('M ')).toBe(true);
     expect(circleD.includes('A')).toBe(true);
     expect(ellipseD.includes('A')).toBe(true);
-    expect(hexD.includes(' L ')).toBe(true);
+    expect(nonagonD.includes(' L ')).toBe(true);
+    expect(heartD.includes('C')).toBe(true);
     expect(rectD.endsWith(' Z')).toBe(true);
     expect(circleD.endsWith(' Z')).toBe(true);
     expect(ellipseD.endsWith(' Z')).toBe(true);
-    expect(hexD.endsWith(' Z')).toBe(true);
+    expect(nonagonD.endsWith(' Z')).toBe(true);
+    expect(heartD.endsWith(' Z')).toBe(true);
   });
 
   it('supports inset without generating negative radii', () => {
@@ -64,19 +69,38 @@ describe('frame-shape-geometry', () => {
     expect(approxEqual(ellipseRx, ellipseRy)).toBe(false);
   });
 
-  it('builds regular-hexagon with near-equal side lengths', () => {
-    const hexD = buildShapePathD(300, 180, { shape: 'regular-hexagon', orientation: 'horizontal' });
-    const nums = parseNums(hexD);
+  it('builds regular-nonagon with near-equal side lengths', () => {
+    const nonagonD = buildShapePathD(300, 180, { shape: 'regular-nonagon', orientation: 'horizontal' });
+    const nums = parseNums(nonagonD);
     const points = [];
-    for (let i = 0; i < 12; i += 2) points.push({ x: nums[i], y: nums[i + 1] });
+    for (let i = 0; i < 18; i += 2) points.push({ x: nums[i], y: nums[i + 1] });
     const lengths = [];
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 9; i += 1) {
       const a = points[i];
-      const b = points[(i + 1) % 6];
+      const b = points[(i + 1) % 9];
       lengths.push(Math.hypot(a.x - b.x, a.y - b.y));
     }
     const min = Math.min(...lengths);
     const max = Math.max(...lengths);
-    expect(max - min).toBeLessThan(0.05);
+    expect(max - min).toBeLessThan(0.12);
+  });
+
+  it('builds centered heart path within bounds', () => {
+    const w = 240;
+    const h = 180;
+    const d = buildShapePathD(w, h, { shape: 'heart' });
+    const nums = parseNums(d);
+    const xs = nums.filter((_, i) => i % 2 === 0);
+    const ys = nums.filter((_, i) => i % 2 === 1);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    expect(minX).toBeGreaterThanOrEqual(0);
+    expect(minY).toBeGreaterThanOrEqual(0);
+    expect(maxX).toBeLessThanOrEqual(w);
+    expect(maxY).toBeLessThanOrEqual(h);
+    const cx = (minX + maxX) / 2;
+    expect(Math.abs(cx - w / 2)).toBeLessThan(0.1);
   });
 });

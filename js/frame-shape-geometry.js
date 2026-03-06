@@ -1,4 +1,4 @@
-const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-hexagon', 'hexagon']);
+const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
 const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
 
 function round3(v) {
@@ -7,7 +7,7 @@ function round3(v) {
 
 export function normalizeFrameShape(shape) {
   const raw = String(shape ?? 'rect');
-  if (raw === 'hexagon') return 'regular-hexagon';
+  if (raw === 'hexagon' || raw === 'regular-hexagon') return 'regular-nonagon';
   return SHAPES.has(raw) ? raw : 'rect';
 }
 
@@ -38,24 +38,41 @@ function ellipsePath(w, h, inset, forceCircle = false, ox = 0, oy = 0) {
   return `M ${sx} ${y} A ${rx} ${ry} 0 1 0 ${ex} ${y} A ${rx} ${ry} 0 1 0 ${sx} ${y} Z`;
 }
 
-function hexPath(w, h, inset, orientation = 'auto', ox = 0, oy = 0) {
+function polygonPath(w, h, inset, sides, orientation = 'auto', ox = 0, oy = 0) {
+  const count = Math.max(3, Math.round(Number(sides) || 3));
   const aw = Math.max(1, w - inset * 2);
   const ah = Math.max(1, h - inset * 2);
-  const mode = orientation === 'horizontal' || orientation === 'vertical'
-    ? orientation
-    : (aw >= ah ? 'horizontal' : 'vertical');
-  const flatTop = mode === 'horizontal';
-  const root3 = Math.sqrt(3);
-  const side = flatTop ? Math.min(aw / 2, ah / root3) : Math.min(aw / root3, ah / 2);
+  const mode = orientation === 'horizontal' || orientation === 'vertical' ? orientation : (aw >= ah ? 'horizontal' : 'vertical');
   const cx = ox + w / 2;
   const cy = oy + h / 2;
-  const dx = flatTop ? side : root3 * side / 2;
-  const dy = flatTop ? root3 * side / 2 : side;
-  const pts = flatTop
-    ? [[cx + side, cy], [cx + side / 2, cy + dy], [cx - side / 2, cy + dy], [cx - side, cy], [cx - side / 2, cy - dy], [cx + side / 2, cy - dy]]
-    : [[cx, cy - side], [cx + dx, cy - side / 2], [cx + dx, cy + side / 2], [cx, cy + side], [cx - dx, cy + side / 2], [cx - dx, cy - side / 2]];
-  const p = pts.map(([x, y]) => `${round3(x)} ${round3(y)}`);
-  return `M ${p[0]} L ${p[1]} L ${p[2]} L ${p[3]} L ${p[4]} L ${p[5]} Z`;
+  const r = Math.max(1, Math.min(aw, ah) / 2);
+  const start = mode === 'horizontal' ? -Math.PI / 2 : -Math.PI / 2 + Math.PI / count;
+  const pts = [];
+  for (let i = 0; i < count; i += 1) {
+    const a = start + (Math.PI * 2 * i) / count;
+    pts.push([round3(cx + Math.cos(a) * r), round3(cy + Math.sin(a) * r)]);
+  }
+  const p = pts.map(([x, y]) => `${x} ${y}`);
+  return `M ${p[0]} ${p.slice(1).map((pt) => `L ${pt}`).join(' ')} Z`;
+}
+
+function heartPath(w, h, inset, ox = 0, oy = 0) {
+  const x0 = ox + inset;
+  const y0 = oy + inset;
+  const aw = Math.max(1, w - inset * 2);
+  const ah = Math.max(1, h - inset * 2);
+  const cx = x0 + aw / 2;
+  const topY = y0 + ah * 0.2;
+  const bottomY = y0 + ah;
+  const leftX = x0 + aw * 0.08;
+  const rightX = x0 + aw * 0.92;
+  const leftCtrlX = x0 + aw * 0.02;
+  const rightCtrlX = x0 + aw * 0.98;
+  const leftLobeX = x0 + aw * 0.26;
+  const rightLobeX = x0 + aw * 0.74;
+  const lobeY = y0 + ah * 0.02;
+  const joinY = y0 + ah * 0.52;
+  return `M ${round3(cx)} ${round3(bottomY)} C ${round3(leftCtrlX)} ${round3(joinY)} ${round3(leftX)} ${round3(topY)} ${round3(leftLobeX)} ${round3(lobeY)} C ${round3(cx)} ${round3(lobeY)} ${round3(cx)} ${round3(topY)} ${round3(cx)} ${round3(joinY)} C ${round3(cx)} ${round3(topY)} ${round3(cx)} ${round3(lobeY)} ${round3(rightLobeX)} ${round3(lobeY)} C ${round3(rightX)} ${round3(topY)} ${round3(rightCtrlX)} ${round3(joinY)} ${round3(cx)} ${round3(bottomY)} Z`;
 }
 
 export function buildShapePathD(width, height, options = {}) {
@@ -68,6 +85,7 @@ export function buildShapePathD(width, height, options = {}) {
   const oy = Number(options.offsetY) || 0;
   if (shape === 'circle') return ellipsePath(w, h, inset, true, ox, oy);
   if (shape === 'ellipse') return ellipsePath(w, h, inset, false, ox, oy);
-  if (shape === 'regular-hexagon') return hexPath(w, h, inset, orientation, ox, oy);
+  if (shape === 'regular-nonagon') return polygonPath(w, h, inset, 9, orientation, ox, oy);
+  if (shape === 'heart') return heartPath(w, h, inset, ox, oy);
   return rectPath(w, h, inset, ox, oy);
 }
