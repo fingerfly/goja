@@ -902,6 +902,57 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
+  test('shape controls render as peer-level groups in settings', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('#globalFrameShapeGroup')).toBeVisible();
+    await expect(page.locator('#cellShapeTemplateGroup')).toBeVisible();
+    const hierarchy = await page.evaluate(() => {
+      const edgeRoot = document.querySelector('#edgeOptionsGroup');
+      const globalGroup = document.querySelector('#globalFrameShapeGroup');
+      const cellGroup = document.querySelector('#cellShapeTemplateGroup');
+      if (!edgeRoot || !globalGroup || !cellGroup) return false;
+      return globalGroup.parentElement === edgeRoot && cellGroup.parentElement === edgeRoot;
+    });
+    expect(hierarchy).toBe(true);
+  });
+
+  test('iPhone class preview applies selected shape and edge style', async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#globalFrameShape').selectOption('ellipse');
+    await page.locator('#cellShapeTemplate').selectOption('circle');
+    await page.locator('#edgeStyle').selectOption('silk-wave');
+    await page.locator('#settingsCloseBtn').click();
+    const clipState = await page.evaluate(() => {
+      const container = document.querySelector('#previewGrid');
+      const firstCell = document.querySelector('#previewGrid .preview-cell');
+      const firstImg = document.querySelector('#previewGrid .preview-cell img');
+      const c = container ? getComputedStyle(container).clipPath : '';
+      const cell = firstCell ? getComputedStyle(firstCell).clipPath : '';
+      const img = firstImg ? getComputedStyle(firstImg).clipPath : '';
+      return { c, cell, img };
+    });
+    expect(clipState.c).toContain('path(');
+    expect(clipState.cell).toContain('path(');
+    expect(clipState.img).toContain('path(');
+    await context.close();
+  });
+
   test('edge controls stay hidden when capability check fails', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();

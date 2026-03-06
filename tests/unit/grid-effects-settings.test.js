@@ -160,7 +160,7 @@ describe('getGridEffectsOptions', () => {
     expect(opts.globalFrameStrokeColor).toBe('#eeeeee');
     expect(opts.globalFrameStrokeOpacity).toBe(0.7);
     expect(opts.outsideBackgroundColor).toBe('#000000');
-    expect(opts.cellShapeTemplate).toBe('hexagon');
+    expect(opts.cellShapeTemplate).toBe('regular-hexagon');
     expect(opts.cellShapeOrientation).toBe('horizontal');
   });
 

@@ -17,8 +17,7 @@ import { fitScaleFactor } from './rotation-math.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { applyPreviewEdgeClip } from './edge-preview-clip.js';
 import { normalizeEdgeStyle } from './edge-style-presets.js';
-import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
-import { getShapeCssClip } from './shape-clip-utils.js';
+import { buildShapePathD, normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
 
 function colorWithOpacity(hex, opacity) {
   const c = String(hex || '#ffffff').trim();
@@ -68,8 +67,11 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     ? normalizeFrameShape(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
     : CELL_SHAPE_TEMPLATE_DEFAULT;
   const cellShapeOrientation = normalizeShapeOrientation(form.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT);
-  const frameCssClip = getShapeCssClip(globalFrameShape);
-  if (frameCssClip !== 'none') {
+  const framePathD = globalFrameShape === 'rect'
+    ? ''
+    : buildShapePathD(layout.canvasWidth, layout.canvasHeight, { shape: globalFrameShape });
+  const frameCssClip = framePathD ? `path('${framePathD}')` : 'none';
+  if (framePathD) {
     container.style.clipPath = frameCssClip;
     container.style.webkitClipPath = frameCssClip;
     if (preview) preview.style.background = form.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT;
@@ -128,7 +130,11 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       edgeAdvancedSupported,
     });
     if (cellShapeTemplate !== 'rect') {
-      const cellCssClip = getShapeCssClip(cellShapeTemplate, cellShapeOrientation);
+      const cellPathD = buildShapePathD(c.width, c.height, {
+        shape: cellShapeTemplate,
+        orientation: cellShapeOrientation,
+      });
+      const cellCssClip = `path('${cellPathD}')`;
       if (normalizeEdgeStyle(form.edgeStyle ?? 'straight') === 'straight') {
         cell.style.clipPath = cellCssClip;
         cell.style.webkitClipPath = cellCssClip;

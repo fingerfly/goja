@@ -141,7 +141,7 @@ describe('renderGrid', () => {
       showCaptureDate: false,
       edgeStyle: 'straight',
       edgeAdvancedSupported: true,
-      globalFrameShape: 'hexagon',
+      globalFrameShape: 'regular-hexagon',
       globalFrameStrokeEnabled: true,
       globalFrameStrokeWidth: 2,
       globalFrameStrokeColor: '#ff0000',
@@ -153,8 +153,37 @@ describe('renderGrid', () => {
     const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
     renderGrid(container, preview, photos, layout, form, deps);
     const cell = container.querySelector('.preview-cell');
-    expect(container.style.clipPath).toContain('polygon(');
-    expect(cell.style.clipPath).toContain('circle(');
+    expect(container.style.clipPath).toContain('path(');
+    expect(cell.style.clipPath).toContain('path(');
     expect(preview.querySelector('.preview-frame-stroke-overlay')).toBeTruthy();
+  });
+
+  it('keeps ellipse visually distinct from circle in preview frame clip', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 240,
+      canvasHeight: 120,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 240, height: 120 }],
+      photoOrder: [0],
+    };
+    const base = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'straight',
+      edgeAdvancedSupported: true,
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, { ...base, globalFrameShape: 'circle' }, deps);
+    const circleClip = container.style.clipPath;
+    renderGrid(container, preview, photos, layout, { ...base, globalFrameShape: 'ellipse' }, deps);
+    const ellipseClip = container.style.clipPath;
+    expect(circleClip).toContain('path(');
+    expect(ellipseClip).toContain('path(');
+    expect(ellipseClip).not.toBe(circleClip);
   });
 });
