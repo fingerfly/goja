@@ -3,6 +3,19 @@ import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { drawVignetteOverlay } from './image-effects.js';
 import { fitScaleFactor } from './rotation-math.js';
 import { applyExportEdgeClip } from './edge-export-clip.js';
+import { buildCellShapePathD } from './shape-clip-utils.js';
+
+function applyTemplateClip(ctx, cell, options) {
+  const d = buildCellShapePathD(cell, {
+    shape: options.cellShapeTemplate ?? 'rect',
+    orientation: options.cellShapeOrientation ?? 'auto',
+  });
+  if (typeof Path2D === 'function') {
+    ctx.clip(new Path2D(d));
+    return;
+  }
+  ctx.clip();
+}
 
 export function drawCellContent(ctx, img, cell, options = {}) {
   const {
@@ -23,6 +36,8 @@ export function drawCellContent(ctx, img, cell, options = {}) {
     edgeSeed = 0,
     edgeAdvancedSupported = false,
     cellIndex = 0,
+    cellShapeTemplate = 'rect',
+    cellShapeOrientation = 'auto',
   } = options;
 
   if (angle !== 0) {
@@ -34,6 +49,11 @@ export function drawCellContent(ctx, img, cell, options = {}) {
     ctx.rotate((angle * Math.PI) / 180);
     ctx.scale(scale, scale);
     ctx.translate(-cx, -cy);
+  }
+
+  if (edgeAdvancedSupported && cellShapeTemplate !== 'rect') {
+    ctx.save();
+    applyTemplateClip(ctx, cell, { cellShapeTemplate, cellShapeOrientation });
   }
 
   if (edgeAdvancedSupported && edgeStyle !== 'straight') {
@@ -63,6 +83,9 @@ export function drawCellContent(ctx, img, cell, options = {}) {
   }
 
   if (edgeAdvancedSupported && edgeStyle !== 'straight') {
+    ctx.restore();
+  }
+  if (edgeAdvancedSupported && cellShapeTemplate !== 'rect') {
     ctx.restore();
   }
 

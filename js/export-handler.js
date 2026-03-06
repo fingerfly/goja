@@ -1,6 +1,6 @@
 import { createGridCanvas, exportCanvasAsBlob } from './image-processor.js';
-import { drawWatermark } from './watermark.js';
 import { drawCellContent } from './cell-draw.js';
+import { renderUnifiedCanvas } from './unified-canvas-pipeline.js';
 import {
   VIGNETTE_STRENGTH_DEFAULT,
   WATERMARK_OPACITY_DEFAULT,
@@ -9,6 +9,14 @@ import {
   CAPTURE_DATE_OPACITY_DEFAULT,
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
+  GLOBAL_FRAME_SHAPE_DEFAULT,
+  GLOBAL_FRAME_STROKE_ENABLED_DEFAULT,
+  GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,
+  GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+  GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
+  OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+  CELL_SHAPE_TEMPLATE_DEFAULT,
+  CELL_SHAPE_ORIENTATION_DEFAULT,
 } from './config.js';
 
 function exportMainThread(photos, layout, options) {
@@ -32,31 +40,42 @@ function exportMainThread(photos, layout, options) {
       img.src = p.url;
     });
   })).then((imgElements) => {
-    for (let i = 0; i < layout.cells.length; i++) {
-      drawCellContent(ctx, imgElements[photoOrder[i]], layout.cells[i], {
-        fitMode,
-        backgroundColor: bg,
-        filter,
-        vignetteEnabled,
-        vignetteStrength,
-        showCaptureDate,
-        captureDateStr: dateOriginals[photoOrder[i]],
-        captureDatePos,
-        captureDateOpacity,
-        captureDateFontScale,
-        angle: photos[photoOrder[i]]?.angle || 0,
-        edgeStyle: options.edgeStyle ?? 'straight',
-        edgeIntensity: options.edgeIntensity ?? 0.5,
-        edgeFrequency: options.edgeFrequency ?? 4,
-        edgeSeed: options.edgeSeed ?? 0,
-        edgeAdvancedSupported: options.edgeAdvancedSupported ?? false,
-        cellIndex: i,
+    renderUnifiedCanvas(ctx, imgElements, layout, {
+      fitMode,
+      backgroundColor: bg,
+      filter,
+      vignetteEnabled,
+      vignetteStrength,
+      showCaptureDate,
+      captureDatePos,
+      captureDateOpacity,
+      captureDateFontScale,
+      edgeStyle: options.edgeStyle ?? 'straight',
+      edgeIntensity: options.edgeIntensity ?? 0.5,
+      edgeFrequency: options.edgeFrequency ?? 4,
+      edgeSeed: options.edgeSeed ?? 0,
+      edgeAdvancedSupported: options.edgeAdvancedSupported ?? false,
+      cellShapeTemplate: options.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT,
+      cellShapeOrientation: options.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT,
+      globalFrameShape: options.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT,
+      globalFrameStrokeEnabled: options.globalFrameStrokeEnabled ?? GLOBAL_FRAME_STROKE_ENABLED_DEFAULT,
+      globalFrameStrokeWidth: options.globalFrameStrokeWidth ?? GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,
+      globalFrameStrokeColor: options.globalFrameStrokeColor ?? GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+      globalFrameStrokeOpacity: options.globalFrameStrokeOpacity ?? GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
+      outsideBackgroundColor: options.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+      watermarkType,
+      watermarkText,
+      watermarkPos,
+      watermarkOpacity,
+      watermarkFontScale,
+      locale,
+      dateOriginals,
+    }, (drawCtx, image, cell, drawOptions) => {
+      drawCellContent(drawCtx, image, cell, {
+        ...drawOptions,
+        angle: photos[photoOrder[drawOptions.cellIndex]]?.angle || 0,
+        captureDateStr: dateOriginals[photoOrder[drawOptions.cellIndex]],
       });
-    }
-    drawWatermark(ctx, canvas.width, canvas.height, {
-      type: watermarkType, text: watermarkText, position: watermarkPos,
-      opacity: watermarkOpacity, fontScale: watermarkFontScale,
-      backgroundColor: bg, locale,
     });
     return exportCanvasAsBlob(canvas, format);
   });

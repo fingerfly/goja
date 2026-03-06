@@ -12,6 +12,10 @@ const REQUIRED_CAPTURE_DATE_KEYS = ['showCaptureDate', 'captureDatePos', 'captur
 const REQUIRED_EFFECTS_KEYS = [
   'effectsSection', 'filterPreset', 'filterNone', 'filterGrayscale', 'filterSepia',
   'filterBrightness', 'filterContrast', 'filterSaturated', 'filterFaded', 'filterVintage', 'filterBlur',
+  'globalFrameShapeLabel', 'globalFrameStrokeEnabled', 'globalFrameStrokeWidth', 'globalFrameStrokeColor', 'globalFrameStrokeOpacity',
+  'outsideBackgroundColor', 'cellShapeTemplateLabel', 'cellShapeOrientationLabel',
+  'shapeRect', 'shapeCircle', 'shapeEllipse', 'shapeHexagon',
+  'shapeOrientationAuto', 'shapeOrientationHorizontal', 'shapeOrientationVertical',
   'vignetteEnabled', 'vignetteStrength', 'edgeStyleLabel', 'edgeStyleStraight',
   'edgeStylePaperTorn', 'edgeStyleFilmScallop', 'edgeStyleGraphicZigzag',
   'edgeStyleSilkWave', 'edgeStyleLinenDeckle', 'edgeStylePostagePerf',

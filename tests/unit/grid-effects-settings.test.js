@@ -29,6 +29,14 @@ describe('buildFormFromRefs', () => {
       edgeFrequency: { value: '5' },
       edgeSeed: { value: '22' },
       edgeFeatureAvailable: { value: 'true' },
+      globalFrameShape: { value: 'ellipse' },
+      globalFrameStrokeEnabled: { checked: true },
+      globalFrameStrokeWidth: { value: '6' },
+      globalFrameStrokeColor: { value: '#123456' },
+      globalFrameStrokeOpacity: { value: '0.65' },
+      outsideBackgroundColor: { value: '#111111' },
+      cellShapeTemplate: { value: 'hexagon' },
+      cellShapeOrientation: { value: 'vertical' },
     };
     const form = buildFormFromRefs(refs);
     expect(form.wmType).toBe('text');
@@ -36,6 +44,14 @@ describe('buildFormFromRefs', () => {
     expect(form.showCaptureDate).toBe(true);
     expect(form.filterPreset).toBe('grayscale');
     expect(form.edgeStyle).toBe('wavy');
+    expect(form.globalFrameShape).toBe('ellipse');
+    expect(form.globalFrameStrokeEnabled).toBe(true);
+    expect(form.globalFrameStrokeWidth).toBe('6');
+    expect(form.globalFrameStrokeColor).toBe('#123456');
+    expect(form.globalFrameStrokeOpacity).toBe('0.65');
+    expect(form.outsideBackgroundColor).toBe('#111111');
+    expect(form.cellShapeTemplate).toBe('hexagon');
+    expect(form.cellShapeOrientation).toBe('vertical');
   });
 
   it('includes format when includeFormat is true', () => {
@@ -114,6 +130,14 @@ describe('getGridEffectsOptions', () => {
       showCaptureDate: true, captureDatePos: 'bottom-left', captureDateOpacity: '0.7', captureDateFontSize: '1',
       vignetteEnabled: true, vignetteStrength: '0.5', filterPreset: 'none', imageFit: 'cover',
       edgeStyle: 'paper-torn', edgeIntensity: '0.6', edgeFrequency: '4', edgeSeed: '8', edgeFeatureAvailable: 'true',
+      globalFrameShape: 'ellipse',
+      globalFrameStrokeEnabled: true,
+      globalFrameStrokeWidth: '3',
+      globalFrameStrokeColor: '#eeeeee',
+      globalFrameStrokeOpacity: '0.7',
+      outsideBackgroundColor: '#000000',
+      cellShapeTemplate: 'hexagon',
+      cellShapeOrientation: 'horizontal',
     };
     const photos = [
       { dateOriginal: new Date('2025-02-22T12:00:00') },
@@ -130,6 +154,14 @@ describe('getGridEffectsOptions', () => {
     expect(opts.edgeFrequency).toBe(4);
     expect(opts.edgeSeed).toBe(8);
     expect(opts.edgeAdvancedSupported).toBe(true);
+    expect(opts.globalFrameShape).toBe('ellipse');
+    expect(opts.globalFrameStrokeEnabled).toBe(true);
+    expect(opts.globalFrameStrokeWidth).toBe(3);
+    expect(opts.globalFrameStrokeColor).toBe('#eeeeee');
+    expect(opts.globalFrameStrokeOpacity).toBe(0.7);
+    expect(opts.outsideBackgroundColor).toBe('#000000');
+    expect(opts.cellShapeTemplate).toBe('hexagon');
+    expect(opts.cellShapeOrientation).toBe('horizontal');
   });
 
   it('returns empty dateOriginals when showCaptureDate is false', () => {
@@ -147,11 +179,15 @@ describe('getGridEffectsOptions', () => {
       edgeFrequency: '5',
       edgeSeed: '10',
       edgeFeatureAvailable: 'false',
+      globalFrameShape: 'ellipse',
+      cellShapeTemplate: 'hexagon',
     };
     const opts = getGridEffectsOptions(form, [], formatDateTimeOriginal, getLocale);
     expect(opts.edgeAdvancedSupported).toBe(false);
     expect(opts.edgeStyle).toBe('straight');
     expect(opts.edgeIntensity).toBe(0.7);
+    expect(opts.globalFrameShape).toBe('rect');
+    expect(opts.cellShapeTemplate).toBe('rect');
   });
 
   it('normalizes edge frequency to bounded integer for number-stepper control', () => {

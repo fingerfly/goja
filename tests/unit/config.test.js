@@ -49,6 +49,14 @@ import {
   VIGNETTE_STRENGTH_MIN,
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
+  GLOBAL_FRAME_SHAPE_DEFAULT,
+  GLOBAL_FRAME_STROKE_ENABLED_DEFAULT,
+  GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,
+  GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+  GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
+  OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+  CELL_SHAPE_TEMPLATE_DEFAULT,
+  CELL_SHAPE_ORIENTATION_DEFAULT,
 } from '../../js/config.js';
 
 describe('config', () => {
@@ -246,5 +254,37 @@ describe('config', () => {
 
   it('exports VIGNETTE_STRENGTH_DEFAULT', () => {
     expect(VIGNETTE_STRENGTH_DEFAULT).toBe(0.5);
+  });
+
+  it('exports GLOBAL_FRAME_SHAPE_DEFAULT', () => {
+    expect(GLOBAL_FRAME_SHAPE_DEFAULT).toBe('rect');
+  });
+
+  it('exports GLOBAL_FRAME_STROKE_ENABLED_DEFAULT', () => {
+    expect(GLOBAL_FRAME_STROKE_ENABLED_DEFAULT).toBe(false);
+  });
+
+  it('exports GLOBAL_FRAME_STROKE_WIDTH_DEFAULT', () => {
+    expect(GLOBAL_FRAME_STROKE_WIDTH_DEFAULT).toBe(2);
+  });
+
+  it('exports GLOBAL_FRAME_STROKE_COLOR_DEFAULT', () => {
+    expect(GLOBAL_FRAME_STROKE_COLOR_DEFAULT).toBe('#ffffff');
+  });
+
+  it('exports GLOBAL_FRAME_STROKE_OPACITY_DEFAULT', () => {
+    expect(GLOBAL_FRAME_STROKE_OPACITY_DEFAULT).toBe(1);
+  });
+
+  it('exports OUTSIDE_BACKGROUND_COLOR_DEFAULT', () => {
+    expect(OUTSIDE_BACKGROUND_COLOR_DEFAULT).toBe('#000000');
+  });
+
+  it('exports CELL_SHAPE_TEMPLATE_DEFAULT', () => {
+    expect(CELL_SHAPE_TEMPLATE_DEFAULT).toBe('rect');
+  });
+
+  it('exports CELL_SHAPE_ORIENTATION_DEFAULT', () => {
+    expect(CELL_SHAPE_ORIENTATION_DEFAULT).toBe('auto');
   });
 });

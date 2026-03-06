@@ -227,6 +227,60 @@
         </div>
         <div id="edgeOptionsGroup" class="hidden control-subgroup control-group--full">
           <div class="control-group">
+            <label for="globalFrameShape" data-i18n="globalFrameShapeLabel">Frame shape</label>
+            <select id="globalFrameShape">
+              <option value="rect" data-i18n="shapeRect">Rectangle</option>
+              <option value="circle" data-i18n="shapeCircle">Circle</option>
+              <option value="ellipse" data-i18n="shapeEllipse">Ellipse</option>
+              <option value="hexagon" data-i18n="shapeHexagon">Hexagon</option>
+            </select>
+          </div>
+          <div class="control-row control-row--pair">
+            <div class="control-group">
+              <label>
+                <input type="checkbox" id="globalFrameStrokeEnabled">
+                <span data-i18n="globalFrameStrokeEnabled">Frame stroke</span>
+              </label>
+            </div>
+            <div class="control-group">
+              <label for="outsideBackgroundColor" data-i18n="outsideBackgroundColor">Outside background</label>
+              <input type="color" id="outsideBackgroundColor" value="#000000">
+            </div>
+          </div>
+          <div class="control-row control-row--pair">
+            <div class="control-group">
+              <label for="globalFrameStrokeWidth" data-i18n="globalFrameStrokeWidth">Frame stroke width</label>
+              <input type="number" id="globalFrameStrokeWidth" min="0" max="20" step="1" value="2">
+            </div>
+            <div class="control-group">
+              <label for="globalFrameStrokeOpacity" data-i18n="globalFrameStrokeOpacity">Frame stroke opacity</label>
+              <input type="range" id="globalFrameStrokeOpacity" min="0" max="1" step="0.05" value="1">
+            </div>
+          </div>
+          <div class="control-row control-row--pair">
+            <div class="control-group">
+              <label for="globalFrameStrokeColor" data-i18n="globalFrameStrokeColor">Frame stroke color</label>
+              <input type="color" id="globalFrameStrokeColor" value="#ffffff">
+            </div>
+            <div class="control-group">
+              <label for="cellShapeTemplate" data-i18n="cellShapeTemplateLabel">Cell shape template</label>
+              <select id="cellShapeTemplate">
+                <option value="rect" data-i18n="shapeRect">Rectangle</option>
+                <option value="circle" data-i18n="shapeCircle">Circle</option>
+                <option value="ellipse" data-i18n="shapeEllipse">Ellipse</option>
+                <option value="hexagon" data-i18n="shapeHexagon">Hexagon</option>
+              </select>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="cellShapeOrientation" data-i18n="cellShapeOrientationLabel">Cell shape orientation</label>
+            <select id="cellShapeOrientation">
+              <option value="auto" data-i18n="shapeOrientationAuto">Auto</option>
+              <option value="horizontal" data-i18n="shapeOrientationHorizontal">Horizontal</option>
+              <option value="vertical" data-i18n="shapeOrientationVertical">Vertical</option>
+            </select>
+          </div>
+          <div class="control-group">
             <label for="edgeStyle" data-i18n="edgeStyleLabel">Edge style</label>
             <select id="edgeStyle">
               <option value="straight" data-i18n="edgeStyleStraight">Straight</option>

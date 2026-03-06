@@ -16,6 +16,12 @@ import {
   VIGNETTE_STRENGTH_MIN,
   VIGNETTE_STRENGTH_MAX,
   VIGNETTE_STRENGTH_DEFAULT,
+  GLOBAL_FRAME_SHAPE_DEFAULT,
+  GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,
+  GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
+  OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+  CELL_SHAPE_TEMPLATE_DEFAULT,
+  CELL_SHAPE_ORIENTATION_DEFAULT,
 } from './config.js';
 import {
   normalizeEdgeAmplitude,
@@ -28,7 +34,7 @@ import {
  * Sets form default values from config.
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -64,6 +70,12 @@ function setFormDefaults(refs) {
     edgeFrequency.value = edgeFrequency.value || '4';
   }
   if (edgeSeed) edgeSeed.value = edgeSeed.value || '0';
+  if (globalFrameShape) globalFrameShape.value = globalFrameShape.value || GLOBAL_FRAME_SHAPE_DEFAULT;
+  if (globalFrameStrokeWidth) globalFrameStrokeWidth.value = globalFrameStrokeWidth.value || String(GLOBAL_FRAME_STROKE_WIDTH_DEFAULT);
+  if (globalFrameStrokeOpacity) globalFrameStrokeOpacity.value = globalFrameStrokeOpacity.value || String(GLOBAL_FRAME_STROKE_OPACITY_DEFAULT);
+  if (outsideBackgroundColor) outsideBackgroundColor.value = outsideBackgroundColor.value || OUTSIDE_BACKGROUND_COLOR_DEFAULT;
+  if (cellShapeTemplate) cellShapeTemplate.value = cellShapeTemplate.value || CELL_SHAPE_TEMPLATE_DEFAULT;
+  if (cellShapeOrientation) cellShapeOrientation.value = cellShapeOrientation.value || CELL_SHAPE_ORIENTATION_DEFAULT;
 }
 
 function syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, source = 'slider') {
@@ -120,6 +132,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
+    globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation,
     previewGrid, preview, sPanel, sBackdrop,
     offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn,
     settingsResetSectionBtn, settingsResetAllBtn,
@@ -240,6 +253,14 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     normalizeEdgeSeedInput(edgeSeed);
     updatePreview();
   });
+  globalFrameShape?.addEventListener('change', updatePreview);
+  globalFrameStrokeEnabled?.addEventListener('change', updatePreview);
+  globalFrameStrokeWidth?.addEventListener('input', updatePreview);
+  globalFrameStrokeColor?.addEventListener('input', updatePreview);
+  globalFrameStrokeOpacity?.addEventListener('input', updatePreview);
+  outsideBackgroundColor?.addEventListener('input', updatePreview);
+  cellShapeTemplate?.addEventListener('change', updatePreview);
+  cellShapeOrientation?.addEventListener('change', updatePreview);
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
   settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());

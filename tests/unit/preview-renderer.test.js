@@ -122,4 +122,39 @@ describe('renderGrid', () => {
     const cell = container.querySelector('.preview-cell');
     expect(cell.style.clipPath).toContain('path(');
   });
+
+  it('applies global frame clip and cell template clip in advanced mode', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 100,
+      canvasHeight: 100,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 100, height: 100 }],
+      photoOrder: [0],
+    };
+    const form = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'straight',
+      edgeAdvancedSupported: true,
+      globalFrameShape: 'hexagon',
+      globalFrameStrokeEnabled: true,
+      globalFrameStrokeWidth: 2,
+      globalFrameStrokeColor: '#ff0000',
+      globalFrameStrokeOpacity: 0.5,
+      outsideBackgroundColor: '#000000',
+      cellShapeTemplate: 'circle',
+      cellShapeOrientation: 'auto',
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const cell = container.querySelector('.preview-cell');
+    expect(container.style.clipPath).toContain('polygon(');
+    expect(cell.style.clipPath).toContain('circle(');
+    expect(preview.querySelector('.preview-frame-stroke-overlay')).toBeTruthy();
+  });
 });

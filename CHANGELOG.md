@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [9.1.0] - 2026-03-06
+
+
 ## [9.0.5] - 2026-03-05
 
 
@@ -10,6 +13,11 @@
 - Added strict fail-fast handling for legacy `soft-wave` config values in `js/grid-effects-settings.js` (explicit error instead of silent remap).
 - Kept backward compatibility for older `wavy` alias by remapping it to `silk-wave`.
 - Updated locale dictionaries and i18n bindings to remove `edgeStyleSoftWave`.
+- Applied removal across concrete runtime surfaces:
+  - `index.html` (`#edgeStyle` option set)
+  - `js/edge-style-presets.js` (legacy map/profile/candidate registry)
+  - `js/grid-effects-settings.js` (legacy fail-fast guard)
+  - `js/locales/{en,zh-Hans,zh-Hant,es,ja,eo}.js` (i18n key cleanup)
 
 ### Tests
 - Updated unit/E2E expectations for soft-wave removal and fail-fast behavior:

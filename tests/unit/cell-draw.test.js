@@ -91,4 +91,17 @@ describe('drawCellContent', () => {
     });
     expect(ctx.clip).toHaveBeenCalledTimes(1);
   });
+
+  it('applies template clip when advanced template is enabled', () => {
+    vi.spyOn(imageProcessor, 'drawPhotoOnCanvas').mockImplementation(() => {});
+    drawCellContent(ctx, img, cell, {
+      edgeStyle: 'straight',
+      edgeAdvancedSupported: true,
+      cellShapeTemplate: 'circle',
+      cellShapeOrientation: 'auto',
+    });
+    expect(ctx.clip).toHaveBeenCalledTimes(1);
+    expect(ctx.save).toHaveBeenCalledTimes(1);
+    expect(ctx.restore).toHaveBeenCalledTimes(1);
+  });
 });

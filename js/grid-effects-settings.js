@@ -10,9 +10,18 @@ import {
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
   VIGNETTE_STRENGTH_DEFAULT,
+  GLOBAL_FRAME_SHAPE_DEFAULT,
+  GLOBAL_FRAME_STROKE_ENABLED_DEFAULT,
+  GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,
+  GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+  GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
+  OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+  CELL_SHAPE_TEMPLATE_DEFAULT,
+  CELL_SHAPE_ORIENTATION_DEFAULT,
 } from './config.js';
 import { getFilterCss } from './image-effects.js';
 import { normalizeEdgeStyle } from './edge-style-presets.js';
+import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
 
 function parseNum(val, defaultVal) {
   if (val == null || val === '') return defaultVal;
@@ -30,6 +39,11 @@ function parseBoolish(val, fallback = false) {
   if (typeof val === 'boolean') return val;
   if (typeof val === 'string') return val.toLowerCase() === 'true';
   return fallback;
+}
+
+function parseNumBounded(val, defaultVal, min, max) {
+  const n = parseNum(val, defaultVal);
+  return Math.max(min, Math.min(max, n));
 }
 
 function assertSupportedEdgeStyle(style) {
@@ -93,6 +107,14 @@ export function buildFormFromRefs(refs, includeFormat = false) {
     edgeFrequency: refs.edgeFrequency?.value,
     edgeSeed: refs.edgeSeed?.value,
     edgeFeatureAvailable: refs.edgeFeatureAvailable?.value,
+    globalFrameShape: refs.globalFrameShape?.value,
+    globalFrameStrokeEnabled: refs.globalFrameStrokeEnabled?.checked,
+    globalFrameStrokeWidth: refs.globalFrameStrokeWidth?.value,
+    globalFrameStrokeColor: refs.globalFrameStrokeColor?.value,
+    globalFrameStrokeOpacity: refs.globalFrameStrokeOpacity?.value,
+    outsideBackgroundColor: refs.outsideBackgroundColor?.value,
+    cellShapeTemplate: refs.cellShapeTemplate?.value,
+    cellShapeOrientation: refs.cellShapeOrientation?.value,
   };
   if (includeFormat) f.format = refs.formatSelect?.value;
   return f;
@@ -110,6 +132,12 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
   const edgeAdvancedSupported = parseBoolish(form.edgeFeatureAvailable, false);
   assertSupportedEdgeStyle(form.edgeStyle);
   const edgeStyle = edgeAdvancedSupported ? normalizeEdgeStyle(form.edgeStyle ?? 'straight') : 'straight';
+  const globalFrameShape = edgeAdvancedSupported
+    ? normalizeFrameShape(form.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
+    : GLOBAL_FRAME_SHAPE_DEFAULT;
+  const cellShapeTemplate = edgeAdvancedSupported
+    ? normalizeFrameShape(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
+    : CELL_SHAPE_TEMPLATE_DEFAULT;
   return {
     backgroundColor: form.bgColor ?? '#ffffff',
     format: form.format ?? 'image/jpeg',
@@ -133,5 +161,13 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     edgeFrequency: parseIntBounded(form.edgeFrequency, 4, 1, 20),
     edgeSeed: parseNum(form.edgeSeed, 0),
     edgeAdvancedSupported,
+    globalFrameShape,
+    globalFrameStrokeEnabled: parseBoolish(form.globalFrameStrokeEnabled, GLOBAL_FRAME_STROKE_ENABLED_DEFAULT),
+    globalFrameStrokeWidth: parseNumBounded(form.globalFrameStrokeWidth, GLOBAL_FRAME_STROKE_WIDTH_DEFAULT, 0, 20),
+    globalFrameStrokeColor: form.globalFrameStrokeColor ?? GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+    globalFrameStrokeOpacity: parseNumBounded(form.globalFrameStrokeOpacity, GLOBAL_FRAME_STROKE_OPACITY_DEFAULT, 0, 1),
+    outsideBackgroundColor: form.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+    cellShapeTemplate,
+    cellShapeOrientation: normalizeShapeOrientation(form.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT),
   };
 }
