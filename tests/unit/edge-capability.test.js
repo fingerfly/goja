@@ -36,7 +36,23 @@ describe('resolveEdgeSupport', () => {
     const support = resolveEdgeSupport(env, {
       canvasProbe: () => false,
       previewProbe: () => true,
+      previewPolygonProbe: () => true,
     });
     expect(support.advancedSupported).toBe(false);
+  });
+
+  it('supports polygon preview mode when path probe fails', () => {
+    const env = {
+      Path2D: function MockPath2D() {},
+      CSS: { supports: () => true },
+      document: {},
+    };
+    const support = resolveEdgeSupport(env, {
+      canvasProbe: () => true,
+      previewProbe: () => false,
+      previewPolygonProbe: () => true,
+    });
+    expect(support.advancedSupported).toBe(true);
+    expect(support.previewClipMode).toBe('polygon');
   });
 });

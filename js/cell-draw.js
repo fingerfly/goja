@@ -51,12 +51,16 @@ export function drawCellContent(ctx, img, cell, options = {}) {
     ctx.translate(-cx, -cy);
   }
 
-  if (edgeAdvancedSupported && cellShapeTemplate !== 'rect') {
+  const hasTemplate = edgeAdvancedSupported && cellShapeTemplate !== 'rect';
+  const hasEdgeStyle = edgeAdvancedSupported && edgeStyle !== 'straight';
+  const needsTemplateClip = hasTemplate && !hasEdgeStyle;
+
+  if (needsTemplateClip) {
     ctx.save();
     applyTemplateClip(ctx, cell, { cellShapeTemplate, cellShapeOrientation });
   }
 
-  if (edgeAdvancedSupported && edgeStyle !== 'straight') {
+  if (hasEdgeStyle) {
     ctx.save();
     applyExportEdgeClip(ctx, cell, cellIndex, {
       edgeStyle,
@@ -64,6 +68,8 @@ export function drawCellContent(ctx, img, cell, options = {}) {
       edgeFrequency,
       edgeSeed,
       edgeAdvancedSupported,
+      cellShapeTemplate,
+      cellShapeOrientation,
     });
   }
 
@@ -82,10 +88,10 @@ export function drawCellContent(ctx, img, cell, options = {}) {
     });
   }
 
-  if (edgeAdvancedSupported && edgeStyle !== 'straight') {
+  if (hasEdgeStyle) {
     ctx.restore();
   }
-  if (edgeAdvancedSupported && cellShapeTemplate !== 'rect') {
+  if (needsTemplateClip) {
     ctx.restore();
   }
 

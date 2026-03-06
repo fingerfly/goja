@@ -1,5 +1,7 @@
 import { makeSeededRng } from './edge-rng.js';
 import { getEdgeStyleProfile, normalizeEdgeStyle } from './edge-style-presets.js';
+import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import { sampleShapeContour } from './shape-contour.js';
 
 function clampNum(v, min, max, fallback) {
   const n = Number(v);
@@ -75,9 +77,55 @@ function sidePoints(cell, side, opts, baseCell) {
   return edgePoints(cell.x, cell.y + cell.height, cell.x, cell.y, amp, steps, offsetAt, 'x');
 }
 
+function pathFromPoints(points) {
+  if (!Array.isArray(points) || points.length === 0) return 'M 0 0 Z';
+  const [first, ...rest] = points;
+  return `M ${first[0]} ${first[1]} ${rest.map(([x, y]) => `L ${x} ${y}`).join(' ')} Z`;
+}
+
+function perturbContour(points, opts, seedKey) {
+  const style = normalizeEdgeStyle(opts.edgeStyle);
+  if (style === 'straight' || points.length < 3) return points;
+  const profile = getEdgeStyleProfile(style);
+  const width = Math.max(...points.map(([x]) => x)) - Math.min(...points.map(([x]) => x));
+  const height = Math.max(...points.map(([, y]) => y)) - Math.min(...points.map(([, y]) => y));
+  const ampBase = Math.min(width, height) * clampNum(opts.edgeIntensity, 0, 1, 0) * 0.16;
+  const amp = ampBase * profile.ampScale;
+  if (amp <= 0) return points;
+  const cycles = clampInt(opts.edgeFrequency, 1, 20, 4);
+  const freq = cycles * profile.freqScale;
+  const rng = makeSeededRng(`${style}:${opts.edgeSeed ?? 0}:${seedKey}`);
+  const phase = rng();
+  const jitter = 1 - profile.jitter + rng() * profile.jitter * 2;
+  const n = points.length;
+  return points.map(([x, y], i) => {
+    const prev = points[(i - 1 + n) % n];
+    const next = points[(i + 1) % n];
+    const tx = next[0] - prev[0];
+    const ty = next[1] - prev[1];
+    const len = Math.hypot(tx, ty) || 1;
+    const nx = -ty / len;
+    const ny = tx / len;
+    const t = i / n;
+    const off = waveformAt(profile.waveform, t * freq + phase) * amp * jitter;
+    return [x + nx * off, y + ny * off];
+  });
+}
+
 export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
   const style = normalizeEdgeStyle(options.edgeStyle);
   const opts = { ...options, edgeStyle: style };
+  const template = normalizeFrameShape(options.cellShapeTemplate ?? 'rect');
+  const orientation = normalizeShapeOrientation(options.cellShapeOrientation ?? 'auto');
+  if (template !== 'rect' && style !== 'straight') {
+    const contour = sampleShapeContour(cell.width, cell.height, {
+      shape: template,
+      orientation,
+      samples: template === 'regular-nonagon' ? 72 : 120,
+    });
+    const perturbed = perturbContour(contour, opts, `${template}:${cell.width}:${cell.height}:${cellIndex}`);
+    return pathFromPoints(perturbed);
+  }
   const localCell = { x: 0, y: 0, width: cell.width, height: cell.height };
   const baseCell = options.boundaryCell ?? cell;
   const top = sidePoints(localCell, 'top', opts, baseCell);

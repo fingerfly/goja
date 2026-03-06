@@ -41,7 +41,7 @@ describe('frame-shape-geometry', () => {
     expect(circleD.includes('A')).toBe(true);
     expect(ellipseD.includes('A')).toBe(true);
     expect(nonagonD.includes(' L ')).toBe(true);
-    expect(heartD.includes('C')).toBe(true);
+    expect(heartD.includes(' L ')).toBe(true);
     expect(rectD.endsWith(' Z')).toBe(true);
     expect(circleD.endsWith(' Z')).toBe(true);
     expect(ellipseD.endsWith(' Z')).toBe(true);
@@ -102,5 +102,30 @@ describe('frame-shape-geometry', () => {
     expect(maxY).toBeLessThanOrEqual(h);
     const cx = (minX + maxX) / 2;
     expect(Math.abs(cx - w / 2)).toBeLessThan(0.1);
+  });
+
+  it('maximizes heart fit within inset-safe area', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const nums = parseNums(d);
+    const xs = nums.filter((_, i) => i % 2 === 0);
+    const ys = nums.filter((_, i) => i % 2 === 1);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const usableWidth = w - inset * 2;
+    const usableHeight = h - inset * 2;
+    const usedWidth = maxX - minX;
+    const usedHeight = maxY - minY;
+    expect(minX).toBeGreaterThanOrEqual(inset - 0.1);
+    expect(maxX).toBeLessThanOrEqual(w - inset + 0.1);
+    expect(minY).toBeGreaterThanOrEqual(inset - 0.1);
+    expect(maxY).toBeLessThanOrEqual(h - inset + 0.1);
+    expect(minY).toBeLessThanOrEqual(inset + 1.5);
+    expect(usedWidth / usableWidth).toBeGreaterThan(0.95);
+    expect(usedHeight / usableHeight).toBeGreaterThan(0.95);
   });
 });

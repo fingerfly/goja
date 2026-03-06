@@ -20,6 +20,11 @@ import { normalizeEdgeStyle } from './edge-style-presets.js';
 import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
 import { getShapeCssClip } from './shape-clip-utils.js';
 
+function supportsCssPathClip() {
+  if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
+  return CSS.supports('clip-path', "path('M0 0 L1 0 L1 1 L0 1 Z')");
+}
+
 function colorWithOpacity(hex, opacity) {
   const c = String(hex || '#ffffff').trim();
   const alpha = Math.max(0, Math.min(1, Number(opacity) || 0));
@@ -68,7 +73,12 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     ? normalizeFrameShape(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
     : CELL_SHAPE_TEMPLATE_DEFAULT;
   const cellShapeOrientation = normalizeShapeOrientation(form.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT);
-  const frameCssClip = getShapeCssClip(globalFrameShape, 'auto');
+  const forceHeartPolygonFallback = edgeAdvancedSupported && !supportsCssPathClip();
+  const shapeClipOptions = {
+    forcePolygonFallback: forceHeartPolygonFallback,
+    heartSamples: 96,
+  };
+  const frameCssClip = getShapeCssClip(globalFrameShape, 'auto', shapeClipOptions);
   if (frameCssClip !== 'none') {
     container.style.clipPath = frameCssClip;
     container.style.webkitClipPath = frameCssClip;
@@ -126,15 +136,17 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       edgeFrequency,
       edgeSeed: form.edgeSeed ?? 0,
       edgeAdvancedSupported,
+      cellShapeTemplate,
+      cellShapeOrientation,
     });
     if (cellShapeTemplate !== 'rect') {
-      const cellCssClip = getShapeCssClip(cellShapeTemplate, cellShapeOrientation);
+      const cellCssClip = getShapeCssClip(cellShapeTemplate, cellShapeOrientation, shapeClipOptions);
       if (normalizeEdgeStyle(form.edgeStyle ?? 'straight') === 'straight') {
         cell.style.clipPath = cellCssClip;
         cell.style.webkitClipPath = cellCssClip;
       } else {
-        img.style.clipPath = cellCssClip;
-        img.style.webkitClipPath = cellCssClip;
+        img.style.clipPath = '';
+        img.style.webkitClipPath = '';
       }
     }
 

@@ -215,4 +215,37 @@ describe('renderGrid', () => {
     expect(container.style.clipPath).toContain('50% at 50% 50%');
     expect(cell.style.clipPath).toContain('50% at 50% 50%');
   });
+
+  it('uses a single boundary clip when edge style and cell template are both active', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 240,
+      canvasHeight: 120,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 240, height: 120 }],
+      photoOrder: [0],
+    };
+    const form = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.6,
+      edgeFrequency: 7,
+      edgeSeed: 11,
+      edgeAdvancedSupported: true,
+      globalFrameShape: 'rect',
+      cellShapeTemplate: 'circle',
+      cellShapeOrientation: 'auto',
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const cell = container.querySelector('.preview-cell');
+    const img = container.querySelector('.preview-cell img');
+    expect(cell.style.clipPath).toContain('path(');
+    expect(img.style.clipPath === '' || img.style.clipPath === 'none').toBeTruthy();
+  });
 });

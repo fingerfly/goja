@@ -74,4 +74,20 @@ describe('buildCellEdgePathD', () => {
     expect(pair.globalD).toBe(buildCellEdgePathD(cell, 6, opts));
     expect(pair.globalD).toBe(translatePathD(pair.localD, cell.x, cell.y));
   });
+
+  it('follows non-rect template contours instead of rectangle corners', () => {
+    const d = buildCellEdgePathD(makeCell(), 2, {
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.5,
+      edgeFrequency: 6,
+      edgeSeed: 9,
+      cellShapeTemplate: 'circle',
+      cellShapeOrientation: 'auto',
+    });
+    expect(d).not.toContain('10 20');
+    expect(d).not.toContain('110 20');
+    expect(d).not.toContain('110 100');
+    expect(d).not.toContain('10 100');
+    expect(d.endsWith(' Z')).toBe(true);
+  });
 });

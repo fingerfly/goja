@@ -953,6 +953,58 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
+  test('iPhone class preview stays in sync after repeated shape and edge toggles', async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.locator('#fileInput').setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#previewGrid .preview-cell')).toHaveCount(2);
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    const toggles = [
+      { edge: 'straight', cell: 'heart', expectCell: ['path(', 'polygon('], expectImgEmpty: true },
+      { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
+      { edge: 'straight', cell: 'circle', expectCell: ['circle('], expectImgEmpty: true },
+      { edge: 'graphic-zigzag', cell: 'regular-nonagon', expectCell: ['path('], expectImgEmpty: true },
+      { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
+    ];
+    for (const step of toggles) {
+      await page.locator('#edgeStyle').selectOption(step.edge);
+      await page.locator('#cellShapeTemplate').selectOption(step.cell);
+      const clipState = await page.evaluate(() => {
+        const firstCell = document.querySelector('#previewGrid .preview-cell');
+        const firstImg = document.querySelector('#previewGrid .preview-cell img');
+        const cell = firstCell ? getComputedStyle(firstCell).clipPath : '';
+        const img = firstImg ? getComputedStyle(firstImg).clipPath : '';
+        return { cell, img };
+      });
+      expect(step.expectCell.some((token) => clipState.cell.includes(token))).toBeTruthy();
+      if (step.expectImgEmpty) {
+        expect(clipState.img === 'none' || clipState.img === '').toBeTruthy();
+      }
+    }
+    await page.locator('#settingsCloseBtn').click();
+    const finalState = await page.evaluate(() => {
+      const firstCell = document.querySelector('#previewGrid .preview-cell');
+      const firstImg = document.querySelector('#previewGrid .preview-cell img');
+      return {
+        cell: firstCell ? getComputedStyle(firstCell).clipPath : '',
+        img: firstImg ? getComputedStyle(firstImg).clipPath : '',
+      };
+    });
+    expect(finalState.cell).toContain('path(');
+    expect(finalState.img === 'none' || finalState.img === '').toBeTruthy();
+    await context.close();
+  });
+
   test('shape catalog shows nonagon and heart, and hides regular-hexagon', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

@@ -1,6 +1,17 @@
 import { buildShapePathD, normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import { sampleShapeContour } from './shape-contour.js';
 
-export function getShapeCssClip(shape, orientation = 'auto') {
+function polygonFromPoints(points) {
+  return `polygon(${points.map(([x, y]) => `${x}% ${y}%`).join(', ')})`;
+}
+
+function heartPolygonClip(samples = 96) {
+  const pts = sampleShapeContour(100, 100, { shape: 'heart', inset: 0, samples })
+    .map(([x, y]) => [Number(x), Number(y)]);
+  return polygonFromPoints(pts);
+}
+
+export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
   const normalizedShape = normalizeFrameShape(shape);
   const normalizedOrientation = normalizeShapeOrientation(orientation);
   if (normalizedShape === 'circle') return 'circle(50% at 50% 50%)';
@@ -10,7 +21,12 @@ export function getShapeCssClip(shape, orientation = 'auto') {
     return 'ellipse(50% 42% at 50% 50%)';
   }
   if (normalizedShape === 'regular-nonagon') return 'polygon(50% 0%, 82% 12%, 100% 40%, 94% 72%, 68% 96%, 32% 96%, 6% 72%, 0% 40%, 18% 12%)';
-  if (normalizedShape === 'heart') return 'polygon(50% 100%, 40% 88%, 28% 74%, 18% 58%, 14% 43%, 21% 29%, 33% 22%, 43% 25%, 50% 34%, 57% 25%, 67% 22%, 79% 29%, 86% 43%, 82% 58%, 72% 74%, 60% 88%)';
+  if (normalizedShape === 'heart') {
+    const samples = Math.max(64, Math.min(128, Math.round(Number(options.heartSamples) || 96)));
+    if (options.forcePolygonFallback === true) return heartPolygonClip(samples);
+    const d = buildShapePathD(100, 100, { shape: 'heart' });
+    return `path('${d}')`;
+  }
   return 'none';
 }
 

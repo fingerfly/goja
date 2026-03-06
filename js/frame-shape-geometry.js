@@ -1,3 +1,5 @@
+import { sampleShapeContour } from './shape-contour.js';
+
 const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
 const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
 
@@ -57,22 +59,9 @@ function polygonPath(w, h, inset, sides, orientation = 'auto', ox = 0, oy = 0) {
 }
 
 function heartPath(w, h, inset, ox = 0, oy = 0) {
-  const x0 = ox + inset;
-  const y0 = oy + inset;
-  const aw = Math.max(1, w - inset * 2);
-  const ah = Math.max(1, h - inset * 2);
-  const cx = x0 + aw / 2;
-  const topY = y0 + ah * 0.2;
-  const bottomY = y0 + ah;
-  const leftX = x0 + aw * 0.08;
-  const rightX = x0 + aw * 0.92;
-  const leftCtrlX = x0 + aw * 0.02;
-  const rightCtrlX = x0 + aw * 0.98;
-  const leftLobeX = x0 + aw * 0.26;
-  const rightLobeX = x0 + aw * 0.74;
-  const lobeY = y0 + ah * 0.02;
-  const joinY = y0 + ah * 0.52;
-  return `M ${round3(cx)} ${round3(bottomY)} C ${round3(leftCtrlX)} ${round3(joinY)} ${round3(leftX)} ${round3(topY)} ${round3(leftLobeX)} ${round3(lobeY)} C ${round3(cx)} ${round3(lobeY)} ${round3(cx)} ${round3(topY)} ${round3(cx)} ${round3(joinY)} C ${round3(cx)} ${round3(topY)} ${round3(cx)} ${round3(lobeY)} ${round3(rightLobeX)} ${round3(lobeY)} C ${round3(rightX)} ${round3(topY)} ${round3(rightCtrlX)} ${round3(joinY)} ${round3(cx)} ${round3(bottomY)} Z`;
+  const pts = sampleShapeContour(w, h, { shape: 'heart', inset, offsetX: ox, offsetY: oy, samples: 160 });
+  const [first, ...rest] = pts;
+  return `M ${first[0]} ${first[1]} ${rest.map(([x, y]) => `L ${x} ${y}`).join(' ')} Z`;
 }
 
 export function buildShapePathD(width, height, options = {}) {

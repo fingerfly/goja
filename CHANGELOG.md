@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [9.2.1] - 2026-03-06
+
+
+### Changed
+- Enforced the Wave 9 max-area-within-inset geometry contract across non-rect shapes with normalized inset-safe fitting; heart geometry now uses a normalized contour equation mapped to the maximum inset-safe bounding box to reduce top-void artifacts.
+- Unified heart geometry source for preview/export paths and added CSS clip compatibility behavior: default `path(...)` clip plus high-sample same-source polygon fallback (`64..128` points) when path clipping is unavailable.
+- Hardened mixed-shape edge rendering so `edgeStyle != straight` with `cellShapeTemplate != rect` uses one boundary clip path and contour-parameterized edge perturbation instead of rectangle-side-only perturbation.
+- Expanded capability probing to allow advanced mode when canvas clipping is available and preview supports either `clip-path: path(...)` or polygon clipping.
+
+### Tests
+- Added/updated unit coverage for Wave 9 geometry and contour behavior:
+  - `tests/unit/frame-shape-geometry.test.js`
+  - `tests/unit/shape-clip-utils.test.js`
+  - `tests/unit/edge-shape-engine.test.js`
+  - `tests/unit/preview-renderer.test.js`
+  - `tests/unit/edge-capability.test.js`
+- Added iPhone/Safari E2E regression for repeated shape/edge toggles to detect stale preview clipping behavior:
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npm test`
+  - `npm run test:e2e`
+  - `cloc --by-file --include-lang=JavaScript ...` (SLOC checks, including new modules under `SLOC < 100`)
+
 ## [9.2.0] - 2026-03-06
 
 
