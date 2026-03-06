@@ -64,7 +64,7 @@ export default {
   shapeRect: 'Rectángulo',
   shapeCircle: 'Círculo',
   shapeEllipse: 'Elipse',
-  shapeNonagon: 'Eneágono',
+  shapeOctagon: 'Octágono',
   shapeHeart: 'Corazón',
   shapeOrientationAuto: 'Automático',
   shapeOrientationHorizontal: 'Horizontal',

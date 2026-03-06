@@ -1,5 +1,5 @@
 const TAU = Math.PI * 2;
-const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
+const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-octagon', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
 const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
 
 function toFixed3(v) {
@@ -8,7 +8,7 @@ function toFixed3(v) {
 
 function normalizeFrameShape(shape) {
   const raw = String(shape ?? 'rect');
-  if (raw === 'hexagon' || raw === 'regular-hexagon') return 'regular-nonagon';
+  if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon';
   return SHAPES.has(raw) ? raw : 'rect';
 }
 
@@ -66,14 +66,14 @@ export function sampleShapeContour(width, height, options = {}) {
     }
     return pts;
   }
-  if (shape === 'regular-nonagon') {
+  if (shape === 'regular-octagon') {
     const aw = Math.max(1, w - inset * 2);
     const ah = Math.max(1, h - inset * 2);
     const mode = orientation === 'horizontal' || orientation === 'vertical' ? orientation : (aw >= ah ? 'horizontal' : 'vertical');
     const r = Math.max(1, Math.min(aw, ah) / 2);
-    const start = mode === 'horizontal' ? -Math.PI / 2 : -Math.PI / 2 + Math.PI / 9;
-    return Array.from({ length: 9 }, (_, i) => {
-      const a = start + (TAU * i) / 9;
+    const start = mode === 'horizontal' ? -Math.PI / 2 : -Math.PI / 2 + Math.PI / 8;
+    return Array.from({ length: 8 }, (_, i) => {
+      const a = start + (TAU * i) / 8;
       return [toFixed3(cx + Math.cos(a) * r), toFixed3(cy + Math.sin(a) * r)];
     });
   }

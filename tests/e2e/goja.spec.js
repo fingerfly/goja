@@ -973,7 +973,7 @@ test.describe('Goja App', () => {
       { edge: 'straight', cell: 'heart', expectCell: ['path(', 'polygon('], expectImgEmpty: true },
       { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
       { edge: 'straight', cell: 'circle', expectCell: ['circle('], expectImgEmpty: true },
-      { edge: 'graphic-zigzag', cell: 'regular-nonagon', expectCell: ['path('], expectImgEmpty: true },
+      { edge: 'graphic-zigzag', cell: 'regular-octagon', expectCell: ['path('], expectImgEmpty: true },
       { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
     ];
     for (const step of toggles) {
@@ -1005,15 +1005,17 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
-  test('shape catalog shows nonagon and heart, and hides regular-hexagon', async ({ page }) => {
+  test('shape catalog shows octagon and heart, and hides legacy polygon options', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
-    await expect(page.locator('#globalFrameShape option[value="regular-nonagon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-octagon"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="heart"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="regular-hexagon"]')).toHaveCount(0);
-    await expect(page.locator('#cellShapeTemplate option[value="regular-nonagon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-nonagon"]')).toHaveCount(0);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-octagon"]')).toHaveCount(1);
     await expect(page.locator('#cellShapeTemplate option[value="heart"]')).toHaveCount(1);
     await expect(page.locator('#cellShapeTemplate option[value="regular-hexagon"]')).toHaveCount(0);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-nonagon"]')).toHaveCount(0);
   });
 
   test('edge controls stay hidden when capability check fails', async ({ browser }) => {

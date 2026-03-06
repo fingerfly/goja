@@ -77,7 +77,7 @@ export default {
   shapeRect: 'Rectangle',
   shapeCircle: 'Circle',
   shapeEllipse: 'Ellipse',
-  shapeNonagon: 'Nonagon',
+  shapeOctagon: 'Octagon',
   shapeHeart: 'Heart',
   shapeOrientationAuto: 'Auto',
   shapeOrientationHorizontal: 'Horizontal',

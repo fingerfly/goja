@@ -160,7 +160,7 @@ describe('getGridEffectsOptions', () => {
     expect(opts.globalFrameStrokeColor).toBe('#eeeeee');
     expect(opts.globalFrameStrokeOpacity).toBe(0.7);
     expect(opts.outsideBackgroundColor).toBe('#000000');
-    expect(opts.cellShapeTemplate).toBe('regular-nonagon');
+    expect(opts.cellShapeTemplate).toBe('regular-octagon');
     expect(opts.cellShapeOrientation).toBe('horizontal');
   });
 
@@ -236,15 +236,15 @@ describe('getGridEffectsOptions', () => {
     }, [], formatDateTimeOriginal, getLocale)).toThrow(/soft-wave/);
   });
 
-  it('migrates global and cell regular-hexagon values to regular-nonagon', () => {
+  it('migrates legacy polygon shape values to regular-octagon', () => {
     const opts = getGridEffectsOptions({
       edgeStyle: 'straight',
       edgeFeatureAvailable: 'true',
       globalFrameShape: 'regular-hexagon',
-      cellShapeTemplate: 'regular-hexagon',
+      cellShapeTemplate: 'regular-nonagon',
     }, [], formatDateTimeOriginal, getLocale);
-    expect(opts.globalFrameShape).toBe('regular-nonagon');
-    expect(opts.cellShapeTemplate).toBe('regular-nonagon');
+    expect(opts.globalFrameShape).toBe('regular-octagon');
+    expect(opts.cellShapeTemplate).toBe('regular-octagon');
   });
 
   it('accepts heart as frame and cell shape template', () => {

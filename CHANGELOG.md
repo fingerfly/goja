@@ -2,19 +2,24 @@
 
 ## [Unreleased]
 
+## [9.2.2] - 2026-03-06
+
+
 ## [9.2.1] - 2026-03-06
 
 
 ### Changed
 - Enforced the Wave 9 max-area-within-inset geometry contract across non-rect shapes with normalized inset-safe fitting; heart geometry now uses a normalized contour equation mapped to the maximum inset-safe bounding box to reduce top-void artifacts.
-- Unified heart geometry source for preview/export paths and added CSS clip compatibility behavior: default `path(...)` clip plus high-sample same-source polygon fallback (`64..128` points) when path clipping is unavailable.
+- Unified heart geometry source for preview/export and switched preview heart CSS clip default to high-sample same-source `polygon(...)` (`64..128` points), with `path(...)` only when explicitly requested.
+- Replaced user-facing `regular-nonagon` with `regular-octagon`, including legacy normalization migration chain (`hexagon` / `regular-hexagon` / `regular-nonagon` -> `regular-octagon`) for frame and cell templates.
 - Hardened mixed-shape edge rendering so `edgeStyle != straight` with `cellShapeTemplate != rect` uses one boundary clip path and contour-parameterized edge perturbation instead of rectangle-side-only perturbation.
-- Expanded capability probing to allow advanced mode when canvas clipping is available and preview supports either `clip-path: path(...)` or polygon clipping.
 
 ### Tests
 - Added/updated unit coverage for Wave 9 geometry and contour behavior:
   - `tests/unit/frame-shape-geometry.test.js`
   - `tests/unit/shape-clip-utils.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/i18n.test.js`
   - `tests/unit/edge-shape-engine.test.js`
   - `tests/unit/preview-renderer.test.js`
   - `tests/unit/edge-capability.test.js`

@@ -64,7 +64,7 @@ export default {
   shapeRect: '長方形',
   shapeCircle: '円',
   shapeEllipse: '楕円',
-  shapeNonagon: '九角形',
+  shapeOctagon: '八角形',
   shapeHeart: 'ハート',
   shapeOrientationAuto: '自動',
   shapeOrientationHorizontal: '横向き',

@@ -20,12 +20,14 @@ export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
     if (normalizedOrientation === 'vertical') return 'ellipse(41% 50% at 50% 50%)';
     return 'ellipse(50% 42% at 50% 50%)';
   }
-  if (normalizedShape === 'regular-nonagon') return 'polygon(50% 0%, 82% 12%, 100% 40%, 94% 72%, 68% 96%, 32% 96%, 6% 72%, 0% 40%, 18% 12%)';
+  if (normalizedShape === 'regular-octagon') return 'polygon(50% 0%, 85.4% 14.6%, 100% 50%, 85.4% 85.4%, 50% 100%, 14.6% 85.4%, 0% 50%, 14.6% 14.6%)';
   if (normalizedShape === 'heart') {
     const samples = Math.max(64, Math.min(128, Math.round(Number(options.heartSamples) || 96)));
-    if (options.forcePolygonFallback === true) return heartPolygonClip(samples);
-    const d = buildShapePathD(100, 100, { shape: 'heart' });
-    return `path('${d}')`;
+    if (options.preferPath === true && options.forcePolygonFallback !== true) {
+      const d = buildShapePathD(100, 100, { shape: 'heart' });
+      return `path('${d}')`;
+    }
+    return heartPolygonClip(samples);
   }
   return 'none';
 }

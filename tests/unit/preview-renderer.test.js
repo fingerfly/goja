@@ -141,7 +141,7 @@ describe('renderGrid', () => {
       showCaptureDate: false,
       edgeStyle: 'straight',
       edgeAdvancedSupported: true,
-      globalFrameShape: 'regular-nonagon',
+      globalFrameShape: 'regular-octagon',
       globalFrameStrokeEnabled: true,
       globalFrameStrokeWidth: 2,
       globalFrameStrokeColor: '#ff0000',

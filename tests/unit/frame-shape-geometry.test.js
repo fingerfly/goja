@@ -17,9 +17,10 @@ describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
     expect(normalizeFrameShape('ellipse')).toBe('ellipse');
-    expect(normalizeFrameShape('hexagon')).toBe('regular-nonagon');
-    expect(normalizeFrameShape('regular-hexagon')).toBe('regular-nonagon');
-    expect(normalizeFrameShape('regular-nonagon')).toBe('regular-nonagon');
+    expect(normalizeFrameShape('hexagon')).toBe('regular-octagon');
+    expect(normalizeFrameShape('regular-hexagon')).toBe('regular-octagon');
+    expect(normalizeFrameShape('regular-nonagon')).toBe('regular-octagon');
+    expect(normalizeFrameShape('regular-octagon')).toBe('regular-octagon');
     expect(normalizeFrameShape('heart')).toBe('heart');
     expect(normalizeFrameShape('bad-shape')).toBe('rect');
   });
@@ -35,17 +36,17 @@ describe('frame-shape-geometry', () => {
     const rectD = buildShapePathD(200, 100, { shape: 'rect' });
     const circleD = buildShapePathD(200, 100, { shape: 'circle' });
     const ellipseD = buildShapePathD(200, 100, { shape: 'ellipse' });
-    const nonagonD = buildShapePathD(200, 100, { shape: 'regular-nonagon' });
+    const octagonD = buildShapePathD(200, 100, { shape: 'regular-octagon' });
     const heartD = buildShapePathD(200, 100, { shape: 'heart' });
     expect(rectD.startsWith('M ')).toBe(true);
     expect(circleD.includes('A')).toBe(true);
     expect(ellipseD.includes('A')).toBe(true);
-    expect(nonagonD.includes(' L ')).toBe(true);
+    expect(octagonD.includes(' L ')).toBe(true);
     expect(heartD.includes(' L ')).toBe(true);
     expect(rectD.endsWith(' Z')).toBe(true);
     expect(circleD.endsWith(' Z')).toBe(true);
     expect(ellipseD.endsWith(' Z')).toBe(true);
-    expect(nonagonD.endsWith(' Z')).toBe(true);
+    expect(octagonD.endsWith(' Z')).toBe(true);
     expect(heartD.endsWith(' Z')).toBe(true);
   });
 
@@ -69,15 +70,15 @@ describe('frame-shape-geometry', () => {
     expect(approxEqual(ellipseRx, ellipseRy)).toBe(false);
   });
 
-  it('builds regular-nonagon with near-equal side lengths', () => {
-    const nonagonD = buildShapePathD(300, 180, { shape: 'regular-nonagon', orientation: 'horizontal' });
-    const nums = parseNums(nonagonD);
+  it('builds regular-octagon with near-equal side lengths', () => {
+    const octagonD = buildShapePathD(300, 180, { shape: 'regular-octagon', orientation: 'horizontal' });
+    const nums = parseNums(octagonD);
     const points = [];
-    for (let i = 0; i < 18; i += 2) points.push({ x: nums[i], y: nums[i + 1] });
+    for (let i = 0; i < 16; i += 2) points.push({ x: nums[i], y: nums[i + 1] });
     const lengths = [];
-    for (let i = 0; i < 9; i += 1) {
+    for (let i = 0; i < 8; i += 1) {
       const a = points[i];
-      const b = points[(i + 1) % 9];
+      const b = points[(i + 1) % 8];
       lengths.push(Math.hypot(a.x - b.x, a.y - b.y));
     }
     const min = Math.min(...lengths);
