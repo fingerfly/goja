@@ -292,39 +292,38 @@
                 <option value="vertical" data-i18n="shapeOrientationVertical">Vertical</option>
               </select>
             </div>
-          </div>
-
-          <div id="edgeTextureOverlayGroup" class="control-subgroup control-group--full">
-            <div class="control-group">
-              <label for="edgeStyle" data-i18n="edgeStyleLabel">Edge style</label>
-              <select id="edgeStyle">
-                <option value="straight" data-i18n="edgeStyleStraight">Straight</option>
-                <option value="paper-torn" data-i18n="edgeStylePaperTorn">Paper torn</option>
-                <option value="film-scallop" data-i18n="edgeStyleFilmScallop">Film scallop</option>
-                <option value="graphic-zigzag" data-i18n="edgeStyleGraphicZigzag">Graphic zigzag</option>
-                <option value="silk-wave" data-i18n="edgeStyleSilkWave">Silk wave</option>
-                <option value="linen-deckle" data-i18n="edgeStyleLinenDeckle">Linen deckle</option>
-                <option value="postage-perf" data-i18n="edgeStylePostagePerf">Postage perforation</option>
-              </select>
-            </div>
-            <div class="control-group control-group--full">
-              <label for="edgeIntensity" data-i18n="edgeIntensity">Edge amplitude</label>
-              <div class="edge-amplitude-control">
-                <input type="range" id="edgeIntensity" min="0" max="1" step="0.01" value="0.5">
-                <input type="number" id="edgeIntensityInput" min="0" max="1" step="0.01" value="0.5" inputmode="decimal">
-              </div>
-              <p class="control-hint" id="edgeIntensityHint" data-i18n="edgeIntensityHint">Fine tune with slider or number (0.00-1.00).</p>
-            </div>
-            <div class="control-row control-row--pair control-row--edge-advanced">
+            <div id="edgeTextureOverlayGroup" class="control-subgroup control-group--full">
               <div class="control-group">
-                <label for="edgeFrequency" data-i18n="edgeFrequency">Edge cycles</label>
-                <input type="number" id="edgeFrequency" min="1" max="20" step="1" value="4" inputmode="numeric" pattern="[0-9]*">
-                <p class="control-hint" id="edgeFrequencyHint" data-i18n="edgeFrequencyHint">Integer cycles per edge (1-20).</p>
+                <label for="edgeStyle" data-i18n="edgeStyleLabel">Cell edge style</label>
+                <select id="edgeStyle">
+                  <option value="straight" data-i18n="edgeStyleStraight">Straight</option>
+                  <option value="paper-torn" data-i18n="edgeStylePaperTorn">Paper torn</option>
+                  <option value="film-scallop" data-i18n="edgeStyleFilmScallop">Film scallop</option>
+                  <option value="graphic-zigzag" data-i18n="edgeStyleGraphicZigzag">Graphic zigzag</option>
+                  <option value="silk-wave" data-i18n="edgeStyleSilkWave">Silk wave</option>
+                  <option value="linen-deckle" data-i18n="edgeStyleLinenDeckle">Linen deckle</option>
+                  <option value="postage-perf" data-i18n="edgeStylePostagePerf">Postage perforation</option>
+                </select>
               </div>
-              <div class="control-group">
-                <label for="edgeSeed" data-i18n="edgeSeed">Edge seed</label>
-                <input type="number" id="edgeSeed" min="0" max="99999" step="1" value="0" inputmode="numeric" pattern="[0-9]*">
-                <p class="control-hint" id="edgeSeedHint" data-i18n="edgeSeedHint">Use an integer seed for repeatable edges.</p>
+              <div class="control-group control-group--full">
+                <label for="edgeIntensity" data-i18n="edgeIntensity">Cell edge amplitude</label>
+                <div class="edge-amplitude-control">
+                  <input type="range" id="edgeIntensity" min="0" max="1" step="0.01" value="0.5">
+                  <input type="number" id="edgeIntensityInput" min="0" max="1" step="0.01" value="0.5" inputmode="decimal">
+                </div>
+                <p class="control-hint" id="edgeIntensityHint" data-i18n="edgeIntensityHint">Fine tune cell edge with slider or number (0.00-1.00).</p>
+              </div>
+              <div class="control-row control-row--pair control-row--edge-advanced">
+                <div class="control-group">
+                  <label for="edgeFrequency" data-i18n="edgeFrequency">Cell edge cycles</label>
+                  <input type="number" id="edgeFrequency" min="1" max="20" step="1" value="4" inputmode="numeric" pattern="[0-9]*">
+                  <p class="control-hint" id="edgeFrequencyHint" data-i18n="edgeFrequencyHint">Integer cycles per cell edge (1-20).</p>
+                </div>
+                <div class="control-group">
+                  <label for="edgeSeed" data-i18n="edgeSeed">Cell edge seed</label>
+                  <input type="number" id="edgeSeed" min="0" max="99999" step="1" value="0" inputmode="numeric" pattern="[0-9]*">
+                  <p class="control-hint" id="edgeSeedHint" data-i18n="edgeSeedHint">Use an integer seed for repeatable cell edges.</p>
+                </div>
               </div>
             </div>
           </div>

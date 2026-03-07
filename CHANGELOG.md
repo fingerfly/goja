@@ -2,10 +2,25 @@
 
 ## [Unreleased]
 
+## [9.3.1] - 2026-03-06
+
+### Changed
+- Clarified edge-control ownership in Settings by moving `#edgeTextureOverlayGroup` under `#cellShapeTemplateGroup`, so the UI visually indicates edge styles are per-cell behavior.
+- Updated edge-control wording to explicit cell-edge terminology across all six locales (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`), including labels and hints for style/amplitude/cycles/seed.
+- Kept all existing control IDs and runtime behavior intact while changing only grouping and wording semantics.
+
+### Tests
+- Added/updated Wave 10B ownership wording/layout coverage in:
+  - `tests/unit/i18n.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npx vitest run tests/unit/i18n.test.js tests/unit/edge-controls.test.js tests/unit/settings-panel.test.js` (`28` passed)
+  - `npx playwright test tests/e2e/goja.spec.js --grep "edge controls are localized|shape controls and edge controls reflect cell ownership hierarchy|edge controls stay hidden when capability check fails"` (`3` passed)
+  - `npm test` (`438` passed)
+  - `npm run test:e2e` (`70` passed)
+  - `npx cloc js/locales/en.js js/locales/es.js js/locales/eo.js js/locales/ja.js js/locales/zh-Hans.js js/locales/zh-Hant.js index.html tests/unit/i18n.test.js tests/e2e/goja.spec.js`
+
 ## [9.3.0] - 2026-03-07
-
-
-## [9.2.5] - 2026-03-06
 
 ### Changed
 - Added four new regular polygon shape types for both global frame and cell template selectors: `regular-triangle`, `regular-decagon`, `regular-dodecagon`, and `regular-hexadecagon`.

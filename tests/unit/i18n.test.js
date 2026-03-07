@@ -158,7 +158,7 @@ describe('i18n', () => {
       `;
       setLocale('zh-Hans');
       applyToDOM();
-      expect(document.querySelector('label').textContent).toBe('边缘样式');
+      expect(document.querySelector('label').textContent).toBe('单元格边缘样式');
       expect(document.querySelector('option').textContent).toBe('丝绸波纹');
     });
   });

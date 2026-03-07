@@ -575,7 +575,7 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     const edgeStyleLabel = page.locator('label[for="edgeStyle"]');
-    await expect(edgeStyleLabel).toHaveText('边缘样式');
+    await expect(edgeStyleLabel).toHaveText('单元格边缘样式');
     await expect(page.locator('#edgeStyle option[value="straight"]')).toHaveText('直线');
     await expect(page.locator('#edgeStyle option[value="soft-wave"]')).toHaveCount(0);
     await expect(page.locator('#edgeStyle option[value="paper-torn"]')).toHaveText('纸张撕边');
@@ -584,7 +584,7 @@ test.describe('Goja App', () => {
     await expect(page.locator('#edgeStyle option[value="silk-wave"]')).toHaveText('丝绸波纹');
     await expect(page.locator('#edgeStyle option[value="linen-deckle"]')).toHaveText('亚麻毛边');
     await expect(page.locator('#edgeStyle option[value="postage-perf"]')).toHaveText('邮票齿孔');
-    await expect(page.locator('#edgeFrequencyHint')).toHaveText('每条边的整数周期（1-20）');
+    await expect(page.locator('#edgeFrequencyHint')).toHaveText('每条单元格边的整数周期（1-20）');
   });
 
   test('reset all applies defaults immediately without confirmation dialog', async ({ page }) => {
@@ -902,17 +902,19 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
-  test('shape controls render as peer-level groups in settings', async ({ page }) => {
+  test('shape controls and edge controls reflect cell ownership hierarchy', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await expect(page.locator('#globalFrameShapeGroup')).toBeVisible();
     await expect(page.locator('#cellShapeTemplateGroup')).toBeVisible();
     const hierarchy = await page.evaluate(() => {
-      const edgeRoot = document.querySelector('#edgeOptionsGroup');
+      const edgeRoot = document.querySelector('#edgeTextureOverlayGroup');
       const globalGroup = document.querySelector('#globalFrameShapeGroup');
       const cellGroup = document.querySelector('#cellShapeTemplateGroup');
       if (!edgeRoot || !globalGroup || !cellGroup) return false;
-      return globalGroup.parentElement === edgeRoot && cellGroup.parentElement === edgeRoot;
+      return globalGroup.parentElement?.id === 'edgeOptionsGroup'
+        && cellGroup.parentElement?.id === 'edgeOptionsGroup'
+        && edgeRoot.parentElement === cellGroup;
     });
     expect(hierarchy).toBe(true);
   });
