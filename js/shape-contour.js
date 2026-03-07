@@ -35,19 +35,19 @@ function unitHeartPoints(samples = 120) {
   const seg = Math.max(6, Math.floor(count * 0.22));
   const arcSteps = Math.max(6, count - seg * 4);
   const pts = [];
-  const notch = [0.5, 0.06];
-  const rightPeak = [0.98, 0.44];
+  const notch = [0.5, 0.24];
+  const rightPeak = [0.98, 0.08];
   const rightArcStart = [0.56, 0.93];
   const leftArcEnd = [0.44, 0.93];
-  const leftPeak = [0.02, 0.44];
-  appendCubic(pts, notch, [0.64, 0.0], [0.98, 0.16], rightPeak, seg, false);
-  appendCubic(pts, rightPeak, [0.98, 0.72], [0.78, 0.90], rightArcStart, seg, true);
+  const leftPeak = [0.02, 0.08];
+  appendCubic(pts, notch, [0.62, 0.02], [1.02, 0.02], rightPeak, seg, false);
+  appendCubic(pts, rightPeak, [1.06, 0.45], [0.92, 0.84], rightArcStart, seg, true);
   for (let i = 1; i <= arcSteps; i += 1) {
     const t = (Math.PI * i) / arcSteps;
     pts.push([0.5 + 0.06 * Math.cos(t), 0.93 + 0.06 * Math.sin(t)]);
   }
-  appendCubic(pts, leftArcEnd, [0.22, 0.90], [0.02, 0.72], leftPeak, seg, true);
-  appendCubic(pts, leftPeak, [0.02, 0.16], [0.36, 0.0], notch, seg, true);
+  appendCubic(pts, leftArcEnd, [0.08, 0.84], [-0.06, 0.45], leftPeak, seg, true);
+  appendCubic(pts, leftPeak, [-0.02, 0.02], [0.38, 0.02], notch, seg, true);
   if (pts.length > 1) pts.pop();
   while (pts.length > count) pts.splice(Math.floor(pts.length / 2), 1);
   const xs = pts.map(([x]) => x);

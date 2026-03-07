@@ -60,6 +60,26 @@ function spanAtRatio(points, ratio) {
   return { left: xs[0], right: xs[xs.length - 1] };
 }
 
+function heartTopConcavityDepth(points) {
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const width = maxX - minX;
+  const cx = (minX + maxX) / 2;
+  const centerBand = points.filter(([x]) => Math.abs(x - cx) <= width * 0.06).map(([, y]) => y);
+  const leftBand = points
+    .filter(([x]) => x >= minX + width * 0.12 && x <= minX + width * 0.38)
+    .map(([, y]) => y);
+  const rightBand = points
+    .filter(([x]) => x >= maxX - width * 0.38 && x <= maxX - width * 0.12)
+    .map(([, y]) => y);
+  if (!centerBand.length || !leftBand.length || !rightBand.length) return 0;
+  const centerMin = Math.min(...centerBand);
+  const lobeAvg = (Math.min(...leftBand) + Math.min(...rightBand)) / 2;
+  return centerMin - lobeAvg;
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -205,5 +225,16 @@ describe('frame-shape-geometry', () => {
       .map((s) => Math.abs(((s.left + s.right) / 2) - cx));
     const meanError = errors.reduce((sum, v) => sum + v, 0) / Math.max(1, errors.length);
     expect(meanError).toBeLessThan(0.5);
+  });
+
+  it('keeps Heart V2 top notch lower than both top lobes', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const usableHeight = h - inset * 2;
+    const concavityDepth = heartTopConcavityDepth(points);
+    expect(concavityDepth).toBeGreaterThanOrEqual(usableHeight * 0.06);
   });
 });
