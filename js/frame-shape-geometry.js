@@ -1,21 +1,15 @@
-import { sampleShapeContour } from './shape-contour.js';
-
-const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-octagon', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
-const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
+import {
+  sampleShapeContour,
+} from './shape-contour.js';
+import {
+  normalizeFrameShape,
+  normalizeShapeOrientation,
+  polygonSidesForShape,
+} from './polygon-shape.js';
+export { normalizeFrameShape, normalizeShapeOrientation, polygonSidesForShape };
 
 function round3(v) {
   return Number(v.toFixed(3));
-}
-
-export function normalizeFrameShape(shape) {
-  const raw = String(shape ?? 'rect');
-  if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon';
-  return SHAPES.has(raw) ? raw : 'rect';
-}
-
-export function normalizeShapeOrientation(orientation) {
-  const raw = String(orientation ?? 'auto');
-  return ORIENTATIONS.has(raw) ? raw : 'auto';
 }
 
 function rectPath(w, h, inset, ox = 0, oy = 0) {
@@ -74,7 +68,8 @@ export function buildShapePathD(width, height, options = {}) {
   const oy = Number(options.offsetY) || 0;
   if (shape === 'circle') return ellipsePath(w, h, inset, true, ox, oy);
   if (shape === 'ellipse') return ellipsePath(w, h, inset, false, ox, oy);
-  if (shape === 'regular-octagon') return polygonPath(w, h, inset, 8, orientation, ox, oy);
+  const polygonSides = polygonSidesForShape(shape);
+  if (polygonSides) return polygonPath(w, h, inset, polygonSides, orientation, ox, oy);
   if (shape === 'heart') return heartPath(w, h, inset, ox, oy);
   return rectPath(w, h, inset, ox, oy);
 }

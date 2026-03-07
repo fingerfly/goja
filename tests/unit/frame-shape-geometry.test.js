@@ -312,6 +312,10 @@ describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
     expect(normalizeFrameShape('ellipse')).toBe('ellipse');
+    expect(normalizeFrameShape('regular-triangle')).toBe('regular-triangle');
+    expect(normalizeFrameShape('regular-decagon')).toBe('regular-decagon');
+    expect(normalizeFrameShape('regular-dodecagon')).toBe('regular-dodecagon');
+    expect(normalizeFrameShape('regular-hexadecagon')).toBe('regular-hexadecagon');
     expect(normalizeFrameShape('hexagon')).toBe('regular-octagon');
     expect(normalizeFrameShape('regular-hexagon')).toBe('regular-octagon');
     expect(normalizeFrameShape('regular-nonagon')).toBe('regular-octagon');
@@ -332,17 +336,44 @@ describe('frame-shape-geometry', () => {
     const circleD = buildShapePathD(200, 100, { shape: 'circle' });
     const ellipseD = buildShapePathD(200, 100, { shape: 'ellipse' });
     const octagonD = buildShapePathD(200, 100, { shape: 'regular-octagon' });
+    const triangleD = buildShapePathD(200, 100, { shape: 'regular-triangle' });
+    const decagonD = buildShapePathD(200, 100, { shape: 'regular-decagon' });
+    const dodecagonD = buildShapePathD(200, 100, { shape: 'regular-dodecagon' });
+    const hexadecagonD = buildShapePathD(200, 100, { shape: 'regular-hexadecagon' });
     const heartD = buildShapePathD(200, 100, { shape: 'heart' });
     expect(rectD.startsWith('M ')).toBe(true);
     expect(circleD.includes('A')).toBe(true);
     expect(ellipseD.includes('A')).toBe(true);
     expect(octagonD.includes(' L ')).toBe(true);
+    expect(triangleD.includes(' L ')).toBe(true);
+    expect(decagonD.includes(' L ')).toBe(true);
+    expect(dodecagonD.includes(' L ')).toBe(true);
+    expect(hexadecagonD.includes(' L ')).toBe(true);
     expect(heartD.includes(' L ')).toBe(true);
     expect(rectD.endsWith(' Z')).toBe(true);
     expect(circleD.endsWith(' Z')).toBe(true);
     expect(ellipseD.endsWith(' Z')).toBe(true);
     expect(octagonD.endsWith(' Z')).toBe(true);
+    expect(triangleD.endsWith(' Z')).toBe(true);
+    expect(decagonD.endsWith(' Z')).toBe(true);
+    expect(dodecagonD.endsWith(' Z')).toBe(true);
+    expect(hexadecagonD.endsWith(' Z')).toBe(true);
     expect(heartD.endsWith(' Z')).toBe(true);
+  });
+
+  it('builds regular polygons with expected side counts', () => {
+    const cases = [
+      ['regular-triangle', 3],
+      ['regular-octagon', 8],
+      ['regular-decagon', 10],
+      ['regular-dodecagon', 12],
+      ['regular-hexadecagon', 16],
+    ];
+    for (const [shape, sides] of cases) {
+      const d = buildShapePathD(240, 180, { shape, orientation: 'horizontal' });
+      const nums = parseNums(d);
+      expect(nums.length / 2).toBe(sides);
+    }
   });
 
   it('supports inset without generating negative radii', () => {

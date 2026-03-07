@@ -1,18 +1,16 @@
+import {
+  normalizeFrameShape,
+  normalizeShapeOrientation,
+  polygonSidesForShape,
+  regularPolygonVertices,
+  resampleClosedContour,
+} from './polygon-shape.js';
+
 const TAU = Math.PI * 2;
-const SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-octagon', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
-const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
 
 function toFixed3(v) {
   return Number(v.toFixed(3));
 }
-
-function normalizeFrameShape(shape) {
-  const raw = String(shape ?? 'rect');
-  if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon';
-  return SHAPES.has(raw) ? raw : 'rect';
-}
-
-function normalizeShapeOrientation(orientation) { return ORIENTATIONS.has(String(orientation ?? 'auto')) ? String(orientation ?? 'auto') : 'auto'; }
 
 function cubicAt(a, b, c, d, t) {
   const mt = 1 - t;
@@ -74,7 +72,8 @@ export function sampleShapeContour(width, height, options = {}) {
   const oy = Number(options.offsetY) || 0;
   const w = Math.max(1, Number(width) || 1);
   const h = Math.max(1, Number(height) || 1);
-  const samples = Math.max(24, Math.round(Number(options.samples) || 120));
+  const rawSamples = Math.round(Number(options.samples));
+  const samples = Math.max(24, Number.isFinite(rawSamples) ? rawSamples : 120);
   const cx = ox + w / 2;
   const cy = oy + h / 2;
   if (shape === 'heart') return mapUnit(unitHeartPoints(samples), w, h, inset, ox, oy);
@@ -89,16 +88,11 @@ export function sampleShapeContour(width, height, options = {}) {
     }
     return pts;
   }
-  if (shape === 'regular-octagon') {
-    const aw = Math.max(1, w - inset * 2);
-    const ah = Math.max(1, h - inset * 2);
-    const mode = orientation === 'horizontal' || orientation === 'vertical' ? orientation : (aw >= ah ? 'horizontal' : 'vertical');
-    const r = Math.max(1, Math.min(aw, ah) / 2);
-    const start = mode === 'horizontal' ? -Math.PI / 2 : -Math.PI / 2 + Math.PI / 8;
-    return Array.from({ length: 8 }, (_, i) => {
-      const a = start + (TAU * i) / 8;
-      return [toFixed3(cx + Math.cos(a) * r), toFixed3(cy + Math.sin(a) * r)];
-    });
+  const sides = polygonSidesForShape(shape);
+  if (sides) {
+    const polygonSamples = Math.max(sides, Number.isFinite(rawSamples) ? rawSamples : sides);
+    const vertices = regularPolygonVertices(w, h, inset, orientation, ox, oy, sides);
+    return resampleClosedContour(vertices, polygonSamples);
   }
   const x0 = toFixed3(ox + inset); const y0 = toFixed3(oy + inset);
   const x1 = toFixed3(ox + Math.max(inset, w - inset)); const y1 = toFixed3(oy + Math.max(inset, h - inset));

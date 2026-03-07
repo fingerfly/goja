@@ -257,4 +257,18 @@ describe('getGridEffectsOptions', () => {
     expect(opts.globalFrameShape).toBe('heart');
     expect(opts.cellShapeTemplate).toBe('heart');
   });
+
+  it('accepts new regular polygon shapes for frame and cell template', () => {
+    const shapes = ['regular-triangle', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon'];
+    for (const shape of shapes) {
+      const opts = getGridEffectsOptions({
+        edgeStyle: 'straight',
+        edgeFeatureAvailable: 'true',
+        globalFrameShape: shape,
+        cellShapeTemplate: shape,
+      }, [], formatDateTimeOriginal, getLocale);
+      expect(opts.globalFrameShape).toBe(shape);
+      expect(opts.cellShapeTemplate).toBe(shape);
+    }
+  });
 });

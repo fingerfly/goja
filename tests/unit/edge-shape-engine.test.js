@@ -100,7 +100,7 @@ describe('buildCellEdgePathD', () => {
   });
 
   it('applies continuous contour perturbation across all non-rect templates', () => {
-    const templates = ['circle', 'ellipse', 'regular-octagon', 'heart'];
+    const templates = ['circle', 'ellipse', 'regular-triangle', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'heart'];
     for (const template of templates) {
       const cell = makeCell();
       const opts = {
@@ -116,7 +116,7 @@ describe('buildCellEdgePathD', () => {
       const base = sampleShapeContour(cell.width, cell.height, {
         shape: template,
         orientation: 'auto',
-        samples: template === 'regular-octagon' ? 96 : 120,
+        samples: 120,
       });
       expect(perturbed.length).toBe(base.length);
       const displacement = perturbed.map(([x, y], i) => Math.hypot(x - base[i][0], y - base[i][1]));
@@ -133,7 +133,7 @@ describe('buildCellEdgePathD', () => {
   });
 
   it('keeps non-rect contour perturbation deterministic for same seed', () => {
-    const templates = ['circle', 'ellipse', 'regular-octagon', 'heart'];
+    const templates = ['circle', 'ellipse', 'regular-triangle', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'heart'];
     for (const template of templates) {
       const cell = makeCell();
       const opts = {
@@ -148,5 +148,19 @@ describe('buildCellEdgePathD', () => {
       const b = buildLocalCellEdgePathD(cell, 7, opts);
       expect(a).toBe(b);
     }
+  });
+
+  it('resamples triangle contour before perturbation for continuous edge variation', () => {
+    const cell = makeCell();
+    const d = buildLocalCellEdgePathD(cell, 3, {
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.6,
+      edgeFrequency: 8,
+      edgeSeed: 77,
+      cellShapeTemplate: 'regular-triangle',
+      cellShapeOrientation: 'auto',
+    });
+    const pts = parsePointsFromPathD(d);
+    expect(pts.length).toBeGreaterThanOrEqual(96);
   });
 });

@@ -2,7 +2,50 @@
 
 ## [Unreleased]
 
+## [9.3.0] - 2026-03-07
+
+
+## [9.2.5] - 2026-03-06
+
+### Changed
+- Added four new regular polygon shape types for both global frame and cell template selectors: `regular-triangle`, `regular-decagon`, `regular-dodecagon`, and `regular-hexadecagon`.
+- Extended canonical shape normalization/geometry to support the new polygon set while preserving legacy migration (`hexagon` / `regular-hexagon` / `regular-nonagon` -> `regular-octagon`).
+- Reworked polygon contour generation to use deterministic shared geometry sampling and added arclength-based contour resampling before non-rect edge perturbation, ensuring continuous edge variation for low-vertex polygons (especially triangle).
+- Added a dedicated polygon utility module to keep shape modules within SLOC guardrails (`js/polygon-shape.js`) and keep shared geometry logic centralized.
+- Updated settings UI and locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`) with labels/options for the four new polygon shapes.
+
+### Tests
+- Added/updated Wave 10 coverage in:
+  - `tests/unit/frame-shape-geometry.test.js`
+  - `tests/unit/edge-shape-engine.test.js`
+  - `tests/unit/shape-clip-utils.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/i18n.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npm test` (`438` passed)
+  - `npm run test:e2e` (`70` passed)
+  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/edge-shape-engine.test.js tests/unit/shape-clip-utils.test.js tests/unit/grid-effects-settings.test.js tests/unit/i18n.test.js tests/unit/preview-renderer.test.js` (`79` passed)
+  - `npx cloc --by-file --include-lang=JavaScript js/polygon-shape.js js/shape-contour.js js/frame-shape-geometry.js js/shape-clip-utils.js js/edge-shape-engine.js`
+
 ## [9.2.4] - 2026-03-07
+
+### Changed
+- Refined Heart V2 contour in `js/shape-contour.js` with mirrored cubic-Bezier tuning to increase lower-half side occupancy and preserve smooth tail curvature while keeping centered symmetry.
+- Added dual-template shape-recognition gates in `tests/unit/frame-shape-geometry.test.js` using normalized distance checks against canonical parametric and implicit heart templates (Hausdorff + mean radial error), alongside strengthened lower-half width contracts.
+- Fixed Playwright E2E baseline routing in `playwright.config.js` by serving from the Goja app directory on a dedicated local port and disabling accidental server reuse that could point tests at a directory index page.
+
+### Tests
+- Added/updated heart-recognition and lower-half geometry assertions in:
+  - `tests/unit/frame-shape-geometry.test.js` (dual-template distance constraints, lower-half width at `0.75H` and `0.85H`)
+- Added config regression coverage in:
+  - `tests/unit/playwright-config.test.js` (base URL/command/reuse server behavior for local runs)
+- Validation runs completed with:
+  - `npm test` (`434` passed)
+  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/shape-clip-utils.test.js tests/unit/edge-shape-engine.test.js tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/unified-canvas-pipeline.test.js tests/unit/grid-effects-settings.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js` (`91` passed)
+  - `npm run test:e2e` (`70` passed)
+  - `npx vitest run tests/unit/playwright-config.test.js` (`3` passed)
+  - `cloc` checks on touched modules/tests (including `js/shape-contour.js` at `99` SLOC)
 
 
 ## [9.2.3] - 2026-03-07

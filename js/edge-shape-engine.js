@@ -121,7 +121,7 @@ export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
     const contour = sampleShapeContour(cell.width, cell.height, {
       shape: template,
       orientation,
-      samples: template === 'regular-octagon' ? 96 : 120,
+      samples: 120,
     });
     const perturbed = perturbContour(contour, opts, `${template}:${cell.width}:${cell.height}:${cellIndex}`);
     return pathFromPoints(perturbed);

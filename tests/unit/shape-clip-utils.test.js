@@ -27,4 +27,19 @@ describe('shape-clip-utils', () => {
     expect(lowPoints.length).toBeGreaterThanOrEqual(64);
     expect(highPoints.length).toBeLessThanOrEqual(128);
   });
+
+  it('builds polygon clips for new regular polygon shapes', () => {
+    const cases = [
+      ['regular-triangle', 3],
+      ['regular-decagon', 10],
+      ['regular-dodecagon', 12],
+      ['regular-hexadecagon', 16],
+    ];
+    for (const [shape, sides] of cases) {
+      const clip = getShapeCssClip(shape, 'horizontal');
+      expect(clip.startsWith('polygon(')).toBe(true);
+      const points = clip.slice('polygon('.length, -1).split(',').map((v) => v.trim()).filter(Boolean);
+      expect(points.length).toBe(sides);
+    }
+  });
 });

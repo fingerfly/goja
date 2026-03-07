@@ -1,4 +1,4 @@
-import { buildShapePathD, normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import { buildShapePathD, normalizeFrameShape, normalizeShapeOrientation, polygonSidesForShape } from './frame-shape-geometry.js';
 import { sampleShapeContour } from './shape-contour.js';
 
 function polygonFromPoints(points) {
@@ -11,6 +11,18 @@ function heartPolygonClip(samples = 96) {
   return polygonFromPoints(pts);
 }
 
+function regularPolygonClip(shape, orientation = 'auto') {
+  const sides = polygonSidesForShape(shape);
+  if (!sides) return 'none';
+  const pts = sampleShapeContour(100, 100, {
+    shape,
+    orientation,
+    inset: 0,
+    samples: sides,
+  }).map(([x, y]) => [Number(x), Number(y)]);
+  return polygonFromPoints(pts);
+}
+
 export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
   const normalizedShape = normalizeFrameShape(shape);
   const normalizedOrientation = normalizeShapeOrientation(orientation);
@@ -20,7 +32,7 @@ export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
     if (normalizedOrientation === 'vertical') return 'ellipse(41% 50% at 50% 50%)';
     return 'ellipse(50% 42% at 50% 50%)';
   }
-  if (normalizedShape === 'regular-octagon') return 'polygon(50% 0%, 85.4% 14.6%, 100% 50%, 85.4% 85.4%, 50% 100%, 14.6% 85.4%, 0% 50%, 14.6% 14.6%)';
+  if (polygonSidesForShape(normalizedShape)) return regularPolygonClip(normalizedShape, normalizedOrientation);
   if (normalizedShape === 'heart') {
     const samples = Math.max(64, Math.min(128, Math.round(Number(options.heartSamples) || 96)));
     if (options.preferPath === true && options.forcePolygonFallback !== true) {

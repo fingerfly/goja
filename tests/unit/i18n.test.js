@@ -14,7 +14,7 @@ const REQUIRED_EFFECTS_KEYS = [
   'filterBrightness', 'filterContrast', 'filterSaturated', 'filterFaded', 'filterVintage', 'filterBlur',
   'globalFrameShapeLabel', 'globalFrameStrokeEnabled', 'globalFrameStrokeWidth', 'globalFrameStrokeColor', 'globalFrameStrokeOpacity',
   'outsideBackgroundColor', 'cellShapeTemplateLabel', 'cellShapeOrientationLabel',
-  'shapeRect', 'shapeCircle', 'shapeEllipse', 'shapeOctagon', 'shapeHeart',
+  'shapeRect', 'shapeCircle', 'shapeEllipse', 'shapeOctagon', 'shapeTriangle', 'shapeDecagon', 'shapeDodecagon', 'shapeHexadecagon', 'shapeHeart',
   'shapeOrientationAuto', 'shapeOrientationHorizontal', 'shapeOrientationVertical',
   'vignetteEnabled', 'vignetteStrength', 'edgeStyleLabel', 'edgeStyleStraight',
   'edgeStylePaperTorn', 'edgeStyleFilmScallop', 'edgeStyleGraphicZigzag',
