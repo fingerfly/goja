@@ -17,15 +17,39 @@ function normalizeShapeOrientation(orientation) {
   return ORIENTATIONS.has(raw) ? raw : 'auto';
 }
 
+function cubicAt(a, b, c, d, t) {
+  const mt = 1 - t;
+  return mt * mt * mt * a + 3 * mt * mt * t * b + 3 * mt * t * t * c + t * t * t * d;
+}
+
+function appendCubic(points, p0, c1, c2, p1, steps, skipStart = false) {
+  const from = skipStart ? 1 : 0;
+  for (let i = from; i <= steps; i += 1) {
+    const t = i / steps;
+    points.push([cubicAt(p0[0], c1[0], c2[0], p1[0], t), cubicAt(p0[1], c1[1], c2[1], p1[1], t)]);
+  }
+}
+
 function unitHeartPoints(samples = 120) {
   const count = Math.max(24, Math.round(Number(samples) || 120));
+  const seg = Math.max(6, Math.floor(count * 0.22));
+  const arcSteps = Math.max(6, count - seg * 4);
   const pts = [];
-  for (let i = 0; i < count; i += 1) {
-    const t = (TAU * i) / count;
-    const x = 16 * (Math.sin(t) ** 3);
-    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-    pts.push([x, y]);
+  const notch = [0.5, 0.06];
+  const rightPeak = [0.98, 0.44];
+  const rightArcStart = [0.56, 0.93];
+  const leftArcEnd = [0.44, 0.93];
+  const leftPeak = [0.02, 0.44];
+  appendCubic(pts, notch, [0.64, 0.0], [0.98, 0.16], rightPeak, seg, false);
+  appendCubic(pts, rightPeak, [0.98, 0.72], [0.78, 0.90], rightArcStart, seg, true);
+  for (let i = 1; i <= arcSteps; i += 1) {
+    const t = (Math.PI * i) / arcSteps;
+    pts.push([0.5 + 0.06 * Math.cos(t), 0.93 + 0.06 * Math.sin(t)]);
   }
+  appendCubic(pts, leftArcEnd, [0.22, 0.90], [0.02, 0.72], leftPeak, seg, true);
+  appendCubic(pts, leftPeak, [0.02, 0.16], [0.36, 0.0], notch, seg, true);
+  if (pts.length > 1) pts.pop();
+  while (pts.length > count) pts.splice(Math.floor(pts.length / 2), 1);
   const xs = pts.map(([x]) => x);
   const ys = pts.map(([, y]) => y);
   const minX = Math.min(...xs); const maxX = Math.max(...xs);

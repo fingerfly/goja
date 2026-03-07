@@ -2,7 +2,30 @@
 
 ## [Unreleased]
 
+## [9.2.3] - 2026-03-07
+
+
 ## [9.2.2] - 2026-03-06
+
+### Changed
+- Replaced user-facing polygon shape option labels/values from `regular-nonagon` to `regular-octagon` in settings UI and locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`).
+- Finalized legacy shape migration normalization so persisted `hexagon`, `regular-hexagon`, and `regular-nonagon` values are all mapped to `regular-octagon` in both frame and cell template flows.
+- Updated shape contour/path generation to render true octagon geometry (`8` sides) for frame paths, cell contours, and edge perturbation sampling paths.
+- Adjusted heart preview clip default to high-sample same-source `polygon(...)` output while keeping explicit opt-in `path(...)` behavior for environments that request it.
+
+### Tests
+- Added/updated expectations for octagon migration and heart clip behavior in:
+  - `tests/unit/frame-shape-geometry.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/shape-clip-utils.test.js`
+  - `tests/unit/i18n.test.js`
+  - `tests/unit/preview-renderer.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npm test` (`420` passed)
+  - `npm run test:e2e` (`70` passed)
+  - `npx vitest run tests/unit/shape-clip-utils.test.js tests/unit/frame-shape-geometry.test.js tests/unit/grid-effects-settings.test.js tests/unit/i18n.test.js` (`44` passed)
+  - `npx cloc --by-file --include-lang=JavaScript js/shape-contour.js js/frame-shape-geometry.js js/shape-clip-utils.js js/edge-shape-engine.js`
 
 
 ## [9.2.1] - 2026-03-06

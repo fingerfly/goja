@@ -13,6 +13,53 @@ function approxEqual(a, b, eps = 0.01) {
   return Math.abs(a - b) <= eps;
 }
 
+function pointsFromPathD(d) {
+  const nums = parseNums(d);
+  const pts = [];
+  for (let i = 0; i < nums.length - 1; i += 2) pts.push([nums[i], nums[i + 1]]);
+  return pts;
+}
+
+function widthAtRatio(points, ratio) {
+  const ys = points.map((p) => p[1]);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const y = minY + (maxY - minY) * ratio;
+  const xs = [];
+  for (let i = 0; i < points.length; i += 1) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    const y1 = a[1];
+    const y2 = b[1];
+    if (y1 === y2 || y < Math.min(y1, y2) || y > Math.max(y1, y2)) continue;
+    const t = (y - y1) / (y2 - y1);
+    xs.push(a[0] + t * (b[0] - a[0]));
+  }
+  if (xs.length < 2) return 0;
+  xs.sort((a, b) => a - b);
+  return xs[xs.length - 1] - xs[0];
+}
+
+function spanAtRatio(points, ratio) {
+  const ys = points.map((p) => p[1]);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const y = minY + (maxY - minY) * ratio;
+  const xs = [];
+  for (let i = 0; i < points.length; i += 1) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    const y1 = a[1];
+    const y2 = b[1];
+    if (y1 === y2 || y < Math.min(y1, y2) || y > Math.max(y1, y2)) continue;
+    const t = (y - y1) / (y2 - y1);
+    xs.push(a[0] + t * (b[0] - a[0]));
+  }
+  if (xs.length < 2) return null;
+  xs.sort((a, b) => a - b);
+  return { left: xs[0], right: xs[xs.length - 1] };
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -128,5 +175,35 @@ describe('frame-shape-geometry', () => {
     expect(minY).toBeLessThanOrEqual(inset + 1.5);
     expect(usedWidth / usableWidth).toBeGreaterThan(0.95);
     expect(usedHeight / usableHeight).toBeGreaterThan(0.95);
+  });
+
+  it('meets Heart V2 balanced width contract', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const usableWidth = w - inset * 2;
+    const midUpperWidthRatio = widthAtRatio(points, 0.45) / usableWidth;
+    const tipWidthAt95Y = widthAtRatio(points, 0.95);
+    expect(midUpperWidthRatio).toBeGreaterThanOrEqual(0.93);
+    expect(tipWidthAt95Y).toBeGreaterThanOrEqual(usableWidth * 0.08);
+  });
+
+  it('keeps Heart V2 horizontally symmetric within tolerance', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const xs = points.map((p) => p[0]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const ratios = [0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85];
+    const errors = ratios
+      .map((r) => spanAtRatio(points, r))
+      .filter(Boolean)
+      .map((s) => Math.abs(((s.left + s.right) / 2) - cx));
+    const meanError = errors.reduce((sum, v) => sum + v, 0) / Math.max(1, errors.length);
+    expect(meanError).toBeLessThan(0.5);
   });
 });
