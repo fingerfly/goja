@@ -1,35 +1,31 @@
+import {
+  SUPERELLIPSE_EXPONENT_DEFAULT,
+  SUPERELLIPSE_EXPONENT_MIN,
+  SUPERELLIPSE_EXPONENT_MAX,
+} from './config.js';
 const TAU = Math.PI * 2;
-const SHAPES = new Set([
-  'rect',
-  'circle',
-  'ellipse',
-  'regular-triangle',
-  'regular-octagon',
-  'regular-decagon',
-  'regular-dodecagon',
-  'regular-hexadecagon',
-  'regular-nonagon',
-  'regular-hexagon',
-  'hexagon',
-  'heart',
-]);
+const GLOBAL_SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'regular-36-gon', 'regular-64-gon', 'rounded-rect', 'superellipse', 'capsule', 'diamond', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
+const CELL_SHAPES = new Set([...GLOBAL_SHAPES].filter((shape) => shape !== 'capsule' && shape !== 'diamond'));
 const ORIENTATIONS = new Set(['auto', 'horizontal', 'vertical']);
-const POLYGON_SIDES_BY_SHAPE = Object.freeze({
-  'regular-triangle': 3,
-  'regular-octagon': 8,
-  'regular-decagon': 10,
-  'regular-dodecagon': 12,
-  'regular-hexadecagon': 16,
-});
+const POLYGON_SIDES_BY_SHAPE = Object.freeze({ 'regular-octagon': 8, 'regular-decagon': 10, 'regular-dodecagon': 12, 'regular-hexadecagon': 16, 'regular-36-gon': 36, 'regular-64-gon': 64 });
 
-function toFixed3(v) {
-  return Number(v.toFixed(3));
+function toFixed3(v) { return Number(v.toFixed(3)); }
+function normalizeLegacyShape(raw) { if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon'; if (raw === 'regular-triangle' || raw === 'squircle') return 'rect'; return raw; }
+
+export function normalizeGlobalFrameShape(shape) {
+  const raw = String(shape ?? 'rect');
+  const normalized = normalizeLegacyShape(raw);
+  return GLOBAL_SHAPES.has(normalized) ? normalized : 'rect';
+}
+
+export function normalizeCellShapeTemplate(shape) {
+  const raw = String(shape ?? 'rect');
+  const normalized = normalizeLegacyShape(raw);
+  return CELL_SHAPES.has(normalized) ? normalized : 'rect';
 }
 
 export function normalizeFrameShape(shape) {
-  const raw = String(shape ?? 'rect');
-  if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon';
-  return SHAPES.has(raw) ? raw : 'rect';
+  return normalizeGlobalFrameShape(shape);
 }
 
 export function normalizeShapeOrientation(orientation) {
@@ -38,7 +34,13 @@ export function normalizeShapeOrientation(orientation) {
 }
 
 export function polygonSidesForShape(shape) {
-  return POLYGON_SIDES_BY_SHAPE[normalizeFrameShape(shape)] ?? null;
+  return POLYGON_SIDES_BY_SHAPE[normalizeGlobalFrameShape(shape)] ?? null;
+}
+
+export function normalizeSuperellipseExponent(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return SUPERELLIPSE_EXPONENT_DEFAULT;
+  return Math.max(SUPERELLIPSE_EXPONENT_MIN, Math.min(SUPERELLIPSE_EXPONENT_MAX, n));
 }
 
 export function regularPolygonVertices(width, height, inset, orientation, ox, oy, sides) {

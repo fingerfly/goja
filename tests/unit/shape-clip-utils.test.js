@@ -30,7 +30,8 @@ describe('shape-clip-utils', () => {
 
   it('builds polygon clips for new regular polygon shapes', () => {
     const cases = [
-      ['regular-triangle', 3],
+      ['regular-36-gon', 36],
+      ['regular-64-gon', 64],
       ['regular-decagon', 10],
       ['regular-dodecagon', 12],
       ['regular-hexadecagon', 16],
@@ -40,6 +41,15 @@ describe('shape-clip-utils', () => {
       expect(clip.startsWith('polygon(')).toBe(true);
       const points = clip.slice('polygon('.length, -1).split(',').map((v) => v.trim()).filter(Boolean);
       expect(points.length).toBe(sides);
+    }
+  });
+
+  it('supports wave11 non-polygon shapes with valid css clip output', () => {
+    const cases = ['rounded-rect', 'superellipse', 'capsule', 'diamond'];
+    for (const shape of cases) {
+      const clip = getShapeCssClip(shape, 'horizontal', { superellipseExponent: 4.5 });
+      expect(clip === 'none').toBe(false);
+      expect(clip.startsWith('polygon(') || clip.startsWith('path(')).toBe(true);
     }
   });
 });

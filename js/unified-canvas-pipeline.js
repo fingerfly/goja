@@ -1,6 +1,6 @@
 import { drawWatermark } from './watermark.js';
 import { buildFrameShapePathD } from './shape-clip-utils.js';
-import { normalizeFrameShape } from './frame-shape-geometry.js';
+import { normalizeGlobalFrameShape, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
 import {
   GLOBAL_FRAME_SHAPE_DEFAULT,
   GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
@@ -23,7 +23,11 @@ function strokeFrame(ctx, layout, options, shape) {
   if (!options.globalFrameStrokeEnabled) return;
   const lineWidth = Math.max(0, Number(options.globalFrameStrokeWidth) || 0);
   if (lineWidth <= 0) return;
-  const d = buildFrameShapePathD(layout, { shape, inset: lineWidth / 2 });
+  const d = buildFrameShapePathD(layout, {
+    shape,
+    inset: lineWidth / 2,
+    superellipseExponent: normalizeSuperellipseExponent(options.superellipseExponent),
+  });
   if (!d) return;
   const path = typeof Path2D === 'function' ? new Path2D(d) : null;
   ctx.save();
@@ -38,14 +42,18 @@ function strokeFrame(ctx, layout, options, shape) {
 
 export function renderUnifiedCanvas(ctx, images, layout, options, drawCellContent) {
   const shape = options.edgeAdvancedSupported
-    ? normalizeFrameShape(options.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
+    ? normalizeGlobalFrameShape(options.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
     : GLOBAL_FRAME_SHAPE_DEFAULT;
   const order = layout.photoOrder || images.map((_, i) => i);
   let clipped = false;
   if (shape !== 'rect') {
     const outside = options.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT;
     const inset = options.globalFrameStrokeEnabled ? (Number(options.globalFrameStrokeWidth) || 0) / 2 : 0;
-    const d = buildFrameShapePathD(layout, { shape, inset });
+    const d = buildFrameShapePathD(layout, {
+      shape,
+      inset,
+      superellipseExponent: normalizeSuperellipseExponent(options.superellipseExponent),
+    });
     const path = typeof Path2D === 'function' ? new Path2D(d) : null;
     ctx.fillStyle = outside;
     ctx.fillRect(0, 0, layout.canvasWidth, layout.canvasHeight);

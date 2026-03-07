@@ -9,6 +9,7 @@ function applyTemplateClip(ctx, cell, options) {
   const d = buildCellShapePathD(cell, {
     shape: options.cellShapeTemplate ?? 'rect',
     orientation: options.cellShapeOrientation ?? 'auto',
+    superellipseExponent: options.superellipseExponent,
   });
   if (typeof Path2D === 'function') {
     ctx.clip(new Path2D(d));
@@ -38,6 +39,7 @@ export function drawCellContent(ctx, img, cell, options = {}) {
     cellIndex = 0,
     cellShapeTemplate = 'rect',
     cellShapeOrientation = 'auto',
+    superellipseExponent = 4,
   } = options;
 
   if (angle !== 0) {
@@ -70,6 +72,7 @@ export function drawCellContent(ctx, img, cell, options = {}) {
       edgeAdvancedSupported,
       cellShapeTemplate,
       cellShapeOrientation,
+      superellipseExponent,
     });
   }
 

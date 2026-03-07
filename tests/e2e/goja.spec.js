@@ -976,7 +976,7 @@ test.describe('Goja App', () => {
       { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
       { edge: 'straight', cell: 'circle', expectCell: ['circle('], expectImgEmpty: true },
       { edge: 'graphic-zigzag', cell: 'regular-octagon', expectCell: ['path('], expectImgEmpty: true },
-      { edge: 'silk-wave', cell: 'regular-triangle', expectCell: ['path('], expectImgEmpty: true },
+      { edge: 'silk-wave', cell: 'regular-36-gon', expectCell: ['path('], expectImgEmpty: true },
       { edge: 'paper-torn', cell: 'heart', expectCell: ['path('], expectImgEmpty: true },
     ];
     for (const step of toggles) {
@@ -1008,22 +1008,34 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
-  test('shape catalog shows new polygon options and hides legacy polygon options', async ({ page }) => {
+  test('shape catalog applies wave11 scope and removes triangle', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
     await expect(page.locator('#globalFrameShape option[value="regular-octagon"]')).toHaveCount(1);
-    await expect(page.locator('#globalFrameShape option[value="regular-triangle"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-triangle"]')).toHaveCount(0);
     await expect(page.locator('#globalFrameShape option[value="regular-decagon"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="regular-dodecagon"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="regular-hexadecagon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-36-gon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="regular-64-gon"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="rounded-rect"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="superellipse"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="capsule"]')).toHaveCount(1);
+    await expect(page.locator('#globalFrameShape option[value="diamond"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="heart"]')).toHaveCount(1);
     await expect(page.locator('#globalFrameShape option[value="regular-hexagon"]')).toHaveCount(0);
     await expect(page.locator('#globalFrameShape option[value="regular-nonagon"]')).toHaveCount(0);
     await expect(page.locator('#cellShapeTemplate option[value="regular-octagon"]')).toHaveCount(1);
-    await expect(page.locator('#cellShapeTemplate option[value="regular-triangle"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-triangle"]')).toHaveCount(0);
     await expect(page.locator('#cellShapeTemplate option[value="regular-decagon"]')).toHaveCount(1);
     await expect(page.locator('#cellShapeTemplate option[value="regular-dodecagon"]')).toHaveCount(1);
     await expect(page.locator('#cellShapeTemplate option[value="regular-hexadecagon"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-36-gon"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="regular-64-gon"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="rounded-rect"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="superellipse"]')).toHaveCount(1);
+    await expect(page.locator('#cellShapeTemplate option[value="capsule"]')).toHaveCount(0);
+    await expect(page.locator('#cellShapeTemplate option[value="diamond"]')).toHaveCount(0);
     await expect(page.locator('#cellShapeTemplate option[value="heart"]')).toHaveCount(1);
     await expect(page.locator('#cellShapeTemplate option[value="regular-hexagon"]')).toHaveCount(0);
     await expect(page.locator('#cellShapeTemplate option[value="regular-nonagon"]')).toHaveCount(0);

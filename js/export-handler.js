@@ -57,6 +57,7 @@ function exportMainThread(photos, layout, options) {
       edgeAdvancedSupported: options.edgeAdvancedSupported ?? false,
       cellShapeTemplate: options.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT,
       cellShapeOrientation: options.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT,
+      superellipseExponent: options.superellipseExponent ?? 4,
       globalFrameShape: options.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT,
       globalFrameStrokeEnabled: options.globalFrameStrokeEnabled ?? GLOBAL_FRAME_STROKE_ENABLED_DEFAULT,
       globalFrameStrokeWidth: options.globalFrameStrokeWidth ?? GLOBAL_FRAME_STROKE_WIDTH_DEFAULT,

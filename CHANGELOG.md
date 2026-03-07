@@ -2,21 +2,53 @@
 
 ## [Unreleased]
 
+## [9.4.0] - 2026-03-07
+
+
+## [9.3.2] - 2026-03-06
+
+### Changed
+- Executed Wave 11 shape catalog update across frame and cell templates: removed `regular-triangle` and added `regular-36-gon`, `regular-64-gon`, `rounded-rect`, and `superellipse` for shared use.
+- Added frame-only shape options `capsule` and `diamond`, while enforcing cell-template guardrails so non-UI/legacy values normalize to `rect`.
+- Added deterministic legacy migration rule `regular-triangle -> rect` for both frame and cell normalization pathways.
+- Added global `superellipseExponent` control (min `2.2`, max `8.0`, step `0.1`, default `4.0`) and wired one shared parameter path for preview/export rendering.
+- Extended geometry/contour/clip implementations for the new Wave 11 shapes and kept `js/polygon-shape.js` under the `SLOC < 100` rule (`82` lines).
+- Updated all six locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`) with new shape labels and superellipse parameter terminology.
+
+### Tests
+- Added/updated Wave 11 coverage in:
+  - `tests/unit/frame-shape-geometry.test.js`
+  - `tests/unit/grid-effects-settings.test.js`
+  - `tests/unit/shape-clip-utils.test.js`
+  - `tests/unit/edge-shape-engine.test.js`
+  - `tests/unit/i18n.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/grid-effects-settings.test.js tests/unit/shape-clip-utils.test.js tests/unit/edge-shape-engine.test.js tests/unit/i18n.test.js` (`75` passed)
+  - `npx playwright test tests/e2e/goja.spec.js --grep "shape catalog applies wave11 scope and removes triangle|iPhone class preview stays in sync after repeated shape and edge toggles"` (`2` passed)
+  - `npm test` (`444` passed)
+  - `npm run test:e2e` (`70` passed)
+  - `cloc --by-file --include-lang=JavaScript 02product/01_coding/project/goja/js/polygon-shape.js 02product/01_coding/project/goja/js/frame-shape-geometry.js 02product/01_coding/project/goja/js/shape-contour.js 02product/01_coding/project/goja/js/shape-clip-utils.js 02product/01_coding/project/goja/js/grid-effects-settings.js`
+
 ## [9.3.1] - 2026-03-06
 
 ### Changed
 - Clarified edge-control ownership in Settings by moving `#edgeTextureOverlayGroup` under `#cellShapeTemplateGroup`, so the UI visually indicates edge styles are per-cell behavior.
 - Updated edge-control wording to explicit cell-edge terminology across all six locales (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`), including labels and hints for style/amplitude/cycles/seed.
 - Kept all existing control IDs and runtime behavior intact while changing only grouping and wording semantics.
+- Resolved CSP runtime blocking in Live Server-style environments by allowing the reported inline script hash in `index.html` `script-src`, while preserving `'self'` policy.
 
 ### Tests
 - Added/updated Wave 10B ownership wording/layout coverage in:
   - `tests/unit/i18n.test.js`
   - `tests/e2e/goja.spec.js`
+- Added CSP regression coverage in:
+  - `tests/unit/csp-meta.test.js`
 - Validation runs completed with:
+  - `npx vitest run tests/unit/csp-meta.test.js` (`1` passed)
   - `npx vitest run tests/unit/i18n.test.js tests/unit/edge-controls.test.js tests/unit/settings-panel.test.js` (`28` passed)
   - `npx playwright test tests/e2e/goja.spec.js --grep "edge controls are localized|shape controls and edge controls reflect cell ownership hierarchy|edge controls stay hidden when capability check fails"` (`3` passed)
-  - `npm test` (`438` passed)
+  - `npm test` (`439` passed)
   - `npm run test:e2e` (`70` passed)
   - `npx cloc js/locales/en.js js/locales/es.js js/locales/eo.js js/locales/ja.js js/locales/zh-Hans.js js/locales/zh-Hant.js index.html tests/unit/i18n.test.js tests/e2e/goja.spec.js`
 

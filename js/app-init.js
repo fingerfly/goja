@@ -22,6 +22,10 @@ import {
   OUTSIDE_BACKGROUND_COLOR_DEFAULT,
   CELL_SHAPE_TEMPLATE_DEFAULT,
   CELL_SHAPE_ORIENTATION_DEFAULT,
+  SUPERELLIPSE_EXPONENT_DEFAULT,
+  SUPERELLIPSE_EXPONENT_MIN,
+  SUPERELLIPSE_EXPONENT_MAX,
+  SUPERELLIPSE_EXPONENT_STEP,
 } from './config.js';
 import {
   normalizeEdgeAmplitude,
@@ -34,7 +38,7 @@ import {
  * Sets form default values from config.
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -76,6 +80,12 @@ function setFormDefaults(refs) {
   if (outsideBackgroundColor) outsideBackgroundColor.value = outsideBackgroundColor.value || OUTSIDE_BACKGROUND_COLOR_DEFAULT;
   if (cellShapeTemplate) cellShapeTemplate.value = cellShapeTemplate.value || CELL_SHAPE_TEMPLATE_DEFAULT;
   if (cellShapeOrientation) cellShapeOrientation.value = cellShapeOrientation.value || CELL_SHAPE_ORIENTATION_DEFAULT;
+  if (superellipseExponent) {
+    superellipseExponent.min = String(SUPERELLIPSE_EXPONENT_MIN);
+    superellipseExponent.max = String(SUPERELLIPSE_EXPONENT_MAX);
+    superellipseExponent.step = String(SUPERELLIPSE_EXPONENT_STEP);
+    superellipseExponent.value = superellipseExponent.value || String(SUPERELLIPSE_EXPONENT_DEFAULT);
+  }
 }
 
 function syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, source = 'slider') {
@@ -132,7 +142,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
-    globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation,
+    globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent,
     previewGrid, preview, sPanel, sBackdrop,
     offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn,
     settingsResetSectionBtn, settingsResetAllBtn,
@@ -261,6 +271,8 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   outsideBackgroundColor?.addEventListener('input', updatePreview);
   cellShapeTemplate?.addEventListener('change', updatePreview);
   cellShapeOrientation?.addEventListener('change', updatePreview);
+  superellipseExponent?.addEventListener('input', updatePreview);
+  superellipseExponent?.addEventListener('change', updatePreview);
   initSettingsPanel?.(sPanel, sBackdrop, document.getElementById('settingsBtn'), document.getElementById('settingsCloseBtn'));
   initSettingsTabsNav?.(settingsPanelBody, settingsSectionTabs);
   settingsDoneBtn?.addEventListener('click', () => document.getElementById('settingsCloseBtn')?.click());

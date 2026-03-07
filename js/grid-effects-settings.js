@@ -18,10 +18,18 @@ import {
   OUTSIDE_BACKGROUND_COLOR_DEFAULT,
   CELL_SHAPE_TEMPLATE_DEFAULT,
   CELL_SHAPE_ORIENTATION_DEFAULT,
+  SUPERELLIPSE_EXPONENT_DEFAULT,
+  SUPERELLIPSE_EXPONENT_MIN,
+  SUPERELLIPSE_EXPONENT_MAX,
 } from './config.js';
 import { getFilterCss } from './image-effects.js';
 import { normalizeEdgeStyle } from './edge-style-presets.js';
-import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import {
+  normalizeGlobalFrameShape,
+  normalizeCellShapeTemplate,
+  normalizeShapeOrientation,
+  normalizeSuperellipseExponent,
+} from './frame-shape-geometry.js';
 
 function parseNum(val, defaultVal) {
   if (val == null || val === '') return defaultVal;
@@ -113,6 +121,7 @@ export function buildFormFromRefs(refs, includeFormat = false) {
     globalFrameStrokeColor: refs.globalFrameStrokeColor?.value,
     globalFrameStrokeOpacity: refs.globalFrameStrokeOpacity?.value,
     outsideBackgroundColor: refs.outsideBackgroundColor?.value,
+    superellipseExponent: refs.superellipseExponent?.value,
     cellShapeTemplate: refs.cellShapeTemplate?.value,
     cellShapeOrientation: refs.cellShapeOrientation?.value,
   };
@@ -133,11 +142,19 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
   assertSupportedEdgeStyle(form.edgeStyle);
   const edgeStyle = edgeAdvancedSupported ? normalizeEdgeStyle(form.edgeStyle ?? 'straight') : 'straight';
   const globalFrameShape = edgeAdvancedSupported
-    ? normalizeFrameShape(form.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
+    ? normalizeGlobalFrameShape(form.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
     : GLOBAL_FRAME_SHAPE_DEFAULT;
   const cellShapeTemplate = edgeAdvancedSupported
-    ? normalizeFrameShape(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
+    ? normalizeCellShapeTemplate(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
     : CELL_SHAPE_TEMPLATE_DEFAULT;
+  const superellipseExponent = edgeAdvancedSupported
+    ? parseNumBounded(
+      normalizeSuperellipseExponent(form.superellipseExponent ?? SUPERELLIPSE_EXPONENT_DEFAULT),
+      SUPERELLIPSE_EXPONENT_DEFAULT,
+      SUPERELLIPSE_EXPONENT_MIN,
+      SUPERELLIPSE_EXPONENT_MAX
+    )
+    : SUPERELLIPSE_EXPONENT_DEFAULT;
   return {
     backgroundColor: form.bgColor ?? '#ffffff',
     format: form.format ?? 'image/jpeg',
@@ -167,6 +184,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     globalFrameStrokeColor: form.globalFrameStrokeColor ?? GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
     globalFrameStrokeOpacity: parseNumBounded(form.globalFrameStrokeOpacity, GLOBAL_FRAME_STROKE_OPACITY_DEFAULT, 0, 1),
     outsideBackgroundColor: form.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT,
+    superellipseExponent,
     cellShapeTemplate,
     cellShapeOrientation: normalizeShapeOrientation(form.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT),
   };

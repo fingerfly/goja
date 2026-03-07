@@ -1,6 +1,6 @@
 import { makeSeededRng } from './edge-rng.js';
 import { getEdgeStyleProfile, normalizeEdgeStyle } from './edge-style-presets.js';
-import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import { normalizeCellShapeTemplate, normalizeShapeOrientation, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
 import { sampleShapeContour } from './shape-contour.js';
 
 function clampNum(v, min, max, fallback) {
@@ -115,13 +115,14 @@ function perturbContour(points, opts, seedKey) {
 export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
   const style = normalizeEdgeStyle(options.edgeStyle);
   const opts = { ...options, edgeStyle: style };
-  const template = normalizeFrameShape(options.cellShapeTemplate ?? 'rect');
+  const template = normalizeCellShapeTemplate(options.cellShapeTemplate ?? 'rect');
   const orientation = normalizeShapeOrientation(options.cellShapeOrientation ?? 'auto');
   if (template !== 'rect' && style !== 'straight') {
     const contour = sampleShapeContour(cell.width, cell.height, {
       shape: template,
       orientation,
       samples: 120,
+      superellipseExponent: normalizeSuperellipseExponent(options.superellipseExponent),
     });
     const perturbed = perturbContour(contour, opts, `${template}:${cell.width}:${cell.height}:${cellIndex}`);
     return pathFromPoints(perturbed);

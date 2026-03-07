@@ -17,7 +17,12 @@ import { fitScaleFactor } from './rotation-math.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { applyPreviewEdgeClip } from './edge-preview-clip.js';
 import { normalizeEdgeStyle } from './edge-style-presets.js';
-import { normalizeFrameShape, normalizeShapeOrientation } from './frame-shape-geometry.js';
+import {
+  normalizeGlobalFrameShape,
+  normalizeCellShapeTemplate,
+  normalizeShapeOrientation,
+  normalizeSuperellipseExponent,
+} from './frame-shape-geometry.js';
 import { getShapeCssClip } from './shape-clip-utils.js';
 
 function supportsCssPathClip() {
@@ -67,16 +72,19 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
   const edgeIntensity = Number(form.edgeAmplitude ?? form.edgeIntensity ?? 0.5);
   const edgeAdvancedSupported = form.edgeAdvancedSupported === true || form.edgeFeatureAvailable === true || form.edgeFeatureAvailable === 'true';
   const globalFrameShape = edgeAdvancedSupported
-    ? normalizeFrameShape(form.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
+    ? normalizeGlobalFrameShape(form.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)
     : GLOBAL_FRAME_SHAPE_DEFAULT;
   const cellShapeTemplate = edgeAdvancedSupported
-    ? normalizeFrameShape(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
+    ? normalizeCellShapeTemplate(form.cellShapeTemplate ?? CELL_SHAPE_TEMPLATE_DEFAULT)
     : CELL_SHAPE_TEMPLATE_DEFAULT;
   const cellShapeOrientation = normalizeShapeOrientation(form.cellShapeOrientation ?? CELL_SHAPE_ORIENTATION_DEFAULT);
+  const superellipseExponent = normalizeSuperellipseExponent(form.superellipseExponent);
   const forceHeartPolygonFallback = edgeAdvancedSupported && !supportsCssPathClip();
   const shapeClipOptions = {
     forcePolygonFallback: forceHeartPolygonFallback,
     heartSamples: 96,
+    superellipseExponent,
+    scope: 'frame',
   };
   const frameCssClip = getShapeCssClip(globalFrameShape, 'auto', shapeClipOptions);
   if (frameCssClip !== 'none') {
@@ -140,7 +148,10 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
       cellShapeOrientation,
     });
     if (cellShapeTemplate !== 'rect') {
-      const cellCssClip = getShapeCssClip(cellShapeTemplate, cellShapeOrientation, shapeClipOptions);
+      const cellCssClip = getShapeCssClip(cellShapeTemplate, cellShapeOrientation, {
+        ...shapeClipOptions,
+        scope: 'cell',
+      });
       if (normalizeEdgeStyle(form.edgeStyle ?? 'straight') === 'straight') {
         cell.style.clipPath = cellCssClip;
         cell.style.webkitClipPath = cellCssClip;

@@ -100,7 +100,7 @@ describe('buildCellEdgePathD', () => {
   });
 
   it('applies continuous contour perturbation across all non-rect templates', () => {
-    const templates = ['circle', 'ellipse', 'regular-triangle', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'heart'];
+    const templates = ['circle', 'ellipse', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'regular-36-gon', 'regular-64-gon', 'rounded-rect', 'superellipse', 'heart'];
     for (const template of templates) {
       const cell = makeCell();
       const opts = {
@@ -133,7 +133,7 @@ describe('buildCellEdgePathD', () => {
   });
 
   it('keeps non-rect contour perturbation deterministic for same seed', () => {
-    const templates = ['circle', 'ellipse', 'regular-triangle', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'heart'];
+    const templates = ['circle', 'ellipse', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'regular-36-gon', 'regular-64-gon', 'rounded-rect', 'superellipse', 'heart'];
     for (const template of templates) {
       const cell = makeCell();
       const opts = {
@@ -150,17 +150,47 @@ describe('buildCellEdgePathD', () => {
     }
   });
 
-  it('resamples triangle contour before perturbation for continuous edge variation', () => {
+  it('resamples low-vertex contour before perturbation for continuous edge variation', () => {
     const cell = makeCell();
     const d = buildLocalCellEdgePathD(cell, 3, {
       edgeStyle: 'paper-torn',
       edgeIntensity: 0.6,
       edgeFrequency: 8,
       edgeSeed: 77,
-      cellShapeTemplate: 'regular-triangle',
+      cellShapeTemplate: 'regular-octagon',
       cellShapeOrientation: 'auto',
     });
     const pts = parsePointsFromPathD(d);
     expect(pts.length).toBeGreaterThanOrEqual(96);
+  });
+
+  it('treats frame-only template shapes as rect in cell edge perturbation', () => {
+    const cell = makeCell();
+    const asRect = buildLocalCellEdgePathD(cell, 2, {
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.5,
+      edgeFrequency: 6,
+      edgeSeed: 9,
+      cellShapeTemplate: 'rect',
+      cellShapeOrientation: 'auto',
+    });
+    const asCapsule = buildLocalCellEdgePathD(cell, 2, {
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.5,
+      edgeFrequency: 6,
+      edgeSeed: 9,
+      cellShapeTemplate: 'capsule',
+      cellShapeOrientation: 'auto',
+    });
+    const asDiamond = buildLocalCellEdgePathD(cell, 2, {
+      edgeStyle: 'paper-torn',
+      edgeIntensity: 0.5,
+      edgeFrequency: 6,
+      edgeSeed: 9,
+      cellShapeTemplate: 'diamond',
+      cellShapeOrientation: 'auto',
+    });
+    expect(asCapsule).toBe(asRect);
+    expect(asDiamond).toBe(asRect);
   });
 });

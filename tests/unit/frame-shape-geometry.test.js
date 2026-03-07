@@ -312,7 +312,13 @@ describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
     expect(normalizeFrameShape('ellipse')).toBe('ellipse');
-    expect(normalizeFrameShape('regular-triangle')).toBe('regular-triangle');
+    expect(normalizeFrameShape('regular-triangle')).toBe('rect');
+    expect(normalizeFrameShape('regular-36-gon')).toBe('regular-36-gon');
+    expect(normalizeFrameShape('regular-64-gon')).toBe('regular-64-gon');
+    expect(normalizeFrameShape('rounded-rect')).toBe('rounded-rect');
+    expect(normalizeFrameShape('superellipse')).toBe('superellipse');
+    expect(normalizeFrameShape('capsule')).toBe('capsule');
+    expect(normalizeFrameShape('diamond')).toBe('diamond');
     expect(normalizeFrameShape('regular-decagon')).toBe('regular-decagon');
     expect(normalizeFrameShape('regular-dodecagon')).toBe('regular-dodecagon');
     expect(normalizeFrameShape('regular-hexadecagon')).toBe('regular-hexadecagon');
@@ -336,7 +342,12 @@ describe('frame-shape-geometry', () => {
     const circleD = buildShapePathD(200, 100, { shape: 'circle' });
     const ellipseD = buildShapePathD(200, 100, { shape: 'ellipse' });
     const octagonD = buildShapePathD(200, 100, { shape: 'regular-octagon' });
-    const triangleD = buildShapePathD(200, 100, { shape: 'regular-triangle' });
+    const gon36D = buildShapePathD(200, 100, { shape: 'regular-36-gon' });
+    const gon64D = buildShapePathD(200, 100, { shape: 'regular-64-gon' });
+    const roundedRectD = buildShapePathD(200, 100, { shape: 'rounded-rect' });
+    const superellipseD = buildShapePathD(200, 100, { shape: 'superellipse' });
+    const capsuleD = buildShapePathD(200, 100, { shape: 'capsule' });
+    const diamondD = buildShapePathD(200, 100, { shape: 'diamond' });
     const decagonD = buildShapePathD(200, 100, { shape: 'regular-decagon' });
     const dodecagonD = buildShapePathD(200, 100, { shape: 'regular-dodecagon' });
     const hexadecagonD = buildShapePathD(200, 100, { shape: 'regular-hexadecagon' });
@@ -345,7 +356,12 @@ describe('frame-shape-geometry', () => {
     expect(circleD.includes('A')).toBe(true);
     expect(ellipseD.includes('A')).toBe(true);
     expect(octagonD.includes(' L ')).toBe(true);
-    expect(triangleD.includes(' L ')).toBe(true);
+    expect(gon36D.includes(' L ')).toBe(true);
+    expect(gon64D.includes(' L ')).toBe(true);
+    expect(roundedRectD.includes('A')).toBe(true);
+    expect(superellipseD.includes(' L ')).toBe(true);
+    expect(capsuleD.includes('A')).toBe(true);
+    expect(diamondD.includes(' L ')).toBe(true);
     expect(decagonD.includes(' L ')).toBe(true);
     expect(dodecagonD.includes(' L ')).toBe(true);
     expect(hexadecagonD.includes(' L ')).toBe(true);
@@ -354,7 +370,12 @@ describe('frame-shape-geometry', () => {
     expect(circleD.endsWith(' Z')).toBe(true);
     expect(ellipseD.endsWith(' Z')).toBe(true);
     expect(octagonD.endsWith(' Z')).toBe(true);
-    expect(triangleD.endsWith(' Z')).toBe(true);
+    expect(gon36D.endsWith(' Z')).toBe(true);
+    expect(gon64D.endsWith(' Z')).toBe(true);
+    expect(roundedRectD.endsWith(' Z')).toBe(true);
+    expect(superellipseD.endsWith(' Z')).toBe(true);
+    expect(capsuleD.endsWith(' Z')).toBe(true);
+    expect(diamondD.endsWith(' Z')).toBe(true);
     expect(decagonD.endsWith(' Z')).toBe(true);
     expect(dodecagonD.endsWith(' Z')).toBe(true);
     expect(hexadecagonD.endsWith(' Z')).toBe(true);
@@ -363,7 +384,8 @@ describe('frame-shape-geometry', () => {
 
   it('builds regular polygons with expected side counts', () => {
     const cases = [
-      ['regular-triangle', 3],
+      ['regular-36-gon', 36],
+      ['regular-64-gon', 64],
       ['regular-octagon', 8],
       ['regular-decagon', 10],
       ['regular-dodecagon', 12],

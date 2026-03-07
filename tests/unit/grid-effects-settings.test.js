@@ -247,6 +247,17 @@ describe('getGridEffectsOptions', () => {
     expect(opts.cellShapeTemplate).toBe('regular-octagon');
   });
 
+  it('migrates removed regular-triangle values to rect', () => {
+    const opts = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      globalFrameShape: 'regular-triangle',
+      cellShapeTemplate: 'regular-triangle',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(opts.globalFrameShape).toBe('rect');
+    expect(opts.cellShapeTemplate).toBe('rect');
+  });
+
   it('accepts heart as frame and cell shape template', () => {
     const opts = getGridEffectsOptions({
       edgeStyle: 'straight',
@@ -258,8 +269,8 @@ describe('getGridEffectsOptions', () => {
     expect(opts.cellShapeTemplate).toBe('heart');
   });
 
-  it('accepts new regular polygon shapes for frame and cell template', () => {
-    const shapes = ['regular-triangle', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon'];
+  it('accepts wave11 frame+cell shared shape catalog', () => {
+    const shapes = ['regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'regular-36-gon', 'regular-64-gon', 'rounded-rect', 'superellipse'];
     for (const shape of shapes) {
       const opts = getGridEffectsOptions({
         edgeStyle: 'straight',
@@ -270,5 +281,44 @@ describe('getGridEffectsOptions', () => {
       expect(opts.globalFrameShape).toBe(shape);
       expect(opts.cellShapeTemplate).toBe(shape);
     }
+  });
+
+  it('keeps capsule and diamond as frame-only shapes', () => {
+    const capsule = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      globalFrameShape: 'capsule',
+      cellShapeTemplate: 'capsule',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(capsule.globalFrameShape).toBe('capsule');
+    expect(capsule.cellShapeTemplate).toBe('rect');
+    const diamond = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      globalFrameShape: 'diamond',
+      cellShapeTemplate: 'diamond',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(diamond.globalFrameShape).toBe('diamond');
+    expect(diamond.cellShapeTemplate).toBe('rect');
+  });
+
+  it('normalizes global superellipse exponent with bounds', () => {
+    const low = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      superellipseExponent: 0.5,
+    }, [], formatDateTimeOriginal, getLocale);
+    const high = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+      superellipseExponent: 999,
+    }, [], formatDateTimeOriginal, getLocale);
+    const def = getGridEffectsOptions({
+      edgeStyle: 'straight',
+      edgeFeatureAvailable: 'true',
+    }, [], formatDateTimeOriginal, getLocale);
+    expect(low.superellipseExponent).toBe(2.2);
+    expect(high.superellipseExponent).toBe(8);
+    expect(def.superellipseExponent).toBe(4);
   });
 });

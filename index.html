@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0d9488">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' blob:; style-src 'self' 'unsafe-inline'">
+        content="default-src 'self'; script-src 'self' 'sha256-vvt4KWwuNr51XfE5m+hzeNEGhiOfZzG97ccfqGsPwvE='; connect-src 'self'; img-src 'self' blob:; style-src 'self' 'unsafe-inline'">
   <meta name="description" content="Goja 拼图成格">
   <title>Goja</title>
   <link rel="stylesheet" href="css/style.css">
@@ -233,11 +233,16 @@
                 <option value="rect" data-i18n="shapeRect">Rectangle</option>
                 <option value="circle" data-i18n="shapeCircle">Circle</option>
                 <option value="ellipse" data-i18n="shapeEllipse">Ellipse</option>
-                <option value="regular-triangle" data-i18n="shapeTriangle">Triangle</option>
                 <option value="regular-octagon" data-i18n="shapeOctagon">Octagon</option>
                 <option value="regular-decagon" data-i18n="shapeDecagon">Decagon</option>
                 <option value="regular-dodecagon" data-i18n="shapeDodecagon">Dodecagon</option>
                 <option value="regular-hexadecagon" data-i18n="shapeHexadecagon">Hexadecagon</option>
+                <option value="regular-36-gon" data-i18n="shape36Gon">Regular 36-gon</option>
+                <option value="regular-64-gon" data-i18n="shape64Gon">Regular 64-gon</option>
+                <option value="rounded-rect" data-i18n="shapeRoundedRect">Rounded rectangle</option>
+                <option value="superellipse" data-i18n="shapeSuperellipse">Superellipse</option>
+                <option value="capsule" data-i18n="shapeCapsule">Capsule</option>
+                <option value="diamond" data-i18n="shapeDiamond">Diamond</option>
                 <option value="heart" data-i18n="shapeHeart">Heart</option>
               </select>
             </div>
@@ -276,11 +281,14 @@
                 <option value="rect" data-i18n="shapeRect">Rectangle</option>
                 <option value="circle" data-i18n="shapeCircle">Circle</option>
                 <option value="ellipse" data-i18n="shapeEllipse">Ellipse</option>
-                <option value="regular-triangle" data-i18n="shapeTriangle">Triangle</option>
                 <option value="regular-octagon" data-i18n="shapeOctagon">Octagon</option>
                 <option value="regular-decagon" data-i18n="shapeDecagon">Decagon</option>
                 <option value="regular-dodecagon" data-i18n="shapeDodecagon">Dodecagon</option>
                 <option value="regular-hexadecagon" data-i18n="shapeHexadecagon">Hexadecagon</option>
+                <option value="regular-36-gon" data-i18n="shape36Gon">Regular 36-gon</option>
+                <option value="regular-64-gon" data-i18n="shape64Gon">Regular 64-gon</option>
+                <option value="rounded-rect" data-i18n="shapeRoundedRect">Rounded rectangle</option>
+                <option value="superellipse" data-i18n="shapeSuperellipse">Superellipse</option>
                 <option value="heart" data-i18n="shapeHeart">Heart</option>
               </select>
             </div>
@@ -291,6 +299,11 @@
                 <option value="horizontal" data-i18n="shapeOrientationHorizontal">Horizontal</option>
                 <option value="vertical" data-i18n="shapeOrientationVertical">Vertical</option>
               </select>
+            </div>
+            <div class="control-group">
+              <label for="superellipseExponent" data-i18n="superellipseExponentLabel">Superellipse exponent</label>
+              <input type="number" id="superellipseExponent" min="2.2" max="8.0" step="0.1" value="4.0" inputmode="decimal">
+              <p class="control-hint" id="superellipseExponentHint" data-i18n="superellipseExponentHint">Higher value makes corners squarer (2.2-8.0).</p>
             </div>
             <div id="edgeTextureOverlayGroup" class="control-subgroup control-group--full">
               <div class="control-group">

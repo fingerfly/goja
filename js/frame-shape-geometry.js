@@ -3,10 +3,17 @@ import {
 } from './shape-contour.js';
 import {
   normalizeFrameShape,
+  normalizeGlobalFrameShape,
+  normalizeCellShapeTemplate,
   normalizeShapeOrientation,
   polygonSidesForShape,
+  normalizeSuperellipseExponent,
 } from './polygon-shape.js';
-export { normalizeFrameShape, normalizeShapeOrientation, polygonSidesForShape };
+import {
+  ROUNDED_RECT_RADIUS_RATIO_DEFAULT,
+  SUPERELLIPSE_EXPONENT_DEFAULT,
+} from './config.js';
+export { normalizeFrameShape, normalizeGlobalFrameShape, normalizeCellShapeTemplate, normalizeShapeOrientation, polygonSidesForShape, normalizeSuperellipseExponent };
 
 function round3(v) {
   return Number(v.toFixed(3));
@@ -52,6 +59,31 @@ function polygonPath(w, h, inset, sides, orientation = 'auto', ox = 0, oy = 0) {
   return `M ${p[0]} ${p.slice(1).map((pt) => `L ${pt}`).join(' ')} Z`;
 }
 
+function roundedRectPath(w, h, inset, ox = 0, oy = 0, radiusRatio = ROUNDED_RECT_RADIUS_RATIO_DEFAULT) {
+  const x0 = round3(ox + inset);
+  const y0 = round3(oy + inset);
+  const x1 = round3(ox + Math.max(inset, w - inset));
+  const y1 = round3(oy + Math.max(inset, h - inset));
+  const aw = Math.max(0, x1 - x0);
+  const ah = Math.max(0, y1 - y0);
+  const r = round3(Math.max(0, Math.min(Math.min(aw, ah) / 2, Math.min(aw, ah) * Number(radiusRatio || 0))));
+  if (r <= 0) return rectPath(w, h, inset, ox, oy);
+  return `M ${round3(x0 + r)} ${y0} L ${round3(x1 - r)} ${y0} A ${r} ${r} 0 0 1 ${x1} ${round3(y0 + r)} L ${x1} ${round3(y1 - r)} A ${r} ${r} 0 0 1 ${round3(x1 - r)} ${y1} L ${round3(x0 + r)} ${y1} A ${r} ${r} 0 0 1 ${x0} ${round3(y1 - r)} L ${x0} ${round3(y0 + r)} A ${r} ${r} 0 0 1 ${round3(x0 + r)} ${y0} Z`;
+}
+
+function diamondPath(w, h, inset, ox = 0, oy = 0) {
+  const cx = round3(ox + w / 2);
+  const cy = round3(oy + h / 2);
+  const r = round3(Math.max(1, Math.min(w - inset * 2, h - inset * 2) / 2));
+  return `M ${cx} ${round3(cy - r)} L ${round3(cx + r)} ${cy} L ${cx} ${round3(cy + r)} L ${round3(cx - r)} ${cy} Z`;
+}
+
+function superellipsePath(w, h, inset, ox = 0, oy = 0, exponent = SUPERELLIPSE_EXPONENT_DEFAULT) {
+  const pts = sampleShapeContour(w, h, { shape: 'superellipse', inset, offsetX: ox, offsetY: oy, samples: 160, superellipseExponent: exponent });
+  const [first, ...rest] = pts;
+  return `M ${first[0]} ${first[1]} ${rest.map(([x, y]) => `L ${x} ${y}`).join(' ')} Z`;
+}
+
 function heartPath(w, h, inset, ox = 0, oy = 0) {
   const pts = sampleShapeContour(w, h, { shape: 'heart', inset, offsetX: ox, offsetY: oy, samples: 160 });
   const [first, ...rest] = pts;
@@ -66,8 +98,14 @@ export function buildShapePathD(width, height, options = {}) {
   const orientation = normalizeShapeOrientation(options.orientation);
   const ox = Number(options.offsetX) || 0;
   const oy = Number(options.offsetY) || 0;
+  const roundedRectRadiusRatio = Number(options.roundedRectRadiusRatio ?? ROUNDED_RECT_RADIUS_RATIO_DEFAULT);
+  const superellipseExponent = normalizeSuperellipseExponent(options.superellipseExponent ?? SUPERELLIPSE_EXPONENT_DEFAULT);
   if (shape === 'circle') return ellipsePath(w, h, inset, true, ox, oy);
   if (shape === 'ellipse') return ellipsePath(w, h, inset, false, ox, oy);
+  if (shape === 'rounded-rect') return roundedRectPath(w, h, inset, ox, oy, roundedRectRadiusRatio);
+  if (shape === 'capsule') return roundedRectPath(w, h, inset, ox, oy, 0.5);
+  if (shape === 'diamond') return diamondPath(w, h, inset, ox, oy);
+  if (shape === 'superellipse') return superellipsePath(w, h, inset, ox, oy, superellipseExponent);
   const polygonSides = polygonSidesForShape(shape);
   if (polygonSides) return polygonPath(w, h, inset, polygonSides, orientation, ox, oy);
   if (shape === 'heart') return heartPath(w, h, inset, ox, oy);
