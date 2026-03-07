@@ -7,17 +7,18 @@
 ### Changed
 - Reworked heart contour generation in `js/shape-contour.js` to a deterministic mirrored cubic-Bezier profile with rounded tip arc, replacing the previous trig-form heart profile while keeping one canonical sampler source for preview/export paths.
 - Strengthened Heart V2 geometry contracts used by frame/cell shapes: wider mid-upper occupancy and less needle-like bottom tip while preserving inset-safe max-fit behavior.
+- Corrected Heart V2 top-lobe/notch relationship so the center notch is visually lower than the left/right top lobes (fixes non-heart-like oval/teardrop appearance when selecting heart frame).
 - Updated Playwright script invocation in `package.json` (`test:e2e`, `test:e2e:ui`) to resolve browser cache path automatically through `PLAYWRIGHT_BROWSERS_PATH` fallback logic for more stable local execution.
 
 ### Tests
 - Added/expanded unit coverage for Heart V2 geometry and sampler behavior in:
-  - `tests/unit/frame-shape-geometry.test.js` (balanced width and symmetry assertions)
+  - `tests/unit/frame-shape-geometry.test.js` (balanced width, symmetry, and top-notch concavity assertions)
   - `tests/unit/shape-clip-utils.test.js` (heart sample clamp range `64..128`)
 - Added rev34a non-rect contour perturbation coverage in:
   - `tests/unit/edge-shape-engine.test.js` (continuity/determinism assertions across `circle`/`ellipse`/`regular-octagon`/`heart`)
 - Validation runs completed with:
-  - `npm test` (`425` passed)
-  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/shape-clip-utils.test.js tests/unit/edge-shape-engine.test.js tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/unified-canvas-pipeline.test.js tests/unit/grid-effects-settings.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js` (`82` passed)
+  - `npm test` (`427` passed)
+  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/shape-clip-utils.test.js tests/unit/edge-shape-engine.test.js tests/unit/preview-renderer.test.js tests/unit/cell-draw.test.js tests/unit/unified-canvas-pipeline.test.js tests/unit/grid-effects-settings.test.js tests/unit/export-handler.test.js tests/unit/export-flow.test.js tests/unit/preview-updater.test.js` (`84` passed)
   - `npm run test:e2e` (`70` passed)
   - `cloc` checks on touched modules/tests
 

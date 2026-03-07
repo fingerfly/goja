@@ -80,6 +80,19 @@ function heartTopConcavityDepth(points) {
   return centerMin - lobeAvg;
 }
 
+function heartNotchOffsetFromTop(points) {
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  const minY = Math.min(...ys);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const width = maxX - minX;
+  const cx = (minX + maxX) / 2;
+  const centerBand = points.filter(([x]) => Math.abs(x - cx) <= width * 0.06).map(([, y]) => y);
+  if (!centerBand.length) return 0;
+  return Math.min(...centerBand) - minY;
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -236,5 +249,16 @@ describe('frame-shape-geometry', () => {
     const usableHeight = h - inset * 2;
     const concavityDepth = heartTopConcavityDepth(points);
     expect(concavityDepth).toBeGreaterThanOrEqual(usableHeight * 0.06);
+  });
+
+  it('keeps Heart V2 top notch close to top boundary', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const usableHeight = h - inset * 2;
+    const notchOffset = heartNotchOffsetFromTop(points);
+    expect(notchOffset).toBeLessThanOrEqual(usableHeight * 0.12);
   });
 });
