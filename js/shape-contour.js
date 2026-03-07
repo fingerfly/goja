@@ -32,20 +32,39 @@ function appendCubic(points, p0, c1, c2, p1, steps, skipStart = false) {
 
 function unitHeartPoints(samples = 120) {
   const count = Math.max(24, Math.round(Number(samples) || 120));
-  const seg = Math.max(6, Math.ceil((count + 1) / 4));
-  const pts = [];
-  // Canonical mirrored cubic heart with C1-continuous lower joins.
-  // This removes the visible kink at lower arc-to-side connections.
+  const split = 0.4;
   const notch = [0.5, 0.16];
-  const rightPeak = [0.94, 0.07];
+  const rightPeak = [0.92, 0.08];
   const bottomTip = [0.5, 1.0];
-  const leftPeak = [0.06, 0.07];
-  appendCubic(pts, notch, [0.62, 0.01], [0.9, 0.02], rightPeak, seg, false);
-  appendCubic(pts, rightPeak, [0.98, 0.12], [1.1, 0.9], bottomTip, seg, true);
-  appendCubic(pts, bottomTip, [-0.1, 0.9], [0.02, 0.12], leftPeak, seg, true);
-  appendCubic(pts, leftPeak, [0.1, 0.02], [0.38, 0.01], notch, seg, true);
-  if (pts.length > 1) pts.pop();
-  while (pts.length > count) pts.splice(Math.floor(pts.length / 2), 1);
+  const c1Top = [0.62, 0.01];
+  const c2Top = [0.9, 0.02];
+  // C1 continuity at rightPeak: (rightPeak - c2Top) == (c1Bottom - rightPeak)
+  const c1Bottom = [2 * rightPeak[0] - c2Top[0], 2 * rightPeak[1] - c2Top[1]];
+  const c2Bottom = [1.08, 0.9];
+  const rightAt = (s) => {
+    if (s <= split) {
+      const t = s / split;
+      return [cubicAt(notch[0], c1Top[0], c2Top[0], rightPeak[0], t), cubicAt(notch[1], c1Top[1], c2Top[1], rightPeak[1], t)];
+    }
+    const t = (s - split) / (1 - split);
+    return [
+      cubicAt(rightPeak[0], c1Bottom[0], c2Bottom[0], bottomTip[0], t),
+      cubicAt(rightPeak[1], c1Bottom[1], c2Bottom[1], bottomTip[1], t),
+    ];
+  };
+  const pts = [];
+  // Generate by strict mirror mapping to guarantee axis symmetry and centered tip.
+  for (let i = 0; i < count; i += 1) {
+    const u = i / count;
+    if (u < 0.5) {
+      const s = u * 2;
+      pts.push(rightAt(s));
+    } else {
+      const v = (u - 0.5) * 2;
+      const right = rightAt(1 - v);
+      pts.push([1 - right[0], right[1]]);
+    }
+  }
   const xs = pts.map(([x]) => x);
   const ys = pts.map(([, y]) => y);
   const minX = Math.min(...xs); const maxX = Math.max(...xs);

@@ -126,6 +126,21 @@ function maxLowerHalfTurnRadians(points, minRatio = 0.62, maxRatio = 0.9) {
   return maxTurn;
 }
 
+function bottomTipOffsetFromCenter(points) {
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const centerX = (minX + maxX) / 2;
+  const spanY = Math.max(1e-6, maxY - minY);
+  const tipBand = points.filter(([, y]) => ((maxY - y) / spanY) <= 0.01);
+  if (!tipBand.length) return Infinity;
+  const tipX = tipBand.reduce((sum, [x]) => sum + x, 0) / tipBand.length;
+  return Math.abs(tipX - centerX);
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -314,5 +329,32 @@ describe('frame-shape-geometry', () => {
     const points = pointsFromPathD(d);
     const maxTurn = maxLowerHalfTurnRadians(points, 0.62, 0.9);
     expect(maxTurn).toBeLessThanOrEqual(0.95);
+  });
+
+  it('keeps Heart V2 bottom tip centered on vertical axis', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const tipOffset = bottomTipOffsetFromCenter(points);
+    expect(tipOffset).toBeLessThanOrEqual(0.35);
+  });
+
+  it('keeps Heart V2 lower-lobe symmetry near tail', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const xs = points.map((p) => p[0]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const ratios = [0.82, 0.88, 0.93];
+    const errors = ratios
+      .map((r) => spanAtRatio(points, r))
+      .filter(Boolean)
+      .map((s) => Math.abs(((s.left + s.right) / 2) - cx));
+    const maxError = Math.max(...errors);
+    expect(maxError).toBeLessThanOrEqual(0.5);
   });
 });
