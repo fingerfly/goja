@@ -21,14 +21,14 @@ function cubicAt(a, b, c, d, t) {
 
 function unitHeartPoints(samples = 120) {
   const count = Math.max(24, Math.round(Number(samples) || 120));
-  const split = 0.44;
+  const split = 0.47;
   const notch = [0.5, 0.16];
-  const rightPeak = [0.92, 0.08];
+  const rightPeak = [0.94, 0.08];
   const bottomTip = [0.5, 1.0];
-  const c1Top = [0.64, 0.01];
-  const c2Top = [0.84, 0.02];
+  const c1Top = [0.68, 0.01];
+  const c2Top = [0.8, 0.02];
   const c1Bottom = [2 * rightPeak[0] - c2Top[0], 2 * rightPeak[1] - c2Top[1]];
-  const c2Bottom = [0.94, 0.78];
+  const c2Bottom = [0.93, 0.83];
   const rightAt = (s) => {
     if (s <= split) {
       const t = s / split;

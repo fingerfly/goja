@@ -148,6 +148,45 @@ function canonicalParametricHeartTemplate(count = 256) {
   return normalizeHeartContour(points, count);
 }
 
+function canonicalImplicitHeartTemplate(count = 256) {
+  const points = [];
+  const minX = -1.4;
+  const maxX = 1.4;
+  const columns = Math.max(240, count * 2);
+  const dx = (maxX - minX) / (columns - 1);
+  const minY = -1.6;
+  const maxY = 1.6;
+  const rows = Math.max(300, count * 3);
+  const dy = (maxY - minY) / (rows - 1);
+  for (let ci = 0; ci < columns; ci += 1) {
+    const x = minX + (ci * dx);
+    let yFound = null;
+    for (let r = rows - 1; r >= 0; r -= 1) {
+      const y = minY + (r * dy);
+      const f = ((x * x + y * y - 1) ** 3) - (x * x * y * y * y);
+      if (f <= 0) {
+        yFound = y;
+        break;
+      }
+    }
+    if (yFound !== null) points.push([x, yFound]);
+  }
+  for (let ci = columns - 1; ci >= 0; ci -= 1) {
+    const x = minX + (ci * dx);
+    let yFound = null;
+    for (let r = 0; r < rows; r += 1) {
+      const y = minY + (r * dy);
+      const f = ((x * x + y * y - 1) ** 3) - (x * x * y * y * y);
+      if (f <= 0) {
+        yFound = y;
+        break;
+      }
+    }
+    if (yFound !== null) points.push([x, yFound]);
+  }
+  return normalizeHeartContour(points, count);
+}
+
 function widthAtRatio(points, ratio) {
   const ys = points.map((p) => p[1]);
   const minY = Math.min(...ys);
@@ -503,5 +542,19 @@ describe('frame-shape-geometry', () => {
     const radial = meanRadialError(actual, template, 180);
     expect(hausdorff).toBeLessThanOrEqual(0.12);
     expect(radial).toBeLessThanOrEqual(0.052);
+  });
+
+  it('stays close to canonical implicit heart after normalization', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const actual = normalizeHeartContour(points, 256);
+    const template = canonicalImplicitHeartTemplate(256);
+    const hausdorff = symmetricHausdorff(actual, template);
+    const radial = meanRadialError(actual, template, 180);
+    expect(hausdorff).toBeLessThanOrEqual(0.195);
+    expect(radial).toBeLessThanOrEqual(0.079);
   });
 });
