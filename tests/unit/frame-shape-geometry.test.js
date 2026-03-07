@@ -93,6 +93,39 @@ function heartNotchOffsetFromTop(points) {
   return Math.min(...centerBand) - minY;
 }
 
+function maxLowerHalfTurnRadians(points, minRatio = 0.62, maxRatio = 0.9) {
+  if (points.length < 3) return 0;
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const centerX = (minX + maxX) / 2;
+  const centerBand = (maxX - minX) * 0.05;
+  const spanY = Math.max(1e-6, maxY - minY);
+  let maxTurn = 0;
+  for (let i = 1; i < points.length - 1; i += 1) {
+    const p0 = points[i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const yRatio = (p1[1] - minY) / spanY;
+    if (yRatio < minRatio || yRatio > maxRatio) continue;
+    if (Math.abs(p1[0] - centerX) <= centerBand) continue;
+    const v1x = p1[0] - p0[0];
+    const v1y = p1[1] - p0[1];
+    const v2x = p2[0] - p1[0];
+    const v2y = p2[1] - p1[1];
+    const n1 = Math.hypot(v1x, v1y);
+    const n2 = Math.hypot(v2x, v2y);
+    if (n1 < 1e-6 || n2 < 1e-6) continue;
+    const dot = Math.max(-1, Math.min(1, ((v1x * v2x) + (v1y * v2y)) / (n1 * n2)));
+    const angle = Math.acos(dot);
+    if (angle > maxTurn) maxTurn = angle;
+  }
+  return maxTurn;
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -260,5 +293,26 @@ describe('frame-shape-geometry', () => {
     const usableHeight = h - inset * 2;
     const notchOffset = heartNotchOffsetFromTop(points);
     expect(notchOffset).toBeLessThanOrEqual(usableHeight * 0.12);
+  });
+
+  it('keeps Heart V2 lower-half cell region sufficiently wide', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const usableWidth = w - inset * 2;
+    const lowerWidthRatio = widthAtRatio(points, 0.75) / usableWidth;
+    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.68);
+  });
+
+  it('keeps Heart V2 lower contour smooth without sharp kinks', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const maxTurn = maxLowerHalfTurnRadians(points, 0.62, 0.9);
+    expect(maxTurn).toBeLessThanOrEqual(0.95);
   });
 });

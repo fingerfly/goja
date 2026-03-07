@@ -32,22 +32,18 @@ function appendCubic(points, p0, c1, c2, p1, steps, skipStart = false) {
 
 function unitHeartPoints(samples = 120) {
   const count = Math.max(24, Math.round(Number(samples) || 120));
-  const seg = Math.max(6, Math.floor(count * 0.22));
-  const arcSteps = Math.max(6, count - seg * 4);
+  const seg = Math.max(6, Math.ceil((count + 1) / 4));
   const pts = [];
+  // Canonical mirrored cubic heart with C1-continuous lower joins.
+  // This removes the visible kink at lower arc-to-side connections.
   const notch = [0.5, 0.16];
-  const rightPeak = [0.9, 0.07];
-  const rightArcStart = [0.56, 0.93];
-  const leftArcEnd = [0.44, 0.93];
-  const leftPeak = [0.1, 0.07];
-  appendCubic(pts, notch, [0.58, 0.01], [0.86, 0.0], rightPeak, seg, false);
-  appendCubic(pts, rightPeak, [1.0, 0.40], [0.9, 0.84], rightArcStart, seg, true);
-  for (let i = 1; i <= arcSteps; i += 1) {
-    const t = (Math.PI * i) / arcSteps;
-    pts.push([0.5 + 0.06 * Math.cos(t), 0.93 + 0.06 * Math.sin(t)]);
-  }
-  appendCubic(pts, leftArcEnd, [0.1, 0.84], [0.0, 0.40], leftPeak, seg, true);
-  appendCubic(pts, leftPeak, [0.14, 0.0], [0.42, 0.01], notch, seg, true);
+  const rightPeak = [0.94, 0.07];
+  const bottomTip = [0.5, 1.0];
+  const leftPeak = [0.06, 0.07];
+  appendCubic(pts, notch, [0.62, 0.01], [0.9, 0.02], rightPeak, seg, false);
+  appendCubic(pts, rightPeak, [0.98, 0.12], [1.1, 0.9], bottomTip, seg, true);
+  appendCubic(pts, bottomTip, [-0.1, 0.9], [0.02, 0.12], leftPeak, seg, true);
+  appendCubic(pts, leftPeak, [0.1, 0.02], [0.38, 0.01], notch, seg, true);
   if (pts.length > 1) pts.pop();
   while (pts.length > count) pts.splice(Math.floor(pts.length / 2), 1);
   const xs = pts.map(([x]) => x);
