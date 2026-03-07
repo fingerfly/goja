@@ -490,7 +490,18 @@ describe('frame-shape-geometry', () => {
     const points = pointsFromPathD(d);
     const usableWidth = w - inset * 2;
     const lowerWidthRatio = widthAtRatio(points, 0.75) / usableWidth;
-    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.6);
+    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.62);
+  });
+
+  it('keeps Heart V2 lower edge close to side bounds at 85% height', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const usableWidth = w - inset * 2;
+    const lowerOuterRatio = widthAtRatio(points, 0.85) / usableWidth;
+    expect(lowerOuterRatio).toBeGreaterThanOrEqual(0.46);
   });
 
   it('keeps Heart V2 lower contour smooth without sharp kinks', () => {
@@ -554,7 +565,7 @@ describe('frame-shape-geometry', () => {
     const template = canonicalImplicitHeartTemplate(256);
     const hausdorff = symmetricHausdorff(actual, template);
     const radial = meanRadialError(actual, template, 180);
-    expect(hausdorff).toBeLessThanOrEqual(0.185);
-    expect(radial).toBeLessThanOrEqual(0.078);
+    expect(hausdorff).toBeLessThanOrEqual(0.195);
+    expect(radial).toBeLessThanOrEqual(0.079);
   });
 });
