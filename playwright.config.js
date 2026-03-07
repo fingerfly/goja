@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5501';
+const serverPort = 5517;
+const appRoot = path.dirname(fileURLToPath(import.meta.url));
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${serverPort}`;
 const isCI = !!process.env.CI;
 
 export default defineConfig({
@@ -32,9 +36,9 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: 'npx http-server . -p 5501 -c-1',
+        command: `npx http-server "${appRoot}" -p ${serverPort} -c-1`,
         url: baseURL,
-        reuseExistingServer: true,
+        reuseExistingServer: false,
         timeout: 120000,
       },
 });

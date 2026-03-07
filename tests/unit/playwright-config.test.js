@@ -53,6 +53,9 @@ describe('playwright config', () => {
     expect(config.projects[0].use.channel).toBe('chrome');
     expect(config.reporter).toBe('html');
     expect(config.webServer).toBeDefined();
+    expect(config.use.baseURL).toBe('http://127.0.0.1:5517');
+    expect(config.webServer.command).toContain('/project/goja');
+    expect(config.webServer.reuseExistingServer).toBe(false);
   });
 
   it('disables local webServer when PLAYWRIGHT_BASE_URL is provided', async () => {
