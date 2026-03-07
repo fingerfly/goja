@@ -554,7 +554,7 @@ describe('frame-shape-geometry', () => {
     const template = canonicalImplicitHeartTemplate(256);
     const hausdorff = symmetricHausdorff(actual, template);
     const radial = meanRadialError(actual, template, 180);
-    expect(hausdorff).toBeLessThanOrEqual(0.195);
-    expect(radial).toBeLessThanOrEqual(0.079);
+    expect(hausdorff).toBeLessThanOrEqual(0.185);
+    expect(radial).toBeLessThanOrEqual(0.078);
   });
 });
