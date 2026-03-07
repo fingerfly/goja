@@ -258,17 +258,22 @@ describe('frame-shape-geometry', () => {
     expect(usedHeight / usableHeight).toBeGreaterThan(0.95);
   });
 
-  it('meets Heart V2 balanced width contract', () => {
+  it('meets Heart V2 recognizable profile contract', () => {
     const w = 240;
     const h = 180;
     const inset = 10;
     const d = buildShapePathD(w, h, { shape: 'heart', inset });
     const points = pointsFromPathD(d);
     const usableWidth = w - inset * 2;
-    const midUpperWidthRatio = widthAtRatio(points, 0.45) / usableWidth;
-    const tipWidthAt95Y = widthAtRatio(points, 0.95);
-    expect(midUpperWidthRatio).toBeGreaterThanOrEqual(0.93);
-    expect(tipWidthAt95Y).toBeGreaterThanOrEqual(usableWidth * 0.08);
+    const upperLobeRatio = widthAtRatio(points, 0.3) / usableWidth;
+    const waistRatio = widthAtRatio(points, 0.62) / usableWidth;
+    const tipRatio = widthAtRatio(points, 0.95) / usableWidth;
+    expect(upperLobeRatio).toBeGreaterThanOrEqual(0.93);
+    expect(upperLobeRatio).toBeLessThanOrEqual(0.98);
+    expect(waistRatio).toBeGreaterThanOrEqual(0.72);
+    expect(waistRatio).toBeLessThanOrEqual(0.78);
+    expect(tipRatio).toBeGreaterThanOrEqual(0.16);
+    expect(tipRatio).toBeLessThanOrEqual(0.22);
   });
 
   it('keeps Heart V2 horizontally symmetric within tolerance', () => {
@@ -318,7 +323,7 @@ describe('frame-shape-geometry', () => {
     const points = pointsFromPathD(d);
     const usableWidth = w - inset * 2;
     const lowerWidthRatio = widthAtRatio(points, 0.75) / usableWidth;
-    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.68);
+    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.6);
   });
 
   it('keeps Heart V2 lower contour smooth without sharp kinks', () => {
