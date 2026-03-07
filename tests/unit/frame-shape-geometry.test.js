@@ -20,6 +20,134 @@ function pointsFromPathD(d) {
   return pts;
 }
 
+function polygonArea(points) {
+  let acc = 0;
+  for (let i = 0; i < points.length; i += 1) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    acc += (a[0] * b[1]) - (b[0] * a[1]);
+  }
+  return acc / 2;
+}
+
+function resampleClosedContour(points, count = 256) {
+  if (points.length < 3) return points.slice();
+  let pts = points.slice();
+  if (polygonArea(pts) < 0) pts = pts.slice().reverse();
+  const segLens = [];
+  let totalLen = 0;
+  for (let i = 0; i < pts.length; i += 1) {
+    const a = pts[i];
+    const b = pts[(i + 1) % pts.length];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    segLens.push(len);
+    totalLen += len;
+  }
+  const out = [];
+  for (let k = 0; k < count; k += 1) {
+    const target = (k / count) * totalLen;
+    let acc = 0;
+    let idx = 0;
+    while (idx < segLens.length && (acc + segLens[idx]) < target) {
+      acc += segLens[idx];
+      idx += 1;
+    }
+    const a = pts[idx % pts.length];
+    const b = pts[(idx + 1) % pts.length];
+    const seg = Math.max(1e-9, segLens[idx % segLens.length]);
+    const t = (target - acc) / seg;
+    out.push([a[0] + ((b[0] - a[0]) * t), a[1] + ((b[1] - a[1]) * t)]);
+  }
+  return out;
+}
+
+function normalizeHeartContour(points, count = 256) {
+  const sampled = resampleClosedContour(points, count);
+  const cx = sampled.reduce((sum, [x]) => sum + x, 0) / sampled.length;
+  const cy = sampled.reduce((sum, [, y]) => sum + y, 0) / sampled.length;
+  const centered = sampled.map(([x, y]) => [x - cx, y - cy]);
+  const ys = centered.map(([, y]) => y);
+  const tip = centered[ys.indexOf(Math.max(...ys))];
+  const tipAngle = Math.atan2(tip[0], tip[1]);
+  const cosA = Math.cos(-tipAngle);
+  const sinA = Math.sin(-tipAngle);
+  const rotated = centered.map(([x, y]) => [(x * cosA) - (y * sinA), (x * sinA) + (y * cosA)]);
+  const xs = rotated.map(([x]) => x);
+  const ys2 = rotated.map(([, y]) => y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys2);
+  const maxY = Math.max(...ys2);
+  const spanX = Math.max(1e-9, maxX - minX);
+  const spanY = Math.max(1e-9, maxY - minY);
+  return rotated.map(([x, y]) => [(x - minX) / spanX, (y - minY) / spanY]);
+}
+
+function nearestDistanceSquared(p, points) {
+  let best = Infinity;
+  for (const q of points) {
+    const dx = p[0] - q[0];
+    const dy = p[1] - q[1];
+    const d2 = (dx * dx) + (dy * dy);
+    if (d2 < best) best = d2;
+  }
+  return best;
+}
+
+function symmetricHausdorff(a, b) {
+  let h = 0;
+  for (const p of a) h = Math.max(h, Math.sqrt(nearestDistanceSquared(p, b)));
+  for (const p of b) h = Math.max(h, Math.sqrt(nearestDistanceSquared(p, a)));
+  return h;
+}
+
+function meanRadialError(a, b, bins = 180) {
+  const center = [0.5, 0.5];
+  const sumA = new Array(bins).fill(0);
+  const sumB = new Array(bins).fill(0);
+  const cntA = new Array(bins).fill(0);
+  const cntB = new Array(bins).fill(0);
+  const toBin = ([x, y]) => {
+    let angle = Math.atan2(y - center[1], x - center[0]);
+    if (angle < 0) angle += Math.PI * 2;
+    return Math.min(bins - 1, Math.floor((angle / (Math.PI * 2)) * bins));
+  };
+  for (const p of a) {
+    const dx = p[0] - center[0];
+    const dy = p[1] - center[1];
+    const idx = toBin(p);
+    sumA[idx] += Math.hypot(dx, dy);
+    cntA[idx] += 1;
+  }
+  for (const p of b) {
+    const dx = p[0] - center[0];
+    const dy = p[1] - center[1];
+    const idx = toBin(p);
+    sumB[idx] += Math.hypot(dx, dy);
+    cntB[idx] += 1;
+  }
+  let total = 0;
+  let used = 0;
+  for (let i = 0; i < bins; i += 1) {
+    if (cntA[i] > 0 && cntB[i] > 0) {
+      total += Math.abs((sumA[i] / cntA[i]) - (sumB[i] / cntB[i]));
+      used += 1;
+    }
+  }
+  return used > 0 ? (total / used) : Infinity;
+}
+
+function canonicalParametricHeartTemplate(count = 256) {
+  const points = [];
+  for (let i = 0; i < count; i += 1) {
+    const t = (Math.PI * 2 * i) / count;
+    const x = 16 * (Math.sin(t) ** 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    points.push([x, y]);
+  }
+  return normalizeHeartContour(points, count);
+}
+
 function widthAtRatio(points, ratio) {
   const ys = points.map((p) => p[1]);
   const minY = Math.min(...ys);
@@ -361,5 +489,19 @@ describe('frame-shape-geometry', () => {
       .map((s) => Math.abs(((s.left + s.right) / 2) - cx));
     const maxError = Math.max(...errors);
     expect(maxError).toBeLessThanOrEqual(0.5);
+  });
+
+  it('stays close to canonical parametric heart after normalization', () => {
+    const w = 240;
+    const h = 180;
+    const inset = 10;
+    const d = buildShapePathD(w, h, { shape: 'heart', inset });
+    const points = pointsFromPathD(d);
+    const actual = normalizeHeartContour(points, 256);
+    const template = canonicalParametricHeartTemplate(256);
+    const hausdorff = symmetricHausdorff(actual, template);
+    const radial = meanRadialError(actual, template, 180);
+    expect(hausdorff).toBeLessThanOrEqual(0.12);
+    expect(radial).toBeLessThanOrEqual(0.052);
   });
 });

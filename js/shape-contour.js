@@ -12,48 +12,32 @@ function normalizeFrameShape(shape) {
   return SHAPES.has(raw) ? raw : 'rect';
 }
 
-function normalizeShapeOrientation(orientation) {
-  const raw = String(orientation ?? 'auto');
-  return ORIENTATIONS.has(raw) ? raw : 'auto';
-}
+function normalizeShapeOrientation(orientation) { return ORIENTATIONS.has(String(orientation ?? 'auto')) ? String(orientation ?? 'auto') : 'auto'; }
 
 function cubicAt(a, b, c, d, t) {
   const mt = 1 - t;
   return mt * mt * mt * a + 3 * mt * mt * t * b + 3 * mt * t * t * c + t * t * t * d;
 }
 
-function appendCubic(points, p0, c1, c2, p1, steps, skipStart = false) {
-  const from = skipStart ? 1 : 0;
-  for (let i = from; i <= steps; i += 1) {
-    const t = i / steps;
-    points.push([cubicAt(p0[0], c1[0], c2[0], p1[0], t), cubicAt(p0[1], c1[1], c2[1], p1[1], t)]);
-  }
-}
-
 function unitHeartPoints(samples = 120) {
   const count = Math.max(24, Math.round(Number(samples) || 120));
-  const split = 0.4;
+  const split = 0.44;
   const notch = [0.5, 0.16];
-  const rightPeak = [0.9, 0.08];
+  const rightPeak = [0.92, 0.08];
   const bottomTip = [0.5, 1.0];
-  const c1Top = [0.62, 0.01];
-  const c2Top = [0.9, 0.02];
-  // C1 continuity at rightPeak: (rightPeak - c2Top) == (c1Bottom - rightPeak)
+  const c1Top = [0.64, 0.01];
+  const c2Top = [0.84, 0.02];
   const c1Bottom = [2 * rightPeak[0] - c2Top[0], 2 * rightPeak[1] - c2Top[1]];
-  const c2Bottom = [0.9, 0.82];
+  const c2Bottom = [0.94, 0.78];
   const rightAt = (s) => {
     if (s <= split) {
       const t = s / split;
       return [cubicAt(notch[0], c1Top[0], c2Top[0], rightPeak[0], t), cubicAt(notch[1], c1Top[1], c2Top[1], rightPeak[1], t)];
     }
     const t = (s - split) / (1 - split);
-    return [
-      cubicAt(rightPeak[0], c1Bottom[0], c2Bottom[0], bottomTip[0], t),
-      cubicAt(rightPeak[1], c1Bottom[1], c2Bottom[1], bottomTip[1], t),
-    ];
+    return [cubicAt(rightPeak[0], c1Bottom[0], c2Bottom[0], bottomTip[0], t), cubicAt(rightPeak[1], c1Bottom[1], c2Bottom[1], bottomTip[1], t)];
   };
   const pts = [];
-  // Generate by strict mirror mapping to guarantee axis symmetry and centered tip.
   for (let i = 0; i < count; i += 1) {
     const u = i / count;
     if (u < 0.5) {
