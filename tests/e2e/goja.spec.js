@@ -587,6 +587,24 @@ test.describe('Goja App', () => {
     await expect(page.locator('#edgeFrequencyHint')).toHaveText('每条单元格边的整数周期（1-20）');
   });
 
+  test('background labels are localized in zh-Hans', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'zh-Hans'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('label[for="bgColor"]')).toHaveText('宫格内背景色');
+    await expect(page.locator('label[for="outsideBackgroundColor"]')).toHaveText('整体边框外背景色');
+  });
+
+  test('background labels remain semantically distinct in en', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('goja-locale', 'en'));
+    await page.reload();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await expect(page.locator('label[for="bgColor"]')).toHaveText('Grid interior background');
+    await expect(page.locator('label[for="outsideBackgroundColor"]')).toHaveText('Outside grid-frame background');
+  });
+
   test('reset all applies defaults immediately without confirmation dialog', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

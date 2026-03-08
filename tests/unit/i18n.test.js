@@ -92,6 +92,13 @@ describe('i18n', () => {
       }
     });
 
+    it('uses clarified background labels for zh-Hans and en', () => {
+      expect(zhHans.background).toBe('宫格内背景色');
+      expect(zhHans.outsideBackgroundColor).toBe('整体边框外背景色');
+      expect(en.background).toBe('Grid interior background');
+      expect(en.outsideBackgroundColor).toBe('Outside grid-frame background');
+    });
+
     it('all locales have required legal notice i18n keys', () => {
       for (const [name, dict] of ALL_LOCALES) {
         for (const key of REQUIRED_LEGAL_KEYS) {

@@ -2,10 +2,33 @@
 
 ## [Unreleased]
 
-## [9.4.0] - 2026-03-07
+## [9.5.0] - 2026-03-08
 
 
-## [9.3.2] - 2026-03-06
+## [9.4.1] - 2026-03-06
+
+### Changed
+- Clarified the two previously ambiguous background controls with explicit scope semantics across UI and locales:
+  - `background` (`bgColor`) now maps to inner-grid meaning.
+  - `outsideBackgroundColor` now maps to outside-grid-frame meaning.
+- Applied finalized `zh-Hans` wording exactly:
+  - `background`: `宫格内背景色`
+  - `outsideBackgroundColor`: `整体边框外背景色`
+- Updated all six locale dictionaries (`en`, `zh-Hans`, `zh-Hant`, `es`, `ja`, `eo`) to keep inner-grid vs outside-frame semantics distinct and consistent.
+- Updated `index.html` fallback labels to match the same clarified semantics when i18n hydration is not yet applied.
+
+### Tests
+- Added/updated background-label clarity coverage in:
+  - `tests/unit/i18n.test.js`
+  - `tests/e2e/goja.spec.js`
+- Validation runs completed with:
+  - `npx vitest run tests/unit/i18n.test.js` (`17` passed)
+  - `npx playwright test tests/e2e/goja.spec.js --grep "background labels are localized in zh-Hans|background labels remain semantically distinct in en"` (`2` passed)
+  - `npm test` (`445` passed)
+  - `npm run test:e2e` (`72` passed)
+  - `cloc --by-file --include-lang=JavaScript 02product/01_coding/project/goja/js/locales/en.js 02product/01_coding/project/goja/js/locales/zh-Hans.js 02product/01_coding/project/goja/js/locales/zh-Hant.js 02product/01_coding/project/goja/js/locales/es.js 02product/01_coding/project/goja/js/locales/ja.js 02product/01_coding/project/goja/js/locales/eo.js 02product/01_coding/project/goja/tests/unit/i18n.test.js 02product/01_coding/project/goja/tests/e2e/goja.spec.js`
+
+## [9.4.0] - 2026-03-06
 
 ### Changed
 - Executed Wave 11 shape catalog update across frame and cell templates: removed `regular-triangle` and added `regular-36-gon`, `regular-64-gon`, `rounded-rect`, and `superellipse` for shared use.
@@ -29,6 +52,8 @@
   - `npm test` (`444` passed)
   - `npm run test:e2e` (`70` passed)
   - `cloc --by-file --include-lang=JavaScript 02product/01_coding/project/goja/js/polygon-shape.js 02product/01_coding/project/goja/js/frame-shape-geometry.js 02product/01_coding/project/goja/js/shape-contour.js 02product/01_coding/project/goja/js/shape-clip-utils.js 02product/01_coding/project/goja/js/grid-effects-settings.js`
+- Manual acceptance status:
+  - User confirmed visual/manual validation with “all look good”.
 
 ## [9.3.1] - 2026-03-06
 
