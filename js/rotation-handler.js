@@ -1,9 +1,23 @@
+/**
+ * Purpose: Add pointer/keyboard rotation controls to preview cells.
+ * Description:
+ * - Computes pointer-derived rotation around each cell center.
+ * - Applies visual transform and reports persisted angle updates.
+ */
 import {
   ROTATION_DEFAULT_ANGLE,
   ROTATION_KEYBOARD_STEP,
 } from './config.js';
 import { computeAngleDeg, fitScaleFactor, normalizeAngle } from './rotation-math.js';
 
+/**
+ * Apply normalized rotation transform to a preview cell element.
+ * @param {HTMLElement} cellEl
+ * @param {number} angleDeg
+ * @param {number} width
+ * @param {number} height
+ * @returns {number}
+ */
 export function applyCellRotation(cellEl, angleDeg, width, height) {
   const angle = normalizeAngle(angleDeg);
   const scale = fitScaleFactor(angle, width, height);
@@ -22,6 +36,16 @@ function getPhotoIndex(layout, cellIndex) {
   return order ? order[cellIndex] : cellIndex;
 }
 
+/**
+ * Attach rotation handles to all preview cells.
+ * @param {HTMLElement} gridEl
+ * @param {() => { angle?: number }[]} getPhotos
+ * @param {() => { cells?: object[], photoOrder?: number[] } | null} getLayout
+ * @param {(cellIndex: number, angle: number) => void} onRotate
+ * @param {(cellIndex: number) => void} onRotateStart
+ * @param {() => string} [getAriaLabel]
+ * @returns {() => void}
+ */
 export function enableRotation(gridEl, getPhotos, getLayout, onRotate, onRotateStart, getAriaLabel = () => 'Rotate photo') {
   gridEl.querySelectorAll('.rotation-handle').forEach((el) => el.remove());
   const cells = Array.from(gridEl.querySelectorAll('.preview-cell'));

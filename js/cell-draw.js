@@ -1,3 +1,9 @@
+/**
+ * Purpose: Draw one grid cell's image and optional visual overlays.
+ * Description:
+ * - Applies clipping, filter, fit mode, rotation, and shape options.
+ * - Draws capture-date and vignette overlays for export pipeline.
+ */
 import { drawPhotoOnCanvas } from './image-processor.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { drawVignetteOverlay } from './image-effects.js';
@@ -18,6 +24,13 @@ function applyTemplateClip(ctx, cell, options) {
   ctx.clip();
 }
 
+/**
+ * Draw one cell's content into export canvas context.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {CanvasImageSource} img
+ * @param {{ x: number, y: number, width: number, height: number }} cell
+ * @param {Record<string, unknown>} [options]
+ */
 export function drawCellContent(ctx, img, cell, options = {}) {
   const {
     fitMode = 'cover',

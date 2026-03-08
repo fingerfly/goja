@@ -1,3 +1,9 @@
+/**
+ * Purpose: Minimal browser entry point for Goja app startup.
+ * Description:
+ * - Initializes safe background-color control behavior.
+ * - Delegates full application bootstrapping to app-bootstrap module.
+ */
 import { bootstrap } from './app-bootstrap.js';
 import { initBackgroundColorControl } from './bg-color-control.js';
 

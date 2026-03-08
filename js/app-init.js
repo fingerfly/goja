@@ -1,6 +1,9 @@
 /**
- * App initialization: form defaults and event binding.
- * Extracted from app.js for modularity.
+ * Purpose: Initialize form defaults and bind app event handlers.
+ * Description:
+ * - Applies config-driven defaults to settings controls.
+ * - Normalizes edge-control inputs before UI interaction.
+ * - Attaches all UI listeners that mutate state or trigger rendering.
  */
 import {
   GAP_MIN,
@@ -35,7 +38,8 @@ import {
 } from './edge-controls.js';
 
 /**
- * Sets form default values from config.
+ * Set form defaults using static config values.
+ * @param {Record<string, any>} refs
  */
 function setFormDefaults(refs) {
   const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent } = refs;
@@ -88,6 +92,12 @@ function setFormDefaults(refs) {
   }
 }
 
+/**
+ * Keep edge-intensity slider and numeric input synchronized.
+ * @param {HTMLInputElement | null} edgeIntensity
+ * @param {HTMLInputElement | null} edgeIntensityInput
+ * @param {'slider' | 'input'} [source]
+ */
 function syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, source = 'slider') {
   if (!edgeIntensity || !edgeIntensityInput) return;
   const normalized = normalizeEdgeAmplitude(source === 'slider' ? edgeIntensity.value : edgeIntensityInput.value);
@@ -96,16 +106,28 @@ function syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, source = 'sl
   edgeIntensityInput.value = v;
 }
 
+/**
+ * Clamp and normalize edge-frequency input value.
+ * @param {HTMLInputElement | null} edgeFrequency
+ */
 function normalizeEdgeFrequencyInput(edgeFrequency) {
   if (!edgeFrequency) return;
   edgeFrequency.value = String(normalizeEdgeFrequency(edgeFrequency.value));
 }
 
+/**
+ * Normalize edge-seed input to an integer-compatible value.
+ * @param {HTMLInputElement | null} edgeSeed
+ */
 function normalizeEdgeSeedInput(edgeSeed) {
   if (!edgeSeed) return;
   edgeSeed.value = String(normalizeEdgeSeed(edgeSeed.value));
 }
 
+/**
+ * Toggle visibility for conditional settings groups.
+ * @param {Record<string, any>} refs
+ */
 function syncSettingsVisibility(refs) {
   const show = refs.wmType?.value !== 'none';
   refs.wmPosGroup?.classList.toggle('hidden', !show);
@@ -116,6 +138,10 @@ function syncSettingsVisibility(refs) {
   refs.vignetteOptionsGroup?.classList.toggle('hidden', !refs.vignetteEnabled?.checked);
 }
 
+/**
+ * Reset all controls in a section to their default values.
+ * @param {HTMLElement | null | undefined} rootEl
+ */
 function resetControls(rootEl) {
   rootEl?.querySelectorAll('input, select, textarea').forEach((el) => {
     if (el.type === 'checkbox' || el.type === 'radio') el.checked = el.defaultChecked;

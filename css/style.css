@@ -1,5 +1,11 @@
 @import url('./variables.css');
 
+/*
+  Purpose: Define Goja application layout and component styling.
+  Description:
+  - Styles top bar, preview grid, settings panel, and export controls.
+  - Applies responsive behavior and accessibility-focused interaction UI.
+*/
 *,
 *::before,
 *::after {

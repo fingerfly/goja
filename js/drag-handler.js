@@ -1,3 +1,16 @@
+/**
+ * Purpose: Enable mouse/touch photo reordering in preview grid.
+ * Description:
+ * - Swaps photo order on drag-drop and touch-drop interactions.
+ * - Keeps drag source/target UI classes in sync across events.
+ */
+/**
+ * Swap two indices in a photo-order array.
+ * @param {number[]} photoOrder
+ * @param {number} sourceIdx
+ * @param {number} targetIdx
+ * @returns {number[]}
+ */
 export function swapOrder(photoOrder, sourceIdx, targetIdx) {
   const result = [...photoOrder];
   result[sourceIdx] = photoOrder[targetIdx];
@@ -5,6 +18,11 @@ export function swapOrder(photoOrder, sourceIdx, targetIdx) {
   return result;
 }
 
+/**
+ * Attach drag-and-drop handlers to the preview grid.
+ * @param {HTMLElement} gridElement
+ * @param {(sourceIdx: number, targetIdx: number) => void} onSwap
+ */
 export function enableDragAndDrop(gridElement, onSwap) {
   let dragSourceIdx = -1;
 

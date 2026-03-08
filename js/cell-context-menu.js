@@ -1,8 +1,21 @@
+/**
+ * Purpose: Provide tap/right-click remove-photo context menu behavior.
+ * Description:
+ * - Opens a transient menu on desktop right-click or mobile tap.
+ * - Guards against duplicate touch/contextmenu event sequences.
+ */
 const TAP_MAX_MOVE_PX = 8;
 const TAP_MAX_DURATION_MS = 250;
 const TOUCH_CONTEXTMENU_GUARD_MS = 700;
 const CONTEXT_MENU_AUTO_DISMISS_MS = 1500;
 
+/**
+ * Enable remove-photo context menu interactions on preview cells.
+ * @param {HTMLElement} gridEl
+ * @param {() => object | null} getLayout
+ * @param {(cellIndex: number) => void} onRemove
+ * @param {(key: string) => string} [t]
+ */
 export function enableCellContextMenu(gridEl, getLayout, onRemove, t = (k) => k) {
   let touchState = null;
   let lastTouchAt = 0;

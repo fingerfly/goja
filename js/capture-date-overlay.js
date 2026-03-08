@@ -1,3 +1,9 @@
+/**
+ * Purpose: Draw capture-date text overlays onto cell canvases.
+ * Description:
+ * - Chooses readable text color based on background luminance.
+ * - Positions text in configured cell corners with opacity/font scaling.
+ */
 import {
   CAPTURE_DATE_FONT_RATIO,
   CAPTURE_DATE_MARGIN_RATIO,
@@ -53,7 +59,7 @@ function drawInCell(ctx, w, h, text, opts) {
 }
 
 /**
- * Draws capture date text in a cell corner.
+ * Draw capture-date text inside one cell region.
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {{x: number, y: number, width: number, height: number}} cell - Cell bounds
  * @param {string} text - Formatted date string

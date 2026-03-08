@@ -1,3 +1,9 @@
+/**
+ * Purpose: Normalize edge style IDs and expose waveform profiles.
+ * Description:
+ * - Maps legacy labels to current style identifiers.
+ * - Returns profile settings used by edge-path generators.
+ */
 const LEGACY_STYLE_MAP = {
   wavy: 'silk-wave',
   jagged: 'paper-torn',
@@ -22,12 +28,23 @@ export const EDGE_STYLE_CANDIDATES = [
   { id: 'postage-perf', intent: 'clean postage perforation', quality: 'candidate', approved: false },
 ];
 
+/**
+ * Normalize edge style IDs, including legacy aliases.
+ * @param {string} style
+ * @returns {string}
+ */
 export function normalizeEdgeStyle(style) {
   const raw = String(style ?? 'straight');
   const mapped = LEGACY_STYLE_MAP[raw] ?? raw;
   return STYLE_PROFILES[mapped] ? mapped : 'straight';
 }
 
+/**
+ * Resolve the waveform/amplitude/frequency profile for a style.
+ * @param {string} style
+ * @returns {{ waveform: string, ampScale: number, freqScale: number,
+ *   jitter: number }}
+ */
 export function getEdgeStyleProfile(style) {
   return STYLE_PROFILES[normalizeEdgeStyle(style)];
 }

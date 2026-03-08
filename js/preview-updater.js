@@ -1,13 +1,25 @@
 /**
- * Preview update and state restore.
- * Extracted from app.js for modularity.
+ * Purpose: Recompute layout, render preview, and sync visible UI state.
+ * Description:
+ * - Rebuilds layout when frame/gap/template options change.
+ * - Restores historical state for undo/redo operations.
+ * - Rebinds resize handlers and action-button enabled states.
  */
 
 /**
- * Creates preview updater functions that manage layout, renderGrid, resize, and UI.
- * @param {{ photos: object[], currentLayout: object | null, cleanupResize: (() => void) | null }} stateRef
- * @param {{ previewGrid: HTMLElement, preview: HTMLElement, gapSlider: HTMLInputElement, frameW: HTMLInputElement, frameH: HTMLInputElement, imageFit: HTMLSelectElement, templateSelect: HTMLSelectElement | null, dropZone: HTMLElement, addBtn: HTMLElement, clearBtn: HTMLElement, exportBtn: HTMLElement }} refs
- * @param {{ ensureTemplatesLoaded: () => Promise<void>, populateTemplateSelect: (sel: HTMLSelectElement | null, count: number, getTemplatesForCount: (n: number) => object[], t: (k: string) => string) => void, getTemplatesForCount: (n: number) => object[], getStoredTemplate: (n: number) => string, clampFrameValue: (v: unknown) => number, computeGridLayout: (dims: object[], opts: object) => object, renderGrid: (cont: HTMLElement, prev: HTMLElement, photos: object[], layout: object, form: object, deps: object) => void, ratiosToFrString: (ratios: number[]) => string, recomputePixelCells: (layout: object) => void, pushState: (photos: object[], layout: object | null) => void, buildForm: (inc?: boolean) => object, formatDateTimeOriginal: (d: Date, loc: string) => string, getLocale: () => string, t: (k: string, p?: object) => string, syncActionButtons: (add: HTMLElement, clear: HTMLElement, exp: HTMLElement, t: (k: string) => string, count: number, exporting: boolean) => void, enableGridResize: (grid: HTMLElement, layout: object, onRatios: (r: number[]) => void, onPush: () => void) => () => void }} deps
+ * Build preview updater functions that own render/restore orchestration.
+ * @param {object} stateRef
+ * @param {object} refs
+ * @param {object} deps
+ * @returns {{
+ *   updatePreview: () => Promise<void>,
+ *   applyRestoredState: (restored: {
+ *     photos: object[],
+ *     layout: object | null
+ *   }) => void,
+ *   showUI: (show: boolean) => void,
+ *   updateActionButtons: (photosCount: number, isExporting?: boolean) => void
+ * }}
  */
 export function createPreviewUpdater(stateRef, refs, deps) {
   const { ensureTemplatesLoaded, populateTemplateSelect, getTemplatesForCount, getStoredTemplate,

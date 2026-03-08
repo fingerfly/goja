@@ -1,6 +1,9 @@
 /**
- * Renders the preview grid DOM (cells, images, vignette, capture date, watermark overlay).
- * Extracted from app.js for modularity.
+ * Purpose: Render collage preview DOM from layout and effect options.
+ * Description:
+ * - Paints preview cells, image transforms, and clip-path behavior.
+ * - Applies capture-date, vignette, and watermark overlays.
+ * - Handles feature fallbacks for advanced shape/edge options.
  */
 import { ratiosToFrString } from './resize-engine.js';
 import { getFilterCss } from './image-effects.js';
@@ -25,11 +28,21 @@ import {
 } from './frame-shape-geometry.js';
 import { getShapeCssClip } from './shape-clip-utils.js';
 
+/**
+ * Check whether CSS `clip-path: path(...)` is supported.
+ * @returns {boolean}
+ */
 function supportsCssPathClip() {
   if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
   return CSS.supports('clip-path', "path('M0 0 L1 0 L1 1 L0 1 Z')");
 }
 
+/**
+ * Convert a hex color + opacity into an rgba() CSS color string.
+ * @param {string} hex
+ * @param {number} opacity
+ * @returns {string}
+ */
 function colorWithOpacity(hex, opacity) {
   const c = String(hex || '#ffffff').trim();
   const alpha = Math.max(0, Math.min(1, Number(opacity) || 0));
@@ -42,7 +55,7 @@ function colorWithOpacity(hex, opacity) {
 }
 
 /**
- * Renders the grid preview into container and optionally watermark overlay into preview.
+ * Render grid preview and optional overlays into live DOM nodes.
  * @param {HTMLElement} container - The grid container (e.g. #previewGrid)
  * @param {HTMLElement | null} preview - The preview parent for watermark overlay (e.g. #preview)
  * @param {{ url: string, dateOriginal?: Date | null }[]} photos

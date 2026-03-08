@@ -1,5 +1,14 @@
 /**
- * Keyboard navigation for grid cells: Arrow keys move focus, Alt+Arrow swaps with previous/next.
+ * Purpose: Enable keyboard focus navigation and swap actions in grid.
+ * Description:
+ * - Arrow keys move focus between cells in visual order.
+ * - Alt+Arrow triggers photo swaps for accessibility workflows.
+ */
+/**
+ * Attach keyboard handlers for cell navigation and swapping.
+ * @param {HTMLElement} gridEl
+ * @param {() => { cells?: object[] } | null} getLayout
+ * @param {(sourceIdx: number, targetIdx: number) => void} onSwap
  */
 export function enableCellKeyboardNav(gridEl, getLayout, onSwap) {
   function getCells() {

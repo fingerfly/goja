@@ -4,8 +4,11 @@
 
 ## [9.5.0] - 2026-03-08
 
+### Changed
+- Synchronized Wave 12 background-label rollout status as fully completed (`rev49..rev52`) and marked it ready for next-wave planning in project planning artifacts, to keep execution status and release documentation aligned.
 
-## [9.4.1] - 2026-03-06
+### Notes
+- This update is documentation/governance synchronization only; no runtime behavior or UI logic changed in this step.
 
 ### Changed
 - Clarified the two previously ambiguous background controls with explicit scope semantics across UI and locales:

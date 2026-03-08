@@ -1,3 +1,9 @@
+/**
+ * Purpose: Detect runtime capability for advanced edge rendering paths.
+ * Description:
+ * - Probes Path2D, CSS clip-path support, and canvas clip readiness.
+ * - Returns a normalized feature-support object for UI gating.
+ */
 function defaultCanvasProbe() {
   if (typeof document === 'undefined') return false;
   const canvas = document.createElement('canvas');
@@ -18,6 +24,20 @@ function defaultPreviewPolygonProbe(env) {
   return env.CSS.supports('clip-path', 'polygon(50% 0%, 100% 100%, 0% 100%)');
 }
 
+/**
+ * Resolve advanced edge-feature support in current environment.
+ * @param {any} [env]
+ * @param {object} [probes]
+ * @returns {{
+ *   status: string,
+ *   advancedSupported: boolean,
+ *   canvasOk?: boolean,
+ *   previewPathOk?: boolean,
+ *   previewPolygonOk?: boolean,
+ *   previewOk?: boolean,
+ *   previewClipMode?: string
+ * }}
+ */
 export function resolveEdgeSupport(
   env = globalThis,
   probes = {

@@ -1,3 +1,9 @@
+/**
+ * Purpose: Sample closed shape contours as normalized point arrays.
+ * Description:
+ * - Produces points for polygons and smooth curves.
+ * - Supports offsets/insets for frame and cell geometry workflows.
+ */
 import {
   normalizeFrameShape,
   normalizeShapeOrientation,
@@ -127,6 +133,13 @@ function superellipseContour(width, height, inset, ox, oy, samples, exponent) {
   return pts;
 }
 
+/**
+ * Sample a shape contour as an ordered closed point list.
+ * @param {number} width
+ * @param {number} height
+ * @param {Record<string, unknown>} [options]
+ * @returns {[number, number][]}
+ */
 export function sampleShapeContour(width, height, options = {}) {
   const shape = normalizeFrameShape(options.shape ?? 'rect');
   const orientation = normalizeShapeOrientation(options.orientation ?? 'auto');

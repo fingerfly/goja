@@ -1,3 +1,10 @@
+/**
+ * Purpose: Normalize and safely handle grid background color input.
+ * Description:
+ * - Normalizes color values to canonical hex format.
+ * - Enables text-input fallback for problematic mobile environments.
+ * - Syncs optional swatch palette buttons with current color value.
+ */
 const HEX_SHORT_RE = /^#?([0-9a-fA-F]{3})$/;
 const HEX_LONG_RE = /^#?([0-9a-fA-F]{6})$/;
 const DEFAULT_BG_COLOR = '#ffffff';
@@ -10,6 +17,12 @@ function normalizeHexBody(hexBody) {
   return hexBody.toLowerCase();
 }
 
+/**
+ * Normalize hex color input to `#rrggbb`.
+ * @param {string} value
+ * @param {string} [fallback]
+ * @returns {string}
+ */
 export function normalizeHexColor(value, fallback = DEFAULT_BG_COLOR) {
   const raw = String(value ?? '').trim();
   const short = raw.match(HEX_SHORT_RE);
@@ -19,6 +32,15 @@ export function normalizeHexColor(value, fallback = DEFAULT_BG_COLOR) {
   return fallback;
 }
 
+/**
+ * Decide whether to force a text-input safe fallback.
+ * @param {{
+ *   userAgent?: string,
+ *   forceSafeFallback?: boolean,
+ *   hasNativeColorInput?: boolean
+ * }} [options]
+ * @returns {boolean}
+ */
 export function shouldUseSafeBgColorFallback({
   userAgent = '',
   forceSafeFallback = false,
@@ -72,6 +94,13 @@ function bindPalette(inputEl, paletteRoot) {
   syncActiveButton();
 }
 
+/**
+ * Initialize background-color input behavior and palette syncing.
+ * @param {HTMLInputElement | null} inputEl
+ * @param {{ paletteRoot?: HTMLElement | null, userAgent?: string,
+ *   forceSafeFallback?: boolean }} [options]
+ * @returns {boolean} True when text fallback mode is enabled.
+ */
 export function initBackgroundColorControl(inputEl, options = {}) {
   if (!inputEl) return false;
   inputEl.value = normalizeHexColor(inputEl.value);

@@ -1,3 +1,9 @@
+/**
+ * Purpose: Normalize shape presets and derive polygon/contour geometry.
+ * Description:
+ * - Maps legacy shape aliases to current supported shape IDs.
+ * - Provides polygon vertex and contour resampling primitives.
+ */
 import {
   SUPERELLIPSE_EXPONENT_DEFAULT,
   SUPERELLIPSE_EXPONENT_MIN,
@@ -12,37 +18,78 @@ const POLYGON_SIDES_BY_SHAPE = Object.freeze({ 'regular-octagon': 8, 'regular-de
 function toFixed3(v) { return Number(v.toFixed(3)); }
 function normalizeLegacyShape(raw) { if (raw === 'hexagon' || raw === 'regular-hexagon' || raw === 'regular-nonagon') return 'regular-octagon'; if (raw === 'regular-triangle' || raw === 'squircle') return 'rect'; return raw; }
 
+/**
+ * Normalize global frame shape ID.
+ * @param {string} shape
+ * @returns {string}
+ */
 export function normalizeGlobalFrameShape(shape) {
   const raw = String(shape ?? 'rect');
   const normalized = normalizeLegacyShape(raw);
   return GLOBAL_SHAPES.has(normalized) ? normalized : 'rect';
 }
 
+/**
+ * Normalize cell shape ID.
+ * @param {string} shape
+ * @returns {string}
+ */
 export function normalizeCellShapeTemplate(shape) {
   const raw = String(shape ?? 'rect');
   const normalized = normalizeLegacyShape(raw);
   return CELL_SHAPES.has(normalized) ? normalized : 'rect';
 }
 
+/**
+ * Normalize frame shape ID (alias to global frame normalizer).
+ * @param {string} shape
+ * @returns {string}
+ */
 export function normalizeFrameShape(shape) {
   return normalizeGlobalFrameShape(shape);
 }
 
+/**
+ * Normalize shape orientation.
+ * @param {string} orientation
+ * @returns {'auto' | 'horizontal' | 'vertical'}
+ */
 export function normalizeShapeOrientation(orientation) {
   const raw = String(orientation ?? 'auto');
   return ORIENTATIONS.has(raw) ? raw : 'auto';
 }
 
+/**
+ * Resolve polygon side count for supported polygonal shape IDs.
+ * @param {string} shape
+ * @returns {number | null}
+ */
 export function polygonSidesForShape(shape) {
   return POLYGON_SIDES_BY_SHAPE[normalizeGlobalFrameShape(shape)] ?? null;
 }
 
+/**
+ * Clamp superellipse exponent to supported bounds.
+ * @param {unknown} value
+ * @returns {number}
+ */
 export function normalizeSuperellipseExponent(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return SUPERELLIPSE_EXPONENT_DEFAULT;
   return Math.max(SUPERELLIPSE_EXPONENT_MIN, Math.min(SUPERELLIPSE_EXPONENT_MAX, n));
 }
 
+/**
+ * Build regular polygon vertices for target bounds.
+ * @param {number} width
+ * @param {number} height
+ * @param {number} inset
+ * @param {'auto' | 'horizontal' | 'vertical'} orientation
+ * @param {number} ox
+ * @param {number} oy
+ * @param {number} sides
+ * @returns {[number, number][]}
+ */
 export function regularPolygonVertices(width, height, inset, orientation, ox, oy, sides) {
   const w = Math.max(1, Number(width) || 1);
   const h = Math.max(1, Number(height) || 1);
@@ -59,6 +106,12 @@ export function regularPolygonVertices(width, height, inset, orientation, ox, oy
   });
 }
 
+/**
+ * Resample a closed contour to a target point count.
+ * @param {[number, number][]} points
+ * @param {number} count
+ * @returns {[number, number][]}
+ */
 export function resampleClosedContour(points, count) {
   if (!Array.isArray(points) || points.length < 3) return points.slice();
   const target = Math.max(3, Math.round(Number(count) || points.length));

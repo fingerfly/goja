@@ -1,3 +1,9 @@
+/**
+ * Purpose: Build deterministic edge-deformation paths for each cell.
+ * Description:
+ * - Generates side or contour perturbations from style parameters.
+ * - Supports local path generation and global coordinate translation.
+ */
 import { makeSeededRng } from './edge-rng.js';
 import { getEdgeStyleProfile, normalizeEdgeStyle } from './edge-style-presets.js';
 import { normalizeCellShapeTemplate, normalizeShapeOrientation, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
@@ -112,6 +118,13 @@ function perturbContour(points, opts, seedKey) {
   });
 }
 
+/**
+ * Build local (cell-space) edge path data for one grid cell.
+ * @param {{ x: number, y: number, width: number, height: number }} cell
+ * @param {number} cellIndex
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
   const style = normalizeEdgeStyle(options.edgeStyle);
   const opts = { ...options, edgeStyle: style };
@@ -137,14 +150,35 @@ export function buildLocalCellEdgePathD(cell, cellIndex, options = {}) {
   return `M ${pts.map(([x, y]) => `${x} ${y}`).join(' L ')} Z`;
 }
 
+/**
+ * Translate absolute numbers in path data by dx/dy.
+ * @param {string} pathD
+ * @param {number} dx
+ * @param {number} dy
+ * @returns {string}
+ */
 export function translatePathD(pathD, dx, dy) {
   return pathD.replace(/(-?\d*\.?\d+)\s+(-?\d*\.?\d+)/g, (_, x, y) => `${Number(x) + dx} ${Number(y) + dy}`);
 }
 
+/**
+ * Build global path data for a cell edge style.
+ * @param {{ x: number, y: number, width: number, height: number }} cell
+ * @param {number} cellIndex
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function buildCellEdgePathD(cell, cellIndex, options = {}) {
   return buildEdgePathPair(cell, cellIndex, options).globalD;
 }
 
+/**
+ * Build both local and global edge paths in one call.
+ * @param {{ x: number, y: number, width: number, height: number }} cell
+ * @param {number} cellIndex
+ * @param {Record<string, unknown>} [options]
+ * @returns {{ localD: string, globalD: string }}
+ */
 export function buildEdgePathPair(cell, cellIndex, options = {}) {
   const localD = buildLocalCellEdgePathD(cell, cellIndex, options);
   return {

@@ -1,3 +1,9 @@
+/**
+ * Purpose: Generate SVG path data for supported frame/cell shapes.
+ * Description:
+ * - Re-exports shape normalizers for shared geometry consumers.
+ * - Produces path data for polygonal and smooth contour presets.
+ */
 import {
   sampleShapeContour,
 } from './shape-contour.js';
@@ -90,6 +96,13 @@ function heartPath(w, h, inset, ox = 0, oy = 0) {
   return `M ${first[0]} ${first[1]} ${rest.map(([x, y]) => `L ${x} ${y}`).join(' ')} Z`;
 }
 
+/**
+ * Build an SVG path string for a configured shape and bounds.
+ * @param {number} width
+ * @param {number} height
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function buildShapePathD(width, height, options = {}) {
   const w = Math.max(1, Number(width) || 1);
   const h = Math.max(1, Number(height) || 1);

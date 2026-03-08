@@ -1,6 +1,9 @@
 /**
- * App bootstrap: DOM refs, state, updater, handlers, initApp.
- * Keeps app.js minimal.
+ * Purpose: Wire DOM references, state, and module handlers at startup.
+ * Description:
+ * - Resolves UI elements and composes dependency modules.
+ * - Creates preview/update/export handlers around shared state.
+ * - Initializes i18n, service worker updates, and offline UI.
  */
 import { computeGridLayout } from './layout-engine.js';
 import { getTemplatesForCount, ensureTemplatesLoaded } from './layout-templates.js';
@@ -35,6 +38,9 @@ import { resolveEdgeSupport } from './edge-capability.js';
 
 const $ = (sel) => document.querySelector(sel);
 
+/**
+ * Bootstrap the application and attach all runtime integrations.
+ */
 export function bootstrap() {
   const [dropZone, fileInput, preview, previewGrid] = ['#dropZone', '#fileInput', '#preview', '#previewGrid'].map($);
   const [gapSlider, bgColor, formatSelect, addBtn, exportBtn, clearBtn, frameW, frameH, imageFit, templateSelect, exportFilename, exportUseDate] =
@@ -73,6 +79,9 @@ export function bootstrap() {
   const { updatePreview: baseUpdatePreview, applyRestoredState: baseApplyRestoredState, showUI, updateActionButtons } = updater;
 
   let cleanupRotation = null;
+  /**
+   * Rebind rotation handles after every re-render/layout restore.
+   */
   function refreshRotationHandles() {
     cleanupRotation?.();
     if (!stateRef.currentLayout || stateRef.photos.length === 0) return;
@@ -123,7 +132,12 @@ export function bootstrap() {
 
   initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, edgeOptionsGroup, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, initSettingsTabsNav, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
 
-  function updateOfflineBanner() { if (offlineBanner) offlineBanner.hidden = navigator.onLine; }
+  /**
+   * Keep the offline banner in sync with browser connectivity state.
+   */
+  function updateOfflineBanner() {
+    if (offlineBanner) offlineBanner.hidden = navigator.onLine;
+  }
   if (typeof navigator !== 'undefined' && 'onLine' in navigator) { updateOfflineBanner(); window.addEventListener('offline', updateOfflineBanner); window.addEventListener('online', updateOfflineBanner); }
   if ('serviceWorker' in navigator) {
     let r = false;

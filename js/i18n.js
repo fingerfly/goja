@@ -1,3 +1,9 @@
+/**
+ * Purpose: Provide locale selection and dictionary-based translation.
+ * Description:
+ * - Resolves keys from active locale with English fallback.
+ * - Persists selected locale and applies translations to DOM.
+ */
 import en from './locales/en.js';
 import zhHans from './locales/zh-Hans.js';
 import zhHant from './locales/zh-Hant.js';
@@ -18,6 +24,12 @@ function interpolate(str, params) {
   return str.replace(/\{(\w+)\}/g, (_, k) => (params[k] ?? ''));
 }
 
+/**
+ * Translate a key using active locale dictionary and interpolation.
+ * @param {string} key
+ * @param {Record<string, unknown>} [params]
+ * @returns {string}
+ */
 export function t(key, params) {
   const dict = LOCALES[currentLocale] || en;
   let val = dict[key];
@@ -26,10 +38,18 @@ export function t(key, params) {
   return interpolate(val, params);
 }
 
+/**
+ * Get active locale code.
+ * @returns {string}
+ */
 export function getLocale() {
   return currentLocale;
 }
 
+/**
+ * Set active locale and persist it.
+ * @param {string} locale
+ */
 export function setLocale(locale) {
   if (!AVAILABLE.includes(locale)) return;
   currentLocale = locale;
@@ -38,6 +58,10 @@ export function setLocale(locale) {
   }
 }
 
+/**
+ * List locale codes currently available in the app.
+ * @returns {string[]}
+ */
 export function getAvailableLocales() {
   return [...AVAILABLE];
 }
@@ -54,6 +78,9 @@ function detectBrowserLocale() {
   return 'en';
 }
 
+/**
+ * Initialize locale from persisted value or browser preference.
+ */
 export function init() {
   if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -65,6 +92,9 @@ export function init() {
   currentLocale = detectBrowserLocale();
 }
 
+/**
+ * Apply translated strings to marked DOM attributes.
+ */
 export function applyToDOM() {
   if (typeof document === 'undefined') return;
   const langMap = { 'zh-Hans': 'zh-Hans', 'zh-Hant': 'zh-Hant', es: 'es', ja: 'ja', eo: 'eo' };

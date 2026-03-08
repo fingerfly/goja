@@ -1,3 +1,9 @@
+/**
+ * Purpose: Provide filter and vignette effect helpers.
+ * Description:
+ * - Maps filter presets to CSS filter expressions.
+ * - Draws vignette overlays for cell-level dark-edge effects.
+ */
 import {
   FILTER_PRESET_GRAYSCALE,
   FILTER_PRESET_SEPIA,

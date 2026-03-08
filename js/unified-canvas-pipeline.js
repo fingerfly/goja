@@ -1,3 +1,10 @@
+/**
+ * Purpose: Render final collage output through one unified canvas pass.
+ * Description:
+ * - Applies global frame shape clipping and outside-background fill.
+ * - Draws each cell via injected drawCellContent callback.
+ * - Draws watermark and optional global frame stroke overlays.
+ */
 import { drawWatermark } from './watermark.js';
 import { buildFrameShapePathD } from './shape-clip-utils.js';
 import { normalizeGlobalFrameShape, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
@@ -40,6 +47,15 @@ function strokeFrame(ctx, layout, options, shape) {
   ctx.restore();
 }
 
+/**
+ * Render the final collage canvas using normalized options.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {CanvasImageSource[]} images
+ * @param {object} layout
+ * @param {Record<string, unknown>} options
+ * @param {(ctx: CanvasRenderingContext2D, image: CanvasImageSource,
+ *   cell: object, options: Record<string, unknown>) => void} drawCellContent
+ */
 export function renderUnifiedCanvas(ctx, images, layout, options, drawCellContent) {
   const shape = options.edgeAdvancedSupported
     ? normalizeGlobalFrameShape(options.globalFrameShape ?? GLOBAL_FRAME_SHAPE_DEFAULT)

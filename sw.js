@@ -1,4 +1,11 @@
-const CACHE_NAME = 'goja-v9.5.0-1';
+/**
+ * Purpose: Cache core Goja assets for offline-first behavior.
+ * Description:
+ * - Pre-caches app shell assets during install.
+ * - Cleans old caches on activate and handles skip-waiting messages.
+ * - Serves cached assets with network fallback for fetch requests.
+ */
+const CACHE_NAME = 'goja-v9.5.0-2';
 const ASSETS = [
   './',
   './index.html',

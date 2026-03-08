@@ -1,3 +1,9 @@
+/**
+ * Purpose: Define large-count layout templates (6-9 photos).
+ * Description:
+ * - Provides static slot geometry metadata for layout engine selection.
+ * - Uses slot preference hints for orientation-aware assignment.
+ */
 const S = (rowStart, rowEnd, colStart, colEnd, prefer = 'any') =>
   ({ rowStart, rowEnd, colStart, colEnd, prefer });
 

@@ -1,9 +1,20 @@
+/**
+ * Purpose: Keep settings tab highlight synced with section scrolling.
+ * Description:
+ * - Activates tabs on click and scroll position changes.
+ * - Temporarily locks active tab after click-driven navigation.
+ */
 function setActiveTab(tabsEl, key) {
   tabsEl?.querySelectorAll('[data-settings-tab]').forEach((btn) => {
     btn.classList.toggle('is-active', btn.dataset.settingsTab === key);
   });
 }
 
+/**
+ * Determine the currently visible settings section key.
+ * @param {HTMLElement | null} panelBodyEl
+ * @returns {string | null}
+ */
 export function getActiveSectionKey(panelBodyEl) {
   const sections = panelBodyEl?.querySelectorAll('[data-settings-section]');
   if (!sections?.length) return null;
@@ -15,6 +26,12 @@ export function getActiveSectionKey(panelBodyEl) {
   return active?.dataset.settingsSection ?? null;
 }
 
+/**
+ * Bind tab click + scroll syncing for settings sections.
+ * @param {HTMLElement | null} panelBodyEl
+ * @param {HTMLElement | null} tabsEl
+ * @returns {() => void} Cleanup listener function.
+ */
 export function initSettingsTabsNav(panelBodyEl, tabsEl) {
   if (!panelBodyEl || !tabsEl) return () => {};
   let lockedKey = null;

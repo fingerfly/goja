@@ -1,3 +1,9 @@
+/**
+ * Purpose: Provide deterministic pseudo-random numbers from string seeds.
+ * Description:
+ * - Uses a stable string hash and compact PRNG step function.
+ * - Keeps edge-style noise reproducible across preview/export paths.
+ */
 function hashString(str) {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < str.length; i++) {
@@ -7,6 +13,11 @@ function hashString(str) {
   return h >>> 0;
 }
 
+/**
+ * Build a deterministic random-number generator.
+ * @param {string} seedText
+ * @returns {() => number} Generator returning values in [0, 1).
+ */
 export function makeSeededRng(seedText) {
   let t = hashString(String(seedText)) || 1;
   return () => {

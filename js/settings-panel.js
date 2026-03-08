@@ -1,9 +1,26 @@
+/**
+ * Purpose: Control settings panel open/close and focus restoration.
+ * Description:
+ * - Keeps dialog state (`open` class + aria-hidden) synchronized.
+ * - Restores focus to trigger for keyboard accessibility.
+ */
 let focusReturnEl = null;
 
+/**
+ * Check whether settings panel is currently open.
+ * @param {HTMLElement} panelEl
+ * @returns {boolean}
+ */
 export function isOpen(panelEl) {
   return panelEl.classList.contains('open');
 }
 
+/**
+ * Open settings panel and move focus into the dialog.
+ * @param {HTMLElement} panelEl
+ * @param {HTMLElement} backdropEl
+ * @param {HTMLElement | null} triggerEl
+ */
 export function openSettings(panelEl, backdropEl, triggerEl) {
   focusReturnEl = triggerEl || document.activeElement;
   panelEl.classList.add('open');
@@ -13,6 +30,11 @@ export function openSettings(panelEl, backdropEl, triggerEl) {
   if (firstFocusable) firstFocusable.focus();
 }
 
+/**
+ * Close settings panel and restore focus to trigger element.
+ * @param {HTMLElement} panelEl
+ * @param {HTMLElement} backdropEl
+ */
 export function closeSettings(panelEl, backdropEl) {
   panelEl.classList.remove('open');
   backdropEl.classList.remove('open');
@@ -23,6 +45,13 @@ export function closeSettings(panelEl, backdropEl) {
   }
 }
 
+/**
+ * Bind settings panel open/close interactions.
+ * @param {HTMLElement} panelEl
+ * @param {HTMLElement} backdropEl
+ * @param {HTMLElement} triggerEl
+ * @param {HTMLElement | null} closeEl
+ */
 export function initSettingsPanel(panelEl, backdropEl, triggerEl, closeEl) {
   const close = () => closeSettings(panelEl, backdropEl);
   const open = () => openSettings(panelEl, backdropEl, triggerEl);

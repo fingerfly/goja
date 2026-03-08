@@ -1,9 +1,23 @@
+/**
+ * Purpose: Provide interactive grid-resize handles for row/col ratios.
+ * Description:
+ * - Creates overlay handles over the preview grid.
+ * - Updates ratio state while dragging and pushes resize history.
+ */
 import { adjustRatio } from './resize-engine.js';
 import { MIN_FRACTION } from './config.js';
 
 const HANDLE_CLASS = 'resize-handle';
 const OVERLAY_CLASS = 'resize-overlay';
 
+/**
+ * Enable drag handles for grid ratio resizing.
+ * @param {HTMLElement} gridEl
+ * @param {object} layout
+ * @param {(ratios: object) => void} onResize
+ * @param {() => void} [onResizeStart]
+ * @returns {() => void}
+ */
 export function enableGridResize(gridEl, layout, onResize, onResizeStart) {
   disableGridResize(gridEl);
   const overlay = document.createElement('div');
@@ -47,6 +61,14 @@ function createHandles(overlay, gridEl, layout, state, onResize, onResizeStart) 
   }
 }
 
+/**
+ * Compute boundary center position for a ratio divider handle.
+ * @param {number[]} ratios
+ * @param {number} index
+ * @param {number} totalPx
+ * @param {number} gap
+ * @returns {number}
+ */
 export function trackBoundaryPos(ratios, index, totalPx, gap) {
   const sum = ratios.reduce((a, b) => a + b, 0);
   const available = totalPx - gap * (ratios.length - 1);

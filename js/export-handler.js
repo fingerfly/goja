@@ -1,3 +1,10 @@
+/**
+ * Purpose: Export rendered grids via worker or main-thread fallback.
+ * Description:
+ * - Builds export options and delegates drawing to unified pipeline.
+ * - Prefers worker rendering when supported for UI responsiveness.
+ * - Exposes download/share/clipboard helpers for UI actions.
+ */
 import { createGridCanvas, exportCanvasAsBlob } from './image-processor.js';
 import { drawCellContent } from './cell-draw.js';
 import { renderUnifiedCanvas } from './unified-canvas-pipeline.js';
@@ -19,6 +26,18 @@ import {
   CELL_SHAPE_ORIENTATION_DEFAULT,
 } from './config.js';
 
+/**
+ * Render and export on the main thread.
+ * @param {{ url: string, angle?: number }[]} photos
+ * @param {{
+ *   photoOrder?: number[],
+ *   canvasWidth: number,
+ *   canvasHeight: number,
+ *   cells: object[]
+ * }} layout
+ * @param {Record<string, unknown>} options
+ * @returns {Promise<Blob>}
+ */
 function exportMainThread(photos, layout, options) {
   const { format = 'image/jpeg', fitMode = 'cover', filter = 'none' } = options;
   const { vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT } = options;
@@ -82,6 +101,13 @@ function exportMainThread(photos, layout, options) {
   });
 }
 
+/**
+ * Render and export in a dedicated worker.
+ * @param {{ url: string, angle?: number }[]} photos
+ * @param {object} layout
+ * @param {Record<string, unknown>} options
+ * @returns {Promise<Blob>}
+ */
 function exportViaWorker(photos, layout, options) {
   return new Promise((resolve, reject) => {
     const blobUrls = photos.map((p) => p.url);
@@ -102,6 +128,13 @@ function exportViaWorker(photos, layout, options) {
 
 const USE_WORKER = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap !== 'undefined';
 
+/**
+ * Export a composed collage image.
+ * @param {{ url: string, angle?: number }[]} photos
+ * @param {object} layout
+ * @param {Record<string, unknown>} [options]
+ * @returns {Promise<Blob>}
+ */
 export async function handleExport(photos, layout, options = {}) {
   if (USE_WORKER) {
     try {
@@ -113,6 +146,12 @@ export async function handleExport(photos, layout, options = {}) {
   return exportMainThread(photos, layout, options);
 }
 
+/**
+ * Trigger browser download for the exported image blob.
+ * @param {Blob} blob
+ * @param {string} format
+ * @param {string} filename
+ */
 export function downloadBlob(blob, format, filename) {
   const ext = format === 'image/png' ? 'png' : 'jpg';
   const base = (filename && String(filename).trim()) || 'goja-grid';
@@ -125,6 +164,13 @@ export function downloadBlob(blob, format, filename) {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Share the exported image through Web Share API.
+ * @param {Blob} blob
+ * @param {string} filename
+ * @returns {Promise<void>}
+ * @throws {Error} When sharing is unsupported.
+ */
 export async function shareBlob(blob, filename) {
   if (!navigator.share) throw new Error('Share not supported');
   const ext = blob.type === 'image/png' ? 'png' : 'jpg';
@@ -134,6 +180,12 @@ export async function shareBlob(blob, filename) {
   await navigator.share({ files: [file], title: 'Goja grid' });
 }
 
+/**
+ * Copy an exported image blob to clipboard.
+ * @param {Blob} blob
+ * @returns {Promise<void>}
+ * @throws {Error} When clipboard image copy is unsupported.
+ */
 export async function copyBlobToClipboard(blob) {
   if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') {
     throw new Error('Copy not supported');

@@ -1,3 +1,10 @@
+/**
+ * Purpose: Compute photo-to-cell assignment and pixel grid geometry.
+ * Description:
+ * - Scores candidate templates for the selected photo count.
+ * - Matches photo aspect ratios to template cell aspect ratios.
+ * - Produces final canvas dimensions, cells, and photo ordering.
+ */
 import { getTemplatesForCount } from './layout-templates.js';
 
 const SQUARE_THRESHOLD = 1.1;
@@ -8,6 +15,12 @@ const MATCH_SCORE = 3;
 const ANY_SCORE = 1;
 const MISMATCH_SCORE = 0;
 
+/**
+ * Classify a photo orientation using a square threshold.
+ * @param {number} width
+ * @param {number} height
+ * @returns {'landscape' | 'portrait' | 'square'}
+ */
 export function classifyPhoto(width, height) {
   const ratio = width / height;
   if (ratio >= SQUARE_THRESHOLD) return 'landscape';
@@ -15,6 +28,12 @@ export function classifyPhoto(width, height) {
   return 'square';
 }
 
+/**
+ * Score how well orientations match a template's slot preferences.
+ * @param {{ slots: { prefer: string }[] }} template
+ * @param {('landscape' | 'portrait' | 'square')[]} orientations
+ * @returns {number}
+ */
 export function scoreTemplate(template, orientations) {
   let score = 0;
   for (let i = 0; i < template.slots.length; i++) {
@@ -27,6 +46,12 @@ export function scoreTemplate(template, orientations) {
   return score;
 }
 
+/**
+ * Greedy orientation-first assignment kept for compatibility/tests.
+ * @param {{ width: number, height: number }[]} photos
+ * @param {{ slots: { prefer: string }[] }} template
+ * @returns {number[]}
+ */
 export function assignPhotosToSlots(photos, template) {
   const orientations = photos.map(p => classifyPhoto(p.width, p.height));
   const used = new Set();
@@ -105,6 +130,38 @@ function assignPhotosByAspectMatch(photos, template, outputWidth, outputHeight, 
   return indices;
 }
 
+/**
+ * Compute a full layout for the current photos and options.
+ * @param {{ width: number, height: number }[]} photos
+ * @param {{
+ *   outputWidth?: number,
+ *   outputHeight?: number,
+ *   gap?: number,
+ *   fitMode?: string,
+ *   templateId?: string
+ * }} [options]
+ * @returns {{
+ *   baseRows: number,
+ *   baseCols: number,
+ *   gap: number,
+ *   cells: {
+ *     rowStart: number,
+ *     rowEnd: number,
+ *     colStart: number,
+ *     colEnd: number,
+ *     x: number,
+ *     y: number,
+ *     width: number,
+ *     height: number
+ *   }[],
+ *   photoOrder: number[],
+ *   canvasWidth: number,
+ *   canvasHeight: number,
+ *   colRatios: number[],
+ *   rowRatios: number[]
+ * }}
+ * @throws {Error} When no photos or no template is available.
+ */
 export function computeGridLayout(photos, options = {}) {
   if (!photos || photos.length === 0) throw new Error('At least one photo is required');
 

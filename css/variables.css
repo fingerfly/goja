@@ -1,3 +1,9 @@
+/*
+  Purpose: Define design tokens and shared theme variables.
+  Description:
+  - Centralizes spacing, color, typography, z-index, and layout tokens.
+  - Provides dark-mode overrides for consistent theming.
+*/
 :root {
   --color-primary: #0d9488;
   --color-primary-light: #5eead4;

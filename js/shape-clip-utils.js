@@ -1,3 +1,9 @@
+/**
+ * Purpose: Convert frame/cell shape settings into CSS and SVG paths.
+ * Description:
+ * - Builds CSS clip-path expressions for preview clipping.
+ * - Builds global/cell path data used by export and overlays.
+ */
 import {
   buildShapePathD,
   normalizeGlobalFrameShape,
@@ -29,6 +35,13 @@ function regularPolygonClip(shape, orientation = 'auto') {
   return polygonFromPoints(pts);
 }
 
+/**
+ * Build a CSS clip-path string from a normalized shape preset.
+ * @param {string} shape
+ * @param {'auto' | 'horizontal' | 'vertical'} [orientation]
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
   const normalize = options.scope === 'cell' ? normalizeCellShapeTemplate : normalizeGlobalFrameShape;
   const normalizedShape = normalize(shape);
@@ -63,6 +76,12 @@ export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
   return 'none';
 }
 
+/**
+ * Build global frame path data for full-canvas overlays/clipping.
+ * @param {{ canvasWidth: number, canvasHeight: number }} layout
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function buildFrameShapePathD(layout, options = {}) {
   const shape = normalizeGlobalFrameShape(options.shape ?? 'rect');
   const inset = Math.max(0, Number(options.inset) || 0);
@@ -75,6 +94,12 @@ export function buildFrameShapePathD(layout, options = {}) {
   });
 }
 
+/**
+ * Build per-cell path data in global canvas coordinates.
+ * @param {{ x: number, y: number, width: number, height: number }} cell
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
 export function buildCellShapePathD(cell, options = {}) {
   const shape = normalizeCellShapeTemplate(options.shape ?? 'rect');
   const orientation = normalizeShapeOrientation(options.orientation ?? 'auto');

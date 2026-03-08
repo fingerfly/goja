@@ -1,3 +1,9 @@
+/**
+ * Purpose: Resolve and draw watermark overlays on rendered outputs.
+ * Description:
+ * - Converts watermark mode/text inputs into final display text.
+ * - Draws center, tiled, or corner watermark layouts on canvas.
+ */
 const ROTATION_DEG = -30;
 const ROTATION_RAD = (ROTATION_DEG * Math.PI) / 180;
 const CENTER_FONT_RATIO = 0.08;
@@ -26,6 +32,13 @@ function luminanceFromColor(cssColor) {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
+/**
+ * Resolve watermark text from type and user input.
+ * @param {string} type
+ * @param {string} userText
+ * @param {string} [locale]
+ * @returns {string}
+ */
 export function resolveWatermarkText(type, userText, locale = 'en') {
   if (type === 'none') return '';
   if (type === 'text') return (userText || '').trim();
@@ -39,6 +52,13 @@ export function resolveWatermarkText(type, userText, locale = 'en') {
   return '';
 }
 
+/**
+ * Draw watermark overlay on a canvas context.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} canvasWidth
+ * @param {number} canvasHeight
+ * @param {Record<string, unknown>} options
+ */
 export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
   const {
     type, text, position = 'bottom-right', locale = 'en',

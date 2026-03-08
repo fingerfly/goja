@@ -1,13 +1,39 @@
+/**
+ * Purpose: Handle row/column ratio math for resizable grids.
+ * Description:
+ * - Converts ratio vectors to CSS grid template strings.
+ * - Adjusts neighboring ratios while preserving minimum fractions.
+ * - Recomputes pixel cell geometry after ratio updates.
+ */
+/**
+ * Create default equal ratios.
+ * @param {number} count
+ * @returns {number[]}
+ */
 export function defaultRatios(count) {
   return Array(count).fill(1);
 }
 
+/**
+ * Convert numeric ratios to CSS `fr` string.
+ * @param {number[]} ratios
+ * @returns {string}
+ */
 export function ratiosToFrString(ratios) {
   return ratios.map(r => `${r}fr`).join(' ');
 }
 
 import { MIN_FRACTION } from './config.js';
 
+/**
+ * Adjust one ratio boundary while respecting minimum fraction limits.
+ * @param {number[]} ratios
+ * @param {number} index
+ * @param {number} deltaPx
+ * @param {number} totalPx
+ * @param {number} [minFraction]
+ * @returns {number[]}
+ */
 export function adjustRatio(ratios, index, deltaPx, totalPx, minFraction = MIN_FRACTION) {
   if (deltaPx === 0) return [...ratios];
   const result = [...ratios];
@@ -47,6 +73,11 @@ function trackPositions(sizes, gap) {
   return pos;
 }
 
+/**
+ * Recompute pixel cells from updated row/column ratios.
+ * @param {object} layout
+ * @returns {object[]}
+ */
 export function recomputePixelCells(layout) {
   const { baseCols, baseRows, gap, canvasWidth, colRatios, rowRatios, cells } = layout;
   const colSizes = trackSizes(colRatios, canvasWidth, gap);
