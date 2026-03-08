@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [10.1.0] - 2026-03-08
+
+
+## [10.0.1] - 2026-03-06
+
+### Changed
+- Executed Wave 13 heart recognizability upgrade with a single canonical
+  heart contour source based on a parametric heart equation.
+- Replaced heart anisotropic stretch behavior with inset-safe similarity
+  fitting (uniform scale + translation), so heart proportions remain
+  stable across portrait/square/landscape frames.
+- Added Heart V3 recognizability and anti-distortion constraints in
+  `tests/unit/frame-shape-geometry.test.js`.
+- Added preview-side heart silhouette recognizability e2e coverage in
+  `tests/e2e/goja.spec.js`.
+- Refactored heart/shape geometry helpers to satisfy static complexity and
+  readability gates for touched geometry modules.
+
+### Tests
+- Validation runs completed with:
+  - `npx vitest run tests/unit/frame-shape-geometry.test.js tests/unit/shape-clip-utils.test.js`
+  - `npx playwright test tests/e2e/goja.spec.js --grep "heart frame silhouette remains recognizable in preview|iPhone class preview stays in sync after repeated shape and edge toggles"`
+  - `npm test` (`446` passed)
+  - `npm run test:e2e` (`73` passed)
+  - `cloc --by-file --include-lang=JavaScript 02product/01_coding/project/goja/js/shape-contour.js 02product/01_coding/project/goja/js/frame-shape-geometry.js 02product/01_coding/project/goja/js/shape-clip-utils.js`
+  - `npx -y eslint@9.22.0 --no-config-lookup js/shape-contour.js js/frame-shape-geometry.js js/shape-clip-utils.js --max-warnings 0 --rule "max-lines-per-function: [\"error\", {\"max\": 40, \"skipBlankLines\": true, \"skipComments\": true}]" --rule "complexity: [\"error\", 10]" --rule "max-len: [\"error\", {\"code\": 78, \"ignoreUrls\": true}]" --rule "max-depth: [\"error\", 4]"`
+
 ## [10.0.0] - 2026-03-08
 
 

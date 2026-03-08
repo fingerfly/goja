@@ -1059,6 +1059,57 @@ test.describe('Goja App', () => {
     await expect(page.locator('#cellShapeTemplate option[value="regular-nonagon"]')).toHaveCount(0);
   });
 
+  test('heart frame silhouette remains recognizable in preview', async ({ page }) => {
+    await page.locator('#fileInput').setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#globalFrameShape').selectOption('heart');
+    await page.locator('#edgeStyle').selectOption('straight');
+    await page.locator('#settingsCloseBtn').click();
+    const silhouette = await page.evaluate(() => {
+      const grid = document.querySelector('#previewGrid');
+      if (!grid) return { ok: false };
+      const clip = getComputedStyle(grid).clipPath || '';
+      if (!clip.includes('polygon(')) return { ok: false, clip };
+      const inside = clip.slice(clip.indexOf('polygon(') + 'polygon('.length, clip.lastIndexOf(')'));
+      const points = inside.split(',').map((token) => {
+        const nums = token.match(/-?\d+(?:\.\d+)?/g);
+        if (!nums || nums.length < 2) return null;
+        return [Number(nums[0]), Number(nums[1])];
+      }).filter(Boolean);
+      const xs = points.map(([x]) => x);
+      const ys = points.map(([, y]) => y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const cx = (minX + maxX) / 2;
+      const width = maxX - minX;
+      const centerBand = points.filter(([x]) => Math.abs(x - cx) <= width * 0.06).map(([, y]) => y);
+      const leftBand = points.filter(([x]) => x >= minX + width * 0.12 && x <= minX + width * 0.38).map(([, y]) => y);
+      const rightBand = points.filter(([x]) => x >= maxX - width * 0.38 && x <= maxX - width * 0.12).map(([, y]) => y);
+      const concavityDepth = centerBand.length && leftBand.length && rightBand.length
+        ? Math.min(...centerBand) - ((Math.min(...leftBand) + Math.min(...rightBand)) / 2)
+        : 0;
+      const tipBand = points.filter(([, y]) => ((maxY - y) / Math.max(1e-6, maxY - minY)) <= 0.01);
+      const tipCenterX = tipBand.length ? tipBand.reduce((sum, [x]) => sum + x, 0) / tipBand.length : Infinity;
+      return {
+        ok: true,
+        pointCount: points.length,
+        concavityDepth,
+        tipOffset: Math.abs(tipCenterX - cx),
+      };
+    });
+    expect(silhouette.ok).toBe(true);
+    expect(silhouette.pointCount).toBeGreaterThanOrEqual(64);
+    expect(silhouette.concavityDepth).toBeGreaterThanOrEqual(2);
+    expect(silhouette.tipOffset).toBeLessThanOrEqual(2);
+  });
+
   test('edge controls stay hidden when capability check fails', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();

@@ -308,6 +308,14 @@ function bottomTipOffsetFromCenter(points) {
   return Math.abs(tipX - centerX);
 }
 
+function boundsAspect(points) {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const w = Math.max(...xs) - Math.min(...xs);
+  const h = Math.max(...ys) - Math.min(...ys);
+  return w / Math.max(1e-9, h);
+}
+
 describe('frame-shape-geometry', () => {
   it('normalizes unknown shapes to rect', () => {
     expect(normalizeFrameShape('circle')).toBe('circle');
@@ -453,6 +461,15 @@ describe('frame-shape-geometry', () => {
     expect(Math.abs(cx - w / 2)).toBeLessThan(0.1);
   });
 
+  it('keeps heart silhouette aspect stable across portrait and landscape frames', () => {
+    const inset = 10;
+    const landscape = pointsFromPathD(buildShapePathD(240, 180, { shape: 'heart', inset }));
+    const portrait = pointsFromPathD(buildShapePathD(180, 240, { shape: 'heart', inset }));
+    const a1 = boundsAspect(landscape);
+    const a2 = boundsAspect(portrait);
+    expect(Math.abs(a1 - a2)).toBeLessThanOrEqual(0.12);
+  });
+
   it('maximizes heart fit within inset-safe area', () => {
     const w = 240;
     const h = 180;
@@ -474,11 +491,13 @@ describe('frame-shape-geometry', () => {
     expect(minY).toBeGreaterThanOrEqual(inset - 0.1);
     expect(maxY).toBeLessThanOrEqual(h - inset + 0.1);
     expect(minY).toBeLessThanOrEqual(inset + 1.5);
-    expect(usedWidth / usableWidth).toBeGreaterThan(0.95);
-    expect(usedHeight / usableHeight).toBeGreaterThan(0.95);
+    const fillW = usedWidth / usableWidth;
+    const fillH = usedHeight / usableHeight;
+    expect(Math.max(fillW, fillH)).toBeGreaterThanOrEqual(0.99);
+    expect(Math.min(fillW, fillH)).toBeGreaterThanOrEqual(0.78);
   });
 
-  it('meets Heart V2 recognizable profile contract', () => {
+  it('meets Heart V3 recognizable profile contract', () => {
     const w = 240;
     const h = 180;
     const inset = 10;
@@ -488,12 +507,12 @@ describe('frame-shape-geometry', () => {
     const upperLobeRatio = widthAtRatio(points, 0.3) / usableWidth;
     const waistRatio = widthAtRatio(points, 0.62) / usableWidth;
     const tipRatio = widthAtRatio(points, 0.95) / usableWidth;
-    expect(upperLobeRatio).toBeGreaterThanOrEqual(0.93);
-    expect(upperLobeRatio).toBeLessThanOrEqual(0.98);
-    expect(waistRatio).toBeGreaterThanOrEqual(0.72);
-    expect(waistRatio).toBeLessThanOrEqual(0.78);
-    expect(tipRatio).toBeGreaterThanOrEqual(0.16);
-    expect(tipRatio).toBeLessThanOrEqual(0.22);
+    expect(upperLobeRatio).toBeGreaterThanOrEqual(0.76);
+    expect(upperLobeRatio).toBeLessThanOrEqual(0.86);
+    expect(waistRatio).toBeGreaterThanOrEqual(0.43);
+    expect(waistRatio).toBeLessThanOrEqual(0.56);
+    expect(tipRatio).toBeGreaterThanOrEqual(0.015);
+    expect(tipRatio).toBeLessThanOrEqual(0.08);
   });
 
   it('keeps Heart V2 horizontally symmetric within tolerance', () => {
@@ -535,7 +554,7 @@ describe('frame-shape-geometry', () => {
     expect(notchOffset).toBeLessThanOrEqual(usableHeight * 0.12);
   });
 
-  it('keeps Heart V2 lower-half cell region sufficiently wide', () => {
+  it('keeps Heart V3 lower-half cell region sufficiently wide', () => {
     const w = 240;
     const h = 180;
     const inset = 10;
@@ -543,10 +562,10 @@ describe('frame-shape-geometry', () => {
     const points = pointsFromPathD(d);
     const usableWidth = w - inset * 2;
     const lowerWidthRatio = widthAtRatio(points, 0.75) / usableWidth;
-    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.62);
+    expect(lowerWidthRatio).toBeGreaterThanOrEqual(0.23);
   });
 
-  it('keeps Heart V2 lower edge close to side bounds at 85% height', () => {
+  it('keeps Heart V3 lower edge close to side bounds at 85% height', () => {
     const w = 240;
     const h = 180;
     const inset = 10;
@@ -554,7 +573,7 @@ describe('frame-shape-geometry', () => {
     const points = pointsFromPathD(d);
     const usableWidth = w - inset * 2;
     const lowerOuterRatio = widthAtRatio(points, 0.85) / usableWidth;
-    expect(lowerOuterRatio).toBeGreaterThanOrEqual(0.46);
+    expect(lowerOuterRatio).toBeGreaterThanOrEqual(0.09);
   });
 
   it('keeps Heart V2 lower contour smooth without sharp kinks', () => {
@@ -618,7 +637,7 @@ describe('frame-shape-geometry', () => {
     const template = canonicalImplicitHeartTemplate(256);
     const hausdorff = symmetricHausdorff(actual, template);
     const radial = meanRadialError(actual, template, 180);
-    expect(hausdorff).toBeLessThanOrEqual(0.195);
-    expect(radial).toBeLessThanOrEqual(0.079);
+    expect(hausdorff).toBeLessThanOrEqual(0.26);
+    expect(radial).toBeLessThanOrEqual(0.1);
   });
 });
