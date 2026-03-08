@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [10.0.0] - 2026-03-08
+
+
+### Changed
+- Applied the Goja source commenting rollout across JS, HTML, CSS, and
+  service worker sources using the established rule set:
+  - strict 78-column line width for added/edited lines
+  - module-level `Purpose` + `Description` headers
+  - function/class/method JSDoc on exported and non-trivial logic
+- Added structured documentation coverage across core runtime modules,
+  geometry/effects modules, UI interaction modules, utility/data
+  modules, and entry/presentation files.
+- Preserved runtime behavior while improving maintainability and
+  onboarding clarity through consistent intent-first comments.
+
+### Tests
+- Validation runs completed with:
+  - `npm test` (`445` passed)
+  - `npm run test:e2e` (`72` passed)
+  - `cloc --by-file` source inventory re-check
+  - post-edit linter diagnostics check (`No linter errors found`)
+
 ## [9.5.0] - 2026-03-08
 
 ### Changed
