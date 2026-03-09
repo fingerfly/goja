@@ -26,7 +26,7 @@ import {
   normalizeShapeOrientation,
   normalizeSuperellipseExponent,
 } from './frame-shape-geometry.js';
-import { getShapeCssClip } from './shape-clip-utils.js';
+import { getShapeCssClip, buildFrameStrokeModel } from './shape-clip-utils.js';
 
 /**
  * Check whether CSS `clip-path: path(...)` is supported.
@@ -37,21 +37,41 @@ function supportsCssPathClip() {
   return CSS.supports('clip-path', "path('M0 0 L1 0 L1 1 L0 1 Z')");
 }
 
-/**
- * Convert a hex color + opacity into an rgba() CSS color string.
- * @param {string} hex
- * @param {number} opacity
- * @returns {string}
- */
-function colorWithOpacity(hex, opacity) {
-  const c = String(hex || '#ffffff').trim();
-  const alpha = Math.max(0, Math.min(1, Number(opacity) || 0));
-  if (!c.startsWith('#') || (c.length !== 7 && c.length !== 4)) return `rgba(255,255,255,${alpha})`;
-  const full = c.length === 4 ? `#${c[1]}${c[1]}${c[2]}${c[2]}${c[3]}${c[3]}` : c;
-  const r = parseInt(full.slice(1, 3), 16);
-  const g = parseInt(full.slice(3, 5), 16);
-  const b = parseInt(full.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
+function renderFrameStrokeOverlay(preview, layout, shape, form, superellipseExponent) {
+  if (!preview || shape === 'rect') return;
+  const model = buildFrameStrokeModel(layout, {
+    shape,
+    strokeEnabled: form.globalFrameStrokeEnabled,
+    strokeWidth: form.globalFrameStrokeWidth,
+    strokeColor: form.globalFrameStrokeColor,
+    strokeOpacity: form.globalFrameStrokeOpacity,
+    superellipseExponent,
+  });
+  if (!model) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'preview-frame-stroke-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+  Object.assign(overlay.style, {
+    position: 'absolute',
+    inset: '0',
+    pointerEvents: 'none',
+  });
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('viewBox', `0 0 ${layout.canvasWidth} ${layout.canvasHeight}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', model.pathD);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', model.strokeStyle);
+  path.setAttribute('stroke-width', String(model.lineWidth));
+  path.setAttribute('vector-effect', 'non-scaling-stroke');
+  path.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(path);
+  overlay.appendChild(svg);
+  preview.appendChild(overlay);
 }
 
 /**
@@ -220,21 +240,13 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
 
   preview?.querySelector('.watermark-preview-overlay')?.remove();
   preview?.querySelector('.preview-frame-stroke-overlay')?.remove();
-  if (globalFrameShape !== 'rect' && form.globalFrameStrokeEnabled) {
-    const frameOverlay = document.createElement('div');
-    frameOverlay.className = 'preview-frame-stroke-overlay';
-    frameOverlay.setAttribute('aria-hidden', 'true');
-    Object.assign(frameOverlay.style, {
-      position: 'absolute',
-      inset: '0',
-      pointerEvents: 'none',
-      border: `${Math.max(0, Number(form.globalFrameStrokeWidth) || 0)}px solid ${colorWithOpacity(form.globalFrameStrokeColor, form.globalFrameStrokeOpacity)}`,
-      clipPath: frameCssClip,
-      webkitClipPath: frameCssClip,
-      boxSizing: 'border-box',
-    });
-    preview?.appendChild(frameOverlay);
-  }
+  renderFrameStrokeOverlay(
+    preview,
+    layout,
+    globalFrameShape,
+    form,
+    superellipseExponent
+  );
   const locale = getLocale();
   const wmOpts = getWatermarkOptions(form, locale);
   const wmResolved = wmOpts.type && wmOpts.type !== 'none'

@@ -6,7 +6,7 @@
  * - Draws watermark and optional global frame stroke overlays.
  */
 import { drawWatermark } from './watermark.js';
-import { buildFrameShapePathD } from './shape-clip-utils.js';
+import { buildFrameShapePathD, buildFrameStrokeModel } from './shape-clip-utils.js';
 import { normalizeGlobalFrameShape, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
 import {
   GLOBAL_FRAME_SHAPE_DEFAULT,
@@ -15,34 +15,22 @@ import {
   OUTSIDE_BACKGROUND_COLOR_DEFAULT,
 } from './config.js';
 
-function colorWithOpacity(hex, opacity) {
-  const c = String(hex || '#ffffff').trim();
-  const alpha = Math.max(0, Math.min(1, Number(opacity) || 0));
-  if (!c.startsWith('#') || (c.length !== 7 && c.length !== 4)) return `rgba(255,255,255,${alpha})`;
-  const full = c.length === 4 ? `#${c[1]}${c[1]}${c[2]}${c[2]}${c[3]}${c[3]}` : c;
-  const r = parseInt(full.slice(1, 3), 16);
-  const g = parseInt(full.slice(3, 5), 16);
-  const b = parseInt(full.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
 function strokeFrame(ctx, layout, options, shape) {
-  if (!options.globalFrameStrokeEnabled) return;
-  const lineWidth = Math.max(0, Number(options.globalFrameStrokeWidth) || 0);
-  if (lineWidth <= 0) return;
-  const d = buildFrameShapePathD(layout, {
+  const model = buildFrameStrokeModel(layout, {
     shape,
-    inset: lineWidth / 2,
+    strokeEnabled: options.globalFrameStrokeEnabled,
+    strokeWidth: options.globalFrameStrokeWidth,
+    strokeColor: options.globalFrameStrokeColor
+      ?? GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
+    strokeOpacity: options.globalFrameStrokeOpacity
+      ?? GLOBAL_FRAME_STROKE_OPACITY_DEFAULT,
     superellipseExponent: normalizeSuperellipseExponent(options.superellipseExponent),
   });
-  if (!d) return;
-  const path = typeof Path2D === 'function' ? new Path2D(d) : null;
+  if (!model) return;
+  const path = typeof Path2D === 'function' ? new Path2D(model.pathD) : null;
   ctx.save();
-  ctx.lineWidth = lineWidth;
-  ctx.strokeStyle = colorWithOpacity(
-    options.globalFrameStrokeColor ?? GLOBAL_FRAME_STROKE_COLOR_DEFAULT,
-    options.globalFrameStrokeOpacity ?? GLOBAL_FRAME_STROKE_OPACITY_DEFAULT
-  );
+  ctx.lineWidth = model.lineWidth;
+  ctx.strokeStyle = model.strokeStyle;
   if (path) ctx.stroke(path);
   ctx.restore();
 }

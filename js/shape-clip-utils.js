@@ -129,6 +129,55 @@ export function buildFrameShapePathD(layout, options = {}) {
 }
 
 /**
+ * Convert a hex color and opacity into rgba() string.
+ * @param {string} hex
+ * @param {number} opacity
+ * @returns {string}
+ */
+export function colorWithOpacity(hex, opacity) {
+  const c = String(hex || '#ffffff').trim();
+  const alpha = Math.max(0, Math.min(1, Number(opacity) || 0));
+  if (!c.startsWith('#') || (c.length !== 7 && c.length !== 4)) {
+    return `rgba(255,255,255,${alpha})`;
+  }
+  const full = c.length === 4
+    ? `#${c[1]}${c[1]}${c[2]}${c[2]}${c[3]}${c[3]}`
+    : c;
+  const r = parseInt(full.slice(1, 3), 16);
+  const g = parseInt(full.slice(3, 5), 16);
+  const b = parseInt(full.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/**
+ * Build a shared frame-stroke model for preview/export adapters.
+ * @param {{ canvasWidth: number, canvasHeight: number }} layout
+ * @param {Record<string, unknown>} [options]
+ * @returns {{ lineWidth: number, strokeStyle: string, pathD: string } | null}
+ */
+export function buildFrameStrokeModel(layout, options = {}) {
+  if (options.strokeEnabled !== true) return null;
+  const lineWidth = Math.max(0, Number(options.strokeWidth) || 0);
+  if (lineWidth <= 0) return null;
+  const pathD = buildFrameShapePathD(layout, {
+    shape: options.shape,
+    inset: lineWidth / 2,
+    orientation: options.orientation ?? 'auto',
+    superellipseExponent: options.superellipseExponent,
+    roundedRectRadiusRatio: options.roundedRectRadiusRatio,
+  });
+  if (!pathD) return null;
+  return {
+    lineWidth,
+    strokeStyle: colorWithOpacity(
+      options.strokeColor ?? '#ffffff',
+      options.strokeOpacity ?? 1
+    ),
+    pathD,
+  };
+}
+
+/**
  * Build per-cell path data in global canvas coordinates.
  * @param {{ x: number, y: number, width: number, height: number }} cell
  * @param {Record<string, unknown>} [options]

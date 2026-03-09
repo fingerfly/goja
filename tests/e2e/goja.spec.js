@@ -1026,6 +1026,45 @@ test.describe('Goja App', () => {
     await context.close();
   });
 
+  test('frame stroke uses contour path in preview at width 20', async ({ page }) => {
+    await page.locator('#fileInput').setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('#globalFrameShape').selectOption('regular-octagon');
+    await page.locator('#globalFrameStrokeEnabled').check();
+    await page.locator('#globalFrameStrokeWidth').fill('20');
+    await page.locator('#globalFrameStrokeOpacity').fill('1');
+    await page.locator('#globalFrameStrokeColor').fill('#00ff00');
+    await page.locator('#outsideBackgroundColor').fill('#000000');
+    await page.locator('#settingsCloseBtn').click();
+    const strokeState = await page.evaluate(() => {
+      const overlay = document.querySelector('#preview .preview-frame-stroke-overlay');
+      const path = overlay?.querySelector('svg path');
+      const grid = document.querySelector('#previewGrid');
+      return {
+        overlay: Boolean(overlay),
+        hasSvgPath: Boolean(path),
+        dLength: (path?.getAttribute('d') || '').length,
+        stroke: path?.getAttribute('stroke') || '',
+        strokeWidth: path?.getAttribute('stroke-width') || '',
+        borderStyle: overlay ? getComputedStyle(overlay).borderStyle : '',
+        clipPath: grid ? getComputedStyle(grid).clipPath : '',
+      };
+    });
+    expect(strokeState.overlay).toBe(true);
+    expect(strokeState.hasSvgPath).toBe(true);
+    expect(strokeState.dLength).toBeGreaterThan(20);
+    expect(strokeState.stroke).toContain('rgba(');
+    expect(strokeState.stroke).toContain('0,255,0');
+    expect(strokeState.strokeWidth).toBe('20');
+    expect(strokeState.borderStyle).toBe('none');
+    expect(strokeState.clipPath).toContain('polygon(');
+  });
+
   test('shape catalog applies wave11 scope and removes triangle', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);

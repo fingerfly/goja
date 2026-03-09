@@ -155,7 +155,14 @@ describe('renderGrid', () => {
     const cell = container.querySelector('.preview-cell');
     expect(container.style.clipPath).toContain('polygon(');
     expect(cell.style.clipPath).toContain('circle(');
-    expect(preview.querySelector('.preview-frame-stroke-overlay')).toBeTruthy();
+    const strokeOverlay = preview.querySelector('.preview-frame-stroke-overlay');
+    expect(strokeOverlay).toBeTruthy();
+    // Frame stroke must follow the frame path, not rectangular border clipping.
+    const strokePath = strokeOverlay?.querySelector('svg path');
+    expect(strokePath).toBeTruthy();
+    expect(strokePath?.getAttribute('stroke')).toContain('rgba(');
+    expect(strokePath?.getAttribute('stroke-width')).toBe('2');
+    expect(strokeOverlay?.style.border).toBe('');
   });
 
   it('keeps ellipse visually distinct from circle in preview frame clip', () => {

@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "10.1.0-1",
+  "version": "10.1.1-1",
   "description": "Goja",
   "type": "module",
   "scripts": {
@@ -10,8 +10,8 @@
     "test:coverage": "vitest run --coverage",
     "generate-fixtures": "node scripts/generate-fixtures.js",
     "pretest:e2e": "node scripts/generate-fixtures.js",
-    "test:e2e": "node -e \"const os=require('node:os'); const path=require('node:path'); const {spawnSync}=require('node:child_process'); const defaultPath=process.platform==='win32'?path.join(os.homedir(),'AppData','Local','ms-playwright'):process.platform==='darwin'?path.join(os.homedir(),'Library','Caches','ms-playwright'):path.join(os.homedir(),'.cache','ms-playwright'); const env={...process.env, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || defaultPath}; const cmd=process.platform==='win32'?'playwright.cmd':'playwright'; const r=spawnSync(cmd,['test'],{stdio:'inherit',env}); process.exit(r.status===null?1:r.status);\"",
-    "test:e2e:ui": "node -e \"const os=require('node:os'); const path=require('node:path'); const {spawnSync}=require('node:child_process'); const defaultPath=process.platform==='win32'?path.join(os.homedir(),'AppData','Local','ms-playwright'):process.platform==='darwin'?path.join(os.homedir(),'Library','Caches','ms-playwright'):path.join(os.homedir(),'.cache','ms-playwright'); const env={...process.env, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || defaultPath}; const cmd=process.platform==='win32'?'playwright.cmd':'playwright'; const r=spawnSync(cmd,['test','--ui'],{stdio:'inherit',env}); process.exit(r.status===null?1:r.status);\"",
+    "test:e2e": "node -e \"const os=require('node:os'); const path=require('node:path'); const {spawnSync}=require('node:child_process'); const defaultPath=process.platform==='win32'?path.join(os.homedir(),'AppData','Local','ms-playwright'):process.platform==='darwin'?path.join(os.homedir(),'Library','Caches','ms-playwright'):path.join(os.homedir(),'.cache','ms-playwright'); const env={...process.env, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || defaultPath}; const cli=path.join(process.cwd(),'node_modules','@playwright','test','cli.js'); const r=spawnSync(process.execPath,[cli,'test'],{stdio:'inherit',env}); process.exit(r.status===null?1:r.status);\"",
+    "test:e2e:ui": "node -e \"const os=require('node:os'); const path=require('node:path'); const {spawnSync}=require('node:child_process'); const defaultPath=process.platform==='win32'?path.join(os.homedir(),'AppData','Local','ms-playwright'):process.platform==='darwin'?path.join(os.homedir(),'Library','Caches','ms-playwright'):path.join(os.homedir(),'.cache','ms-playwright'); const env={...process.env, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || defaultPath}; const cli=path.join(process.cwd(),'node_modules','@playwright','test','cli.js'); const r=spawnSync(process.execPath,[cli,'test','--ui'],{stdio:'inherit',env}); process.exit(r.status===null?1:r.status);\"",
     "sync-version": "node scripts/sync-version.js",
     "validate-version": "node scripts/validate-version.js",
     "changelog-add-version": "node scripts/changelog-add-version-heading.js",

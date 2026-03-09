@@ -54,7 +54,8 @@ describe('playwright config', () => {
     expect(config.reporter).toBe('html');
     expect(config.webServer).toBeDefined();
     expect(config.use.baseURL).toBe('http://127.0.0.1:5517');
-    expect(config.webServer.command).toContain('/project/goja');
+    const normalizedCommand = String(config.webServer.command).replace(/\\/g, '/');
+    expect(normalizedCommand).toContain('/project/goja');
     expect(config.webServer.reuseExistingServer).toBe(false);
   });
 

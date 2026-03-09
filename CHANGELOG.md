@@ -2,10 +2,10 @@
 
 ## [Unreleased]
 
-## [10.1.0] - 2026-03-08
+## [10.1.1] - 2026-03-09
 
 
-## [10.0.1] - 2026-03-06
+## [10.1.0] - 2026-03-06
 
 ### Changed
 - Executed Wave 13 heart recognizability upgrade with a single canonical

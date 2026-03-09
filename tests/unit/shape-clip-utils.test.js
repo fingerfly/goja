@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { getShapeCssClip } from '../../js/shape-clip-utils.js';
+import {
+  getShapeCssClip,
+  buildFrameStrokeModel,
+} from '../../js/shape-clip-utils.js';
 
 describe('shape-clip-utils', () => {
   it('uses high-sample polygon heart clip by default', () => {
@@ -51,5 +54,36 @@ describe('shape-clip-utils', () => {
       expect(clip === 'none').toBe(false);
       expect(clip.startsWith('polygon(') || clip.startsWith('path(')).toBe(true);
     }
+  });
+
+  it('builds shared frame stroke model from normalized options', () => {
+    const model = buildFrameStrokeModel(
+      { canvasWidth: 300, canvasHeight: 200 },
+      {
+        shape: 'regular-octagon',
+        strokeEnabled: true,
+        strokeWidth: 20,
+        strokeColor: '#00ff00',
+        strokeOpacity: 0.5,
+      }
+    );
+    expect(model).toBeTruthy();
+    expect(model?.lineWidth).toBe(20);
+    expect(model?.strokeStyle).toBe('rgba(0,255,0,0.5)');
+    expect(typeof model?.pathD).toBe('string');
+    expect(model?.pathD.length).toBeGreaterThan(0);
+  });
+
+  it('returns null frame stroke model when disabled or zero-width', () => {
+    const disabled = buildFrameStrokeModel(
+      { canvasWidth: 300, canvasHeight: 200 },
+      { shape: 'circle', strokeEnabled: false, strokeWidth: 20 }
+    );
+    const zeroWidth = buildFrameStrokeModel(
+      { canvasWidth: 300, canvasHeight: 200 },
+      { shape: 'circle', strokeEnabled: true, strokeWidth: 0 }
+    );
+    expect(disabled).toBeNull();
+    expect(zeroWidth).toBeNull();
   });
 });
