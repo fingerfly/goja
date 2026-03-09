@@ -17,6 +17,17 @@ function polygonFromPoints(points) {
   return `polygon(${points.map(([x, y]) => `${x}% ${y}%`).join(', ')})`;
 }
 
+function pointsToPercentPolygon(points, width, height) {
+  const w = Math.max(1, Number(width) || 1);
+  const h = Math.max(1, Number(height) || 1);
+  const percentPoints = points.map(([x, y]) => {
+    const px = Number((((Number(x) || 0) / w) * 100).toFixed(3));
+    const py = Number((((Number(y) || 0) / h) * 100).toFixed(3));
+    return [px, py];
+  });
+  return polygonFromPoints(percentPoints);
+}
+
 function heartPolygonClip(samples = 96) {
   const pts = sampleShapeContour(100, 100, {
     shape: 'heart',
@@ -108,6 +119,31 @@ export function getShapeCssClip(shape, orientation = 'auto', options = {}) {
   }
   if (normalizedShape === 'heart') return heartCssClip(options);
   return 'none';
+}
+
+/**
+ * Build frame CSS clip-path from layout-sized canonical contour points.
+ * This keeps preview frame clipping in parity with export geometry.
+ * @param {{ canvasWidth: number, canvasHeight: number }} layout
+ * @param {Record<string, unknown>} [options]
+ * @returns {string}
+ */
+export function getFrameCssClipFromLayout(layout, options = {}) {
+  const shape = normalizeGlobalFrameShape(options.shape ?? 'rect');
+  if (shape === 'rect') return 'none';
+  const w = Math.max(1, Number(layout?.canvasWidth) || 1);
+  const h = Math.max(1, Number(layout?.canvasHeight) || 1);
+  const sides = polygonSidesForShape(shape);
+  const samples = sides || (shape === 'heart' ? 96 : 160);
+  const points = sampleShapeContour(w, h, {
+    shape,
+    orientation: options.orientation ?? 'auto',
+    inset: Math.max(0, Number(options.inset) || 0),
+    samples,
+    superellipseExponent: options.superellipseExponent,
+    roundedRectRadiusRatio: options.roundedRectRadiusRatio,
+  });
+  return pointsToPercentPolygon(points, w, h);
 }
 
 /**

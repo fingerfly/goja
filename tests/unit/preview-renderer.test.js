@@ -189,9 +189,62 @@ describe('renderGrid', () => {
     const circleClip = container.style.clipPath;
     renderGrid(container, preview, photos, layout, { ...base, globalFrameShape: 'ellipse' }, deps);
     const ellipseClip = container.style.clipPath;
-    expect(circleClip).toContain('circle(');
-    expect(ellipseClip).toContain('ellipse(');
+    expect(circleClip).toContain('polygon(');
+    expect(ellipseClip).toContain('polygon(');
     expect(ellipseClip).not.toBe(circleClip);
+    const circleCoords = circleClip
+      .slice('polygon('.length, -1)
+      .split(',')
+      .map((part) => part.trim())
+      .map((pair) => pair.split(/\s+/).map((v) => Number(v.replace('%', ''))))
+      .filter((pair) => pair.length === 2 && Number.isFinite(pair[0]));
+    const ellipseCoords = ellipseClip
+      .slice('polygon('.length, -1)
+      .split(',')
+      .map((part) => part.trim())
+      .map((pair) => pair.split(/\s+/).map((v) => Number(v.replace('%', ''))))
+      .filter((pair) => pair.length === 2 && Number.isFinite(pair[0]));
+    const circleXs = circleCoords.map(([x]) => x);
+    const ellipseXs = ellipseCoords.map(([x]) => x);
+    expect(Math.min(...circleXs)).toBeGreaterThan(20);
+    expect(Math.min(...ellipseXs)).toBeLessThan(1);
+  });
+
+  it('keeps non-square regular-octagon frame clip in export parity range', () => {
+    const photos = [{ url: 'blob:1', dateOriginal: null }];
+    const layout = {
+      gap: 0,
+      rowRatios: [1],
+      colRatios: [1],
+      canvasWidth: 240,
+      canvasHeight: 120,
+      cells: [{ rowStart: 1, rowEnd: 2, colStart: 1, colEnd: 2, x: 0, y: 0, width: 240, height: 120 }],
+      photoOrder: [0],
+    };
+    const form = {
+      imageFit: 'cover',
+      bgColor: '#fff',
+      filterPreset: 'none',
+      showCaptureDate: false,
+      edgeStyle: 'straight',
+      edgeAdvancedSupported: true,
+      globalFrameShape: 'regular-octagon',
+      cellShapeTemplate: 'rect',
+      cellShapeOrientation: 'auto',
+    };
+    const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
+    renderGrid(container, preview, photos, layout, form, deps);
+    const clip = container.style.clipPath;
+    expect(clip.startsWith('polygon(')).toBe(true);
+    const coords = clip
+      .slice('polygon('.length, -1)
+      .split(',')
+      .map((part) => part.trim())
+      .map((pair) => pair.split(/\s+/).map((v) => Number(v.replace('%', ''))))
+      .filter((pair) => pair.length === 2 && Number.isFinite(pair[0]));
+    const xs = coords.map(([x]) => x);
+    expect(Math.min(...xs)).toBeGreaterThan(20);
+    expect(Math.max(...xs)).toBeLessThan(80);
   });
 
   it('keeps centered circle clip anchors in preview', () => {
@@ -219,7 +272,15 @@ describe('renderGrid', () => {
     const deps = { formatDateTimeOriginal: () => '', getLocale: () => 'en', t: (k, p) => (k === 'photoAlt' ? `Photo ${p?.n ?? ''}` : k) };
     renderGrid(container, preview, photos, layout, form, deps);
     const cell = container.querySelector('.preview-cell');
-    expect(container.style.clipPath).toContain('50% at 50% 50%');
+    const frameCoords = container.style.clipPath
+      .slice('polygon('.length, -1)
+      .split(',')
+      .map((part) => part.trim())
+      .map((pair) => pair.split(/\s+/).map((v) => Number(v.replace('%', ''))))
+      .filter((pair) => pair.length === 2 && Number.isFinite(pair[0]));
+    const frameXs = frameCoords.map(([x]) => x);
+    expect(Math.min(...frameXs)).toBeGreaterThan(20);
+    expect(Math.max(...frameXs)).toBeLessThan(80);
     expect(cell.style.clipPath).toContain('50% at 50% 50%');
   });
 

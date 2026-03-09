@@ -965,9 +965,20 @@ test.describe('Goja App', () => {
       const c = container ? getComputedStyle(container).clipPath : '';
       const cell = firstCell ? getComputedStyle(firstCell).clipPath : '';
       const img = firstImg ? getComputedStyle(firstImg).clipPath : '';
-      return { c, cell, img };
+      const xValues = c.includes('polygon(')
+        ? c.slice('polygon('.length, c.lastIndexOf(')'))
+          .split(',')
+          .map((token) => {
+            const nums = token.match(/-?\d+(?:\.\d+)?/g);
+            return nums && nums.length > 0 ? Number(nums[0]) : NaN;
+          })
+          .filter((n) => Number.isFinite(n))
+        : [];
+      const minX = xValues.length ? Math.min(...xValues) : NaN;
+      return { c, cell, img, minX };
     });
-    expect(clipState.c).toContain('ellipse(');
+    expect(clipState.c).toContain('polygon(');
+    expect(clipState.minX).toBeLessThan(1);
     expect(clipState.cell).toContain('circle(50% at 50% 50%)');
     expect(clipState.img === 'none' || clipState.img === '').toBeTruthy();
     await context.close();

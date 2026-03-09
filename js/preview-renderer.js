@@ -26,7 +26,11 @@ import {
   normalizeShapeOrientation,
   normalizeSuperellipseExponent,
 } from './frame-shape-geometry.js';
-import { getShapeCssClip, buildFrameStrokeModel } from './shape-clip-utils.js';
+import {
+  getShapeCssClip,
+  buildFrameStrokeModel,
+  getFrameCssClipFromLayout,
+} from './shape-clip-utils.js';
 
 /**
  * Check whether CSS `clip-path: path(...)` is supported.
@@ -119,7 +123,15 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     superellipseExponent,
     scope: 'frame',
   };
-  const frameCssClip = getShapeCssClip(globalFrameShape, 'auto', shapeClipOptions);
+  const frameInset = form.globalFrameStrokeEnabled
+    ? (Number(form.globalFrameStrokeWidth) || 0) / 2
+    : 0;
+  const frameCssClip = getFrameCssClipFromLayout(layout, {
+    shape: globalFrameShape,
+    orientation: 'auto',
+    inset: frameInset,
+    superellipseExponent,
+  });
   if (frameCssClip !== 'none') {
     container.style.clipPath = frameCssClip;
     container.style.webkitClipPath = frameCssClip;

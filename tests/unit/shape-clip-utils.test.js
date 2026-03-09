@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getShapeCssClip,
   buildFrameStrokeModel,
+  getFrameCssClipFromLayout,
 } from '../../js/shape-clip-utils.js';
 
 describe('shape-clip-utils', () => {
@@ -85,5 +86,22 @@ describe('shape-clip-utils', () => {
     );
     expect(disabled).toBeNull();
     expect(zeroWidth).toBeNull();
+  });
+
+  it('keeps non-square regular polygon inset in frame css clip', () => {
+    const clip = getFrameCssClipFromLayout(
+      { canvasWidth: 240, canvasHeight: 120 },
+      { shape: 'regular-octagon', inset: 0 }
+    );
+    expect(clip.startsWith('polygon(')).toBe(true);
+    const coords = clip
+      .slice('polygon('.length, -1)
+      .split(',')
+      .map((part) => part.trim())
+      .map((pair) => pair.split(/\s+/).map((v) => Number(v.replace('%', ''))))
+      .filter((pair) => pair.length === 2 && Number.isFinite(pair[0]));
+    const xs = coords.map(([x]) => x);
+    expect(Math.min(...xs)).toBeGreaterThan(20);
+    expect(Math.max(...xs)).toBeLessThan(80);
   });
 });
