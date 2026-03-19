@@ -2,11 +2,54 @@
 
 ## [Unreleased]
 
+## [10.1.3] - 2026-03-19
+
+
+### Changed
+- Split preview global-frame rendering responsibilities by extracting
+  `js/preview-frame-render.js` from `js/preview-renderer.js` so frame clip and
+  frame stroke overlay logic live in a focused module.
+- Separated preview frame-parity assertions into dedicated tests to keep
+  `tests/unit/preview-renderer.test.js` smaller and responsibility-focused:
+  - `tests/unit/preview-frame-render.test.js`
+  - `tests/unit/preview-renderer-frame-parity.test.js`
+
+### Tests
+- Refactor verification completed with:
+  - `npx vitest run tests/unit/preview-frame-render.test.js tests/unit/preview-renderer.test.js tests/unit/preview-renderer-frame-parity.test.js`
+  - `npm run test:unit` (`453` passed)
+  - `npm test` (`453` passed)
+  - `npm run test:e2e` (`74` passed; rerun after one transient timeout)
+  - `cloc --by-file --include-lang=JavaScript js/preview-renderer.js js/preview-frame-render.js tests/unit/preview-renderer.test.js tests/unit/preview-renderer-frame-parity.test.js tests/unit/preview-frame-render.test.js`
+
 ## [10.1.2] - 2026-03-09
 
+### Fixed
+- Fixed preview/export parity drift when global frame stroke is disabled by
+  aligning preview frame clip generation to the same layout-sized canonical
+  geometry authority used by export.
+- Fixed preview global frame stroke contour mismatch (not hugging frame boundary)
+  by replacing border+clip rendering with shared contour-path stroke rendering.
+- Fixed non-square frame export parity drift for regular polygon shapes (for
+  example `regular-octagon`) to prevent export-only 1:1-like distortion.
 
-## [10.1.1] - 2026-03-09
+### Changed
+- Unified frame stroke model/normalization between preview and export in shared
+  shape utilities to reduce duplicate logic and prevent future authority split.
+- Updated targeted unit/e2e regressions for frame-stroke continuity, stroke-off
+  parity, and non-square polygon parity.
+- Hardened Playwright script invocation for Windows stability and normalized
+  path assertions in Playwright config tests.
 
+### Tests
+- Validation runs completed with:
+  - `npx vitest run tests/unit/shape-clip-utils.test.js tests/unit/preview-renderer.test.js tests/unit/unified-canvas-pipeline.test.js`
+  - `npx vitest run tests/unit/export-flow.test.js tests/unit/preview-updater.test.js`
+  - `npx playwright test tests/e2e/goja.spec.js --grep "frame stroke|shape|preview stays in sync|parity|non-square"`
+  - `npm run test:unit` (`450` passed)
+  - `npm test` (`450` passed)
+  - `npm run test:e2e` (`74` passed)
+  - `cloc --by-file --include-lang=JavaScript js/preview-renderer.js js/unified-canvas-pipeline.js js/shape-clip-utils.js tests/unit/preview-renderer.test.js tests/unit/shape-clip-utils.test.js tests/unit/playwright-config.test.js`
 
 ## [10.1.0] - 2026-03-06
 

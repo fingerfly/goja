@@ -12,13 +12,16 @@ import { getWatermarkOptions, getCaptureDateOptions, getVignetteOptions } from '
 import {
   ROTATION_DEFAULT_ANGLE,
   GLOBAL_FRAME_SHAPE_DEFAULT,
-  OUTSIDE_BACKGROUND_COLOR_DEFAULT,
   CELL_SHAPE_TEMPLATE_DEFAULT,
   CELL_SHAPE_ORIENTATION_DEFAULT,
 } from './config.js';
 import { fitScaleFactor } from './rotation-math.js';
 import { drawCaptureDateOverlay } from './capture-date-overlay.js';
 import { applyPreviewEdgeClip } from './edge-preview-clip.js';
+import {
+  applyPreviewFrameClip,
+  renderPreviewFrameStrokeOverlay,
+} from './preview-frame-render.js';
 import { normalizeEdgeStyle } from './edge-style-presets.js';
 import {
   normalizeGlobalFrameShape,
@@ -28,8 +31,6 @@ import {
 } from './frame-shape-geometry.js';
 import {
   getShapeCssClip,
-  buildFrameStrokeModel,
-  getFrameCssClipFromLayout,
 } from './shape-clip-utils.js';
 
 /**
@@ -39,43 +40,6 @@ import {
 function supportsCssPathClip() {
   if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
   return CSS.supports('clip-path', "path('M0 0 L1 0 L1 1 L0 1 Z')");
-}
-
-function renderFrameStrokeOverlay(preview, layout, shape, form, superellipseExponent) {
-  if (!preview || shape === 'rect') return;
-  const model = buildFrameStrokeModel(layout, {
-    shape,
-    strokeEnabled: form.globalFrameStrokeEnabled,
-    strokeWidth: form.globalFrameStrokeWidth,
-    strokeColor: form.globalFrameStrokeColor,
-    strokeOpacity: form.globalFrameStrokeOpacity,
-    superellipseExponent,
-  });
-  if (!model) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'preview-frame-stroke-overlay';
-  overlay.setAttribute('aria-hidden', 'true');
-  Object.assign(overlay.style, {
-    position: 'absolute',
-    inset: '0',
-    pointerEvents: 'none',
-  });
-  const ns = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.setAttribute('viewBox', `0 0 ${layout.canvasWidth} ${layout.canvasHeight}`);
-  svg.setAttribute('preserveAspectRatio', 'none');
-  const path = document.createElementNS(ns, 'path');
-  path.setAttribute('d', model.pathD);
-  path.setAttribute('fill', 'none');
-  path.setAttribute('stroke', model.strokeStyle);
-  path.setAttribute('stroke-width', String(model.lineWidth));
-  path.setAttribute('vector-effect', 'non-scaling-stroke');
-  path.setAttribute('stroke-linejoin', 'round');
-  svg.appendChild(path);
-  overlay.appendChild(svg);
-  preview.appendChild(overlay);
 }
 
 /**
@@ -123,24 +87,13 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
     superellipseExponent,
     scope: 'frame',
   };
-  const frameInset = form.globalFrameStrokeEnabled
-    ? (Number(form.globalFrameStrokeWidth) || 0) / 2
-    : 0;
-  const frameCssClip = getFrameCssClipFromLayout(layout, {
+  applyPreviewFrameClip(container, preview, layout, {
     shape: globalFrameShape,
-    orientation: 'auto',
-    inset: frameInset,
+    strokeEnabled: form.globalFrameStrokeEnabled,
+    strokeWidth: form.globalFrameStrokeWidth,
     superellipseExponent,
+    outsideBackgroundColor: form.outsideBackgroundColor,
   });
-  if (frameCssClip !== 'none') {
-    container.style.clipPath = frameCssClip;
-    container.style.webkitClipPath = frameCssClip;
-    if (preview) preview.style.background = form.outsideBackgroundColor ?? OUTSIDE_BACKGROUND_COLOR_DEFAULT;
-  } else {
-    container.style.clipPath = '';
-    container.style.webkitClipPath = '';
-    if (preview) preview.style.background = '';
-  }
 
   for (let i = 0; i < layout.cells.length; i++) {
     const idx = order[i];
@@ -252,13 +205,14 @@ export function renderGrid(container, preview, photos, layout, form, deps) {
 
   preview?.querySelector('.watermark-preview-overlay')?.remove();
   preview?.querySelector('.preview-frame-stroke-overlay')?.remove();
-  renderFrameStrokeOverlay(
-    preview,
-    layout,
-    globalFrameShape,
-    form,
-    superellipseExponent
-  );
+  renderPreviewFrameStrokeOverlay(preview, layout, {
+    shape: globalFrameShape,
+    strokeEnabled: form.globalFrameStrokeEnabled,
+    strokeWidth: form.globalFrameStrokeWidth,
+    strokeColor: form.globalFrameStrokeColor,
+    strokeOpacity: form.globalFrameStrokeOpacity,
+    superellipseExponent,
+  });
   const locale = getLocale();
   const wmOpts = getWatermarkOptions(form, locale);
   const wmResolved = wmOpts.type && wmOpts.type !== 'none'
