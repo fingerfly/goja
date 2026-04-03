@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+- `tests/unit/playwright-config.test.js`: stop asserting a monorepo-only path
+  (`/project/goja`); compare the `http-server` root to `process.cwd()` so unit
+  tests pass on the standalone GitHub clone (`/home/runner/work/goja/goja`).
+
 ### Changed
 - Bumped dev tooling: `@playwright/test` to `^1.59.1`, `vitest` to `^4.1.2`,
   `jsdom` to `^29.0.1`; refreshed `package-lock.json`. Added npm `overrides` for
@@ -11,6 +16,7 @@
 ### Tests
 - `npm install` (0 npm audit vulnerabilities after refresh).
 - `npm test` (`453` passed, Vitest `4.1.2`).
+- `npm run test:unit` after playwright-config path fix (`453` passed).
 - `npm run test:e2e` (`74` passed).
 
 ## [10.1.3] - 2026-04-03

@@ -55,7 +55,10 @@ describe('playwright config', () => {
     expect(config.webServer).toBeDefined();
     expect(config.use.baseURL).toBe('http://127.0.0.1:5517');
     const normalizedCommand = String(config.webServer.command).replace(/\\/g, '/');
-    expect(normalizedCommand).toContain('/project/goja');
+    // `npm run test:unit` and GitHub Actions both use the package root as cwd;
+    // same root `playwright.config.js` uses for http-server (any clone path).
+    const normalizedRoot = process.cwd().replace(/\\/g, '/');
+    expect(normalizedCommand).toContain(normalizedRoot);
     expect(config.webServer.reuseExistingServer).toBe(false);
   });
 
