@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [10.1.4] - 2026-04-03
+
+
 ### Fixed
 - `tests/unit/playwright-config.test.js`: stop asserting a monorepo-only path
   (`/project/goja`); compare the `http-server` root to `process.cwd()` so unit
