@@ -2,7 +2,18 @@
 
 ## [Unreleased]
 
-## [10.1.3] - 2026-03-19
+### Changed
+- Bumped dev tooling: `@playwright/test` to `^1.59.1`, `vitest` to `^4.1.2`,
+  `jsdom` to `^29.0.1`; refreshed `package-lock.json`. Added npm `overrides` for
+  `picomatch` (`^4.0.4`) alongside existing `undici`/`rollup` pins so transitive
+  installs stay on patched releases.
+
+### Tests
+- `npm install` (0 npm audit vulnerabilities after refresh).
+- `npm test` (`453` passed, Vitest `4.1.2`).
+- `npm run test:e2e` (`74` passed).
+
+## [10.1.3] - 2026-04-03
 
 
 ### Changed
