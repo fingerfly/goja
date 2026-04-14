@@ -5,7 +5,7 @@
  * - Cleans old caches on activate and handles skip-waiting messages.
  * - Serves cached assets with network fallback for fetch requests.
  */
-const CACHE_NAME = 'goja-v10.1.4-3';
+const CACHE_NAME = 'goja-v10.1.5-1';
 const ASSETS = [
   './',
   './index.html',

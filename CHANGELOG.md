@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [10.1.5] - 2026-04-14
+
+
 ### Changed
 
 - Dev tooling: `vitest` **^4.1.4**. CI **`.github/workflows/test.yml`**: install
