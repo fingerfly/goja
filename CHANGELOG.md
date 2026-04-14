@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
-## [10.1.4] - 2026-04-08
+### Changed
+
+- Dev tooling: `vitest` **^4.1.4**. CI **`.github/workflows/test.yml`**: install
+  with **`npm ci`** when `package-lock.json` exists, else **`npm install`**;
+  npm cache key **`package.json`** (monorepo-friendly).
+
+## [10.1.4] - 2026-04-14
 
 
 ### Fixed
