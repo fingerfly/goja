@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [10.1.6] - 2026-06-05
+
+
+### Changed
+
+- CI **`.github/workflows/test.yml`**: add **`audit`** job; fail on
+  **`npm audit --audit-level=moderate`** or higher.
+- CI **`.github/workflows/deploy.yml`**: deploy only after a successful
+  **Test** workflow on **`main`** (`workflow_run`); checkout tested
+  **`head_sha`**. **`workflow_dispatch`** kept for manual deploys.
+
+### Tests
+
+- `npm test` (`455` passed; added `tests/unit/ci-workflows.test.js`).
+
+## [10.1.5] - 2026-06-05
+
 ### Security
 
 - Dev dependency audit: pin transitive **`postcss`** (`^8.5.10`, GHSA-qx2v-qp2m-jg93)
@@ -9,20 +26,18 @@
   **`vite`** `^8.0.16`, **`vitest`** `^4.1.8`, **`jsdom`** `^29.1.1`,
   **`@playwright/test`** `^1.60.0`.
 
-### Tests
-
-- `npm install` (0 npm audit vulnerabilities).
-- `npm test` (`453` passed, Vitest `4.1.8`).
-- `npm run test:e2e` (`74` passed).
-
-## [10.1.5] - 2026-06-05
-
-
 ### Changed
 
 - Dev tooling: `vitest` **^4.1.4**. CI **`.github/workflows/test.yml`**: install
   with **`npm ci`** when `package-lock.json` exists, else **`npm install`**;
   npm cache key **`package.json`** (monorepo-friendly).
+- Updated service worker cache namespace to **`goja-v10.1.5-2`** in `sw.js`.
+
+### Tests
+
+- `npm install` (0 npm audit vulnerabilities).
+- `npm test` (`453` passed, Vitest `4.1.8`).
+- `npm run test:e2e` (`74` passed).
 
 ## [10.1.4] - 2026-04-14
 
