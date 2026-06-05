@@ -30,6 +30,18 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package.json
+
+      - name: Install dependencies and vendor exifr
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npm run copy:vendor
+          test -f js/vendor/exifr.mjs
+
       - name: Collect app files
         run: |
           mkdir _site

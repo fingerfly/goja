@@ -1,6 +1,6 @@
 {
   "name": "goja",
-  "version": "10.1.6-1",
+  "version": "10.1.6-2",
   "description": "Goja",
   "type": "module",
   "scripts": {
@@ -18,6 +18,8 @@
     "upgrade-version": "node scripts/upgrade-version.js",
     "deploy": "node scripts/deploy.js",
     "copy:vendor": "node scripts/copy-exifr.js",
+    "audit:check": "npm audit --audit-level=moderate",
+    "security:verify": "npm run audit:check && npm test && npm run test:e2e",
     "postinstall": "npm run copy:vendor"
   },
   "keywords": [

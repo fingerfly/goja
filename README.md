@@ -64,6 +64,9 @@ npm install
 npm test
 ```
 
+`npm install` also runs `copy:vendor`, which copies `exifr` into `js/vendor/exifr.mjs`
+for the capture-date overlay.
+
 ### E2E tests
 
 ```bash
@@ -71,13 +74,40 @@ npx playwright install
 npm run test:e2e
 ```
 
+### Security checks (local)
+
+Before a release, mirror CI:
+
+```bash
+npm run audit:check
+npm run security:verify
+```
+
+`audit:check` fails on moderate or higher npm audit findings. `security:verify`
+runs audit, unit tests, and E2E.
+
+### CI and GitHub Pages
+
+On the standalone repository, push or PR to `main` triggers the **Test** workflow
+(`audit`, `unit`, `e2e`). **Deploy** runs only after Test succeeds on `main`,
+builds `js/vendor/exifr.mjs`, then publishes to Pages.
+
+```
+push/PR → Test (audit + unit + e2e) → on success → Deploy → GitHub Pages
+```
+
+Hosted app: https://fingerfly.github.io/goja/
+
+See [SECURITY.md](SECURITY.md) for dependency policy and vulnerability reporting.
+
 ### Deploy
 
 ```bash
 npm run deploy -- <build|patch|minor|major>
 ```
 
-Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. GitHub Actions deploys to Pages at https://fingerfly.github.io/goja/
+Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. The push
+starts Test; Pages updates only when Test passes on `main`.
 
 `deploy` defaults by OS:
 - Windows: HTTPS `https://github.com/fingerfly/goja.git`

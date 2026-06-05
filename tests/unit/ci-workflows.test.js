@@ -26,4 +26,10 @@ describe('CI workflow contracts', () => {
     expect(yml).toContain('github.event.workflow_run.head_sha');
     expect(yml).not.toMatch(/^on:\s*\n\s*push:/m);
   });
+
+  it('deploy workflow vendors exifr before collecting the Pages artifact', () => {
+    const yml = readWorkflow('deploy.yml');
+    expect(yml).toContain('npm run copy:vendor');
+    expect(yml).toContain('test -f js/vendor/exifr.mjs');
+  });
 });

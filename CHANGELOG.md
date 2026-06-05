@@ -2,8 +2,25 @@
 
 ## [Unreleased]
 
-## [10.1.6] - 2026-06-05
+### Fixed
 
+- GitHub Pages deploy now runs **`npm run copy:vendor`** so **`js/vendor/exifr.mjs`**
+  is included in the published artifact (capture-date overlay).
+
+### Changed
+
+- **`README.md`**: document CI/deploy gate flow and local security checks.
+- **`SECURITY.md`**: dependency maintenance, CI gates, and what ships to users.
+- CI **`.github/workflows/deploy.yml`**: install deps, vendor **`exifr`**, verify
+  file exists before collecting **`_site`**.
+- **`package.json`**: add **`audit:check`** and **`security:verify`** scripts.
+
+### Tests
+
+- `npm test` (`456` passed; deploy vendor contract in
+  `tests/unit/ci-workflows.test.js`).
+
+## [10.1.6] - 2026-06-05
 
 ### Changed
 
@@ -12,6 +29,7 @@
 - CI **`.github/workflows/deploy.yml`**: deploy only after a successful
   **Test** workflow on **`main`** (`workflow_run`); checkout tested
   **`head_sha`**. **`workflow_dispatch`** kept for manual deploys.
+- Updated service worker cache namespace to **`goja-v10.1.6-1`** in `sw.js`.
 
 ### Tests
 
