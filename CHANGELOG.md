@@ -2,7 +2,20 @@
 
 ## [Unreleased]
 
-## [10.1.5] - 2026-04-14
+### Security
+
+- Dev dependency audit: pin transitive **`postcss`** (`^8.5.10`, GHSA-qx2v-qp2m-jg93)
+  and **`qs`** (`^6.15.2`, GHSA-q8mj-m7cp-5q26) via npm `overrides`; bump
+  **`vite`** `^8.0.16`, **`vitest`** `^4.1.8`, **`jsdom`** `^29.1.1`,
+  **`@playwright/test`** `^1.60.0`.
+
+### Tests
+
+- `npm install` (0 npm audit vulnerabilities).
+- `npm test` (`453` passed, Vitest `4.1.8`).
+- `npm run test:e2e` (`74` passed).
+
+## [10.1.5] - 2026-06-05
 
 
 ### Changed
