@@ -19,8 +19,10 @@ or CI deploy).
 - **Direct devDependencies** are declared in `package.json` and bumped deliberately.
 - **Transitive fixes** use npm `overrides` when a parent package has not yet
   released a patched version.
-- **Dependabot** (`.github/dependabot.yml`) opens weekly npm update PRs on the
-  standalone repository.
+- **Dependabot** (`.github/dependabot.yml`) opens weekly grouped npm update PRs
+  on the standalone repository.
+- **Security sweep** (`.github/workflows/security-sweep.yml`) runs weekly audit
+  and full tests on `main`.
 - **CI audit gate**: the Test workflow runs `npm audit --audit-level=moderate`
   and fails on moderate or higher severity findings.
 - **Local pre-release check**: `npm run audit:check` or `npm run security:verify`

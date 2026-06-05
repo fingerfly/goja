@@ -7,6 +7,19 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      dev-tooling:
+        patterns:
+          - "@playwright/*"
+          - "vitest"
+          - "vite"
+          - "jsdom"
     labels:
       - dependencies
+      - security
+    commit-message:
+      prefix: chore(goja)
+      prefix-development: chore(goja)
+      include: scope

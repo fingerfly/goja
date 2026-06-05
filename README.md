@@ -106,8 +106,9 @@ See [SECURITY.md](SECURITY.md) for dependency policy and vulnerability reporting
 npm run deploy -- <build|patch|minor|major>
 ```
 
-Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. The push
-starts Test; Pages updates only when Test passes on `main`.
+Bumps version, syncs files, updates CHANGELOG, and pushes to GitHub. Before the
+bump, deploy runs `audit:check` and `copy:vendor`. The push starts Test; Pages
+updates only when Test passes on `main`.
 
 `deploy` defaults by OS:
 - Windows: HTTPS `https://github.com/fingerfly/goja.git`

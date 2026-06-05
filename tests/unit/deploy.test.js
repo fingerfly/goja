@@ -165,6 +165,48 @@ describe('deploy remote resolution and safety', () => {
   });
 });
 
+describe('deploy vendor and audit preflight', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.GOJA_DEPLOY_REMOTE;
+  });
+
+  it('prepareVendorBundle() throws when exifr vendor file is missing', async () => {
+    execFileSync.mockReturnValue('');
+    const fs = await import('fs');
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+    const npmCmd = mod.npmCommand();
+
+    expect(() => mod.prepareVendorBundle('/tmp/goja')).toThrow(/Vendor file missing/);
+    expect(execFileSync).toHaveBeenCalledWith(
+      npmCmd, ['run', 'copy:vendor'],
+      expect.objectContaining({ cwd: '/tmp/goja' }),
+    );
+  });
+
+  it('runDeploy() fails audit preflight before upgrade-version', async () => {
+    execFileSync.mockImplementation((cmd, args = []) => {
+      if (cmd === 'git' && args[0] === 'ls-remote') return '';
+      if ((cmd === 'npm' || cmd === 'npm.cmd') && args.includes('audit:check')) {
+        throw new Error('npm audit found vulnerabilities');
+      }
+      return '';
+    });
+
+    vi.resetModules();
+    const mod = await import('../../scripts/deploy.js');
+
+    expect(() => mod.runDeploy('patch')).toThrow(/vulnerabilities|audit/i);
+
+    const upgradeCalls = execFileSync.mock.calls.filter(
+      ([cmd, args = []]) => cmd === 'node' && args.some((arg) => String(arg).includes('upgrade-version.js')),
+    );
+    expect(upgradeCalls).toHaveLength(0);
+  });
+});
+
 describe('deploy preflight ordering', () => {
   beforeEach(() => {
     vi.clearAllMocks();

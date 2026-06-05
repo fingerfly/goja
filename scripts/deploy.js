@@ -14,8 +14,10 @@
  *
  * What it does (in order):
  *   1. Validates the bump type argument
- *   2. Runs upgrade-version (bumps version, syncs files, updates CHANGELOG)
- *   3. Pushes to GitHub (clone/copy, commit, push) → GitHub Actions deploys to Pages
+ *   2. Preflight remote access, npm audit, and vendor bundle (exifr)
+ *   3. Runs upgrade-version (bumps version, syncs files, updates CHANGELOG)
+ *   4. Pushes to GitHub (clone/copy, commit, push)
+ *   5. GitHub Actions Test (audit + unit + e2e) then Deploy to Pages
  */
 
 import fs from 'fs';
@@ -34,6 +36,18 @@ const DEFAULT_DEPLOY_GIT_NAME = 'goja-release';
 const DEFAULT_DEPLOY_GIT_EMAIL = '10357401+fingerfly@users.noreply.github.com';
 
 const VALID_TYPES = ['build', 'patch', 'minor', 'major'];
+
+export function npmCommand() {
+  return process.platform === 'win32' ? 'npm.cmd' : 'npm';
+}
+
+function runNpm(args, cwd = projectRoot) {
+  execFileSync(npmCommand(), args, {
+    cwd,
+    stdio: 'inherit',
+    ...(process.platform === 'win32' ? { shell: true } : {}),
+  });
+}
 
 const EXCLUDE = new Set([
   '.git', 'node_modules', 'playwright-report',
@@ -90,6 +104,26 @@ export function preflightRemoteAccess(remoteUrl) {
       `Deploy preflight failed: cannot access remote "${remoteUrl}". ${message} ` +
       'Tip: configure GOJA_DEPLOY_REMOTE for your shell (SSH or HTTPS) and verify credentials.'
     );
+  }
+}
+
+/**
+ * Run npm audit at moderate+ before version bump side effects.
+ * @param {string} [cwd]
+ */
+export function runAuditPreflight(cwd = projectRoot) {
+  runNpm(['run', 'audit:check'], cwd);
+}
+
+/**
+ * Copy exifr vendor bundle and verify it exists for Pages deploy.
+ * @param {string} [cwd]
+ */
+export function prepareVendorBundle(cwd = projectRoot) {
+  runNpm(['run', 'copy:vendor'], cwd);
+  const vendorPath = path.join(cwd, 'js', 'vendor', 'exifr.mjs');
+  if (!fs.existsSync(vendorPath)) {
+    throw new Error(`Vendor file missing after copy:vendor: ${vendorPath}`);
   }
 }
 
@@ -157,9 +191,16 @@ export function runDeploy(bumpType) {
   const deployRemote = resolveDeployRemote();
   preflightRemoteAccess(deployRemote);
 
+  console.log('Preflight: npm audit...\n');
+  runAuditPreflight(projectRoot);
+  console.log('\nPreflight: vendor bundle...\n');
+  prepareVendorBundle(projectRoot);
+
   // Step 1: Bump version, sync files, update CHANGELOG
-  console.log('🚀 Step 1/2: Upgrading version...\n');
+  console.log('\n🚀 Step 1/2: Upgrading version...\n');
   execFileSync('node', [path.join(projectRoot, 'scripts/upgrade-version.js'), bumpType], { cwd: projectRoot, stdio: 'inherit' });
+
+  prepareVendorBundle(projectRoot);
 
   // Step 2: Push to GitHub
   console.log('\n🚀 Step 2/2: Pushing to GitHub...\n');

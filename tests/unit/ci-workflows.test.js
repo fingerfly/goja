@@ -32,4 +32,30 @@ describe('CI workflow contracts', () => {
     expect(yml).toContain('npm run copy:vendor');
     expect(yml).toContain('test -f js/vendor/exifr.mjs');
   });
+
+  it('test workflow cancels outdated runs for the same ref', () => {
+    const yml = readWorkflow('test.yml');
+    expect(yml).toContain('concurrency:');
+    expect(yml).toContain('cancel-in-progress: true');
+  });
+
+  it('security sweep workflow audits and runs full test matrix', () => {
+    const yml = readWorkflow('security-sweep.yml');
+    expect(yml).toContain('npm audit --audit-level=moderate');
+    expect(yml).toContain('npm test');
+    expect(yml).toContain('npm run test:e2e');
+    expect(yml).toMatch(/cron:\s*'0 6 \* \* 1'/);
+  });
+});
+
+describe('Dependabot config', () => {
+  it('groups dev tooling and uses chore(goja) commit prefix', () => {
+    const yml = fs.readFileSync(
+      path.join(__dirname, '..', '..', '.github', 'dependabot.yml'),
+      'utf8',
+    );
+    expect(yml).toContain('dev-tooling:');
+    expect(yml).toContain('prefix: chore(goja)');
+    expect(yml).toContain('- security');
+  });
 });
