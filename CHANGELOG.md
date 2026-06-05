@@ -2,22 +2,8 @@
 
 ## [Unreleased]
 
-### Changed
+## [10.1.8] - 2026-06-05
 
-- **`scripts/deploy.js`**: run **`audit:check`** and **`copy:vendor`** before
-  version bump; refresh vendor before sync to standalone repo.
-- **`.github/dependabot.yml`**: group dev tooling; **`chore(goja)`** prefix;
-  **`security`** label.
-- CI **`.github/workflows/test.yml`**: concurrency cancels outdated runs.
-- CI **`.github/workflows/security-sweep.yml`**: weekly audit + full test matrix.
-- Commit **`package-lock.json`** (monorepo gitignore exception); CI prefers
-  **`npm ci`** when lockfile present.
-
-### Tests
-
-- `npm test` (`461` passed).
-- `tests/unit/deploy.test.js`: audit and vendor preflight ordering.
-- `tests/unit/ci-workflows.test.js`: concurrency, security sweep, Dependabot.
 
 ## [10.1.7] - 2026-06-05
 
@@ -25,6 +11,8 @@
 
 - GitHub Pages deploy now runs **`npm run copy:vendor`** so **`js/vendor/exifr.mjs`**
   is included in the published artifact (capture-date overlay).
+- **`scripts/deploy.js`**: Windows **`npm.cmd`** invocation for audit/vendor
+  preflight.
 
 ### Changed
 
@@ -33,12 +21,21 @@
 - CI **`.github/workflows/deploy.yml`**: install deps, vendor **`exifr`**, verify
   file exists before collecting **`_site`**.
 - **`package.json`**: add **`audit:check`** and **`security:verify`** scripts.
-- Updated service worker cache namespace to **`goja-v10.1.7-1`** in `sw.js`.
+- **`scripts/deploy.js`**: run **`audit:check`** and **`copy:vendor`** before
+  version bump; refresh vendor before sync to standalone repo.
+- **`.github/dependabot.yml`**: group dev tooling; **`chore(goja)`** prefix;
+  **`security`** label.
+- CI **`.github/workflows/test.yml`**: concurrency cancels outdated runs.
+- CI **`.github/workflows/security-sweep.yml`**: weekly audit + full test matrix.
+- Commit **`package-lock.json`** (monorepo gitignore exception); CI prefers
+  **`npm ci`** when lockfile present.
+- Updated service worker cache namespace to **`goja-v10.1.7-2`** in `sw.js`.
 
 ### Tests
 
-- `npm test` (`456` passed; deploy vendor contract in
-  `tests/unit/ci-workflows.test.js`).
+- `npm test` (`461` passed).
+- `tests/unit/deploy.test.js`: audit and vendor preflight ordering.
+- `tests/unit/ci-workflows.test.js`: concurrency, security sweep, Dependabot.
 
 ## [10.1.6] - 2026-06-05
 
