@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [10.1.7] - 2026-06-05
+
+
 ### Fixed
 
 - GitHub Pages deploy now runs **`npm run copy:vendor`** so **`js/vendor/exifr.mjs`**
