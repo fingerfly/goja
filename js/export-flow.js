@@ -53,7 +53,11 @@ export async function runExport(refs, state, deps) {
       },
       onOpenInNewTab: () => {
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener');
+        const a = document.createElement('a');
+        a.href = url;
+        a.rel = 'noopener';
+        a.target = '_blank';
+        a.click();
         setTimeout(() => URL.revokeObjectURL(url), EXPORT_URL_REVOKE_DELAY_MS);
         showToast(t('exportSuccess'), 'success');
       },
