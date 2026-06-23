@@ -4,6 +4,7 @@
  * - Converts watermark mode/text inputs into final display text.
  * - Draws center, tiled, or corner watermark layouts on canvas.
  */
+import { forEachByStep, positiveStep } from './loop-guards.js';
 const CENTER_FONT_RATIO = 0.08;
 const CORNER_FONT_RATIO = 0.025;
 const TILED_FONT_RATIO = 0.03;
@@ -47,6 +48,29 @@ export function computeTiledRowSpacing(fontSize, verticalGapPx) {
  */
 export function computeTiledColSpacing(textWidth, horizontalGapPx) {
   return textWidth + Math.max(0, horizontalGapPx);
+}
+
+/**
+ * Row/col steps for tiled draw loops; never below 1 px.
+ * Falls back to font-based width when measureText returns zero.
+ * @param {number} textWidth
+ * @param {number} fontSize
+ * @param {number} verticalGapPx
+ * @param {number} horizontalGapPx
+ * @returns {{ rowSpacing: number, colSpacing: number }}
+ */
+export function computeTiledSafeSpacing(
+  textWidth,
+  fontSize,
+  verticalGapPx,
+  horizontalGapPx
+) {
+  const safeFont = positiveStep(fontSize);
+  const colBase = textWidth > 0 ? textWidth : safeFont * 1.2;
+  return {
+    rowSpacing: positiveStep(computeTiledRowSpacing(safeFont, verticalGapPx)),
+    colSpacing: positiveStep(computeTiledColSpacing(colBase, horizontalGapPx)),
+  };
 }
 
 /**
@@ -161,17 +185,28 @@ function drawTiled(ctx, w, h, text, opts = {}) {
   const tileRotationRad = (tileRotationDeg * Math.PI) / 180;
   ctx.font = `${fontSize}px sans-serif`;
   const metrics = ctx.measureText(text);
-  const textWidth = metrics.width;
-  const rowSpacing = computeTiledRowSpacing(fontSize, tileGapPx);
-  const colSpacing = computeTiledColSpacing(textWidth, tileColGapPx);
+  const { rowSpacing, colSpacing } = computeTiledSafeSpacing(
+    metrics.width,
+    fontSize,
+    tileGapPx,
+    tileColGapPx
+  );
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);
   ctx.rotate(tileRotationRad);
   const diag = Math.sqrt(w * w + h * h);
-  for (let y = -diag; y < diag; y += rowSpacing) {
-    for (let x = -diag; x < diag; x += colSpacing) {
-      ctx.fillText(text, x, y);
-    }
-  }
+  forEachByStep({
+    start: -diag,
+    end: diag,
+    step: rowSpacing,
+    onStep: (y) => {
+      forEachByStep({
+        start: -diag,
+        end: diag,
+        step: colSpacing,
+        onStep: (x) => ctx.fillText(text, x, y),
+      });
+    },
+  });
 }

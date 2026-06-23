@@ -16,6 +16,11 @@ import {
   ROUNDED_RECT_RADIUS_RATIO_DEFAULT,
   SUPERELLIPSE_EXPONENT_DEFAULT,
 } from './config.js';
+import {
+  MIN_HEART_SAMPLES,
+  boundedContourSamples,
+  boundedCount,
+} from './loop-guards.js';
 
 const TAU = Math.PI * 2;
 
@@ -24,7 +29,11 @@ function toFixed3(v) {
 }
 
 function canonicalHeartPoints(samples = 160) {
-  const count = Math.max(64, Math.round(Number(samples) || 160));
+  const count = boundedCount(samples, {
+    min: MIN_HEART_SAMPLES,
+    max: 2000,
+    fallback: 160,
+  });
   const points = [];
   for (let i = 0; i < count; i += 1) {
     const t = (TAU * i) / count;
@@ -131,9 +140,10 @@ function roundedRectContour(
   const state = {
     x0, y0, x1, y1, r, topLen, rightLen, arcLen,
   };
+  const safeSamples = boundedContourSamples(samples);
   const pts = [];
-  for (let i = 0; i < samples; i += 1) {
-    const d = (i / samples) * perimeter;
+  for (let i = 0; i < safeSamples; i += 1) {
+    const d = (i / safeSamples) * perimeter;
     pts.push(roundedRectPoint(d, state));
   }
   return pts.map(([x, y]) => [toFixed3(x), toFixed3(y)]);
@@ -154,9 +164,10 @@ function superellipseContour(
   const ry = Math.max(0, height / 2 - inset);
   const n = normalizeSuperellipseExponent(exponent);
   const p = 2 / n;
+  const safeSamples = boundedContourSamples(samples);
   const pts = [];
-  for (let i = 0; i < samples; i += 1) {
-    const t = (TAU * i) / samples - Math.PI / 2;
+  for (let i = 0; i < safeSamples; i += 1) {
+    const t = (TAU * i) / safeSamples - Math.PI / 2;
     const c = Math.cos(t);
     const s = Math.sin(t);
     const x = Math.sign(c) * Math.pow(Math.abs(c), p);
@@ -177,8 +188,7 @@ function contourContext(width, height, options = {}) {
   const w = Math.max(1, Number(width) || 1);
   const h = Math.max(1, Number(height) || 1);
   const rawSamples = Math.round(Number(options.samples));
-  const samples = Math.max(
-    24,
+  const samples = boundedContourSamples(
     Number.isFinite(rawSamples) ? rawSamples : 120
   );
   return {

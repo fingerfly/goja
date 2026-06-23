@@ -3,6 +3,7 @@
  * Description:
  * - Builds export options and delegates drawing to unified pipeline.
  * - Prefers worker rendering when supported for UI responsiveness.
+ * - Clones worker payloads as plain JSON before postMessage.
  * - Exposes download/share/clipboard helpers for UI actions.
  */
 import { createGridCanvas, exportCanvasAsBlob } from './image-processor.js';
@@ -144,7 +145,12 @@ function exportViaWorker(photos, layout, options) {
     worker.onerror = () => finish(reject, new Error('Worker failed'));
     worker.onmessageerror = () => finish(reject, new Error('Worker message failed'));
     try {
-      worker.postMessage({ layout, options, blobUrls, angles });
+      worker.postMessage({
+        layout: cloneForWorker(layout),
+        options: cloneForWorker(options),
+        blobUrls,
+        angles,
+      });
     } catch (err) {
       finish(reject, err instanceof Error ? err : new Error(String(err)));
     }
@@ -152,6 +158,19 @@ function exportViaWorker(photos, layout, options) {
 }
 
 const USE_WORKER = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap !== 'undefined';
+
+/**
+ * Clone export payload for worker postMessage (plain data only).
+ * @param {unknown} value
+ * @returns {unknown}
+ */
+function cloneForWorker(value) {
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    throw new Error('Export payload is not serializable');
+  }
+}
 
 /**
  * Export a composed collage image.

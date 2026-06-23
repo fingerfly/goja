@@ -731,6 +731,24 @@ test.describe('Goja App', () => {
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });
 
+  test('tiled watermark export completes and opens options sheet', async ({ page }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await expect(page.locator('#preview')).toBeVisible();
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkText').fill('Tiled');
+    await page.locator('#watermarkPos').selectOption('tiled');
+    await page.locator('#watermarkTileSpacing').fill('0');
+    await page.locator('#watermarkTileColSpacing').fill('0');
+    await page.locator('.settings-backdrop').click();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/, { timeout: 15000 });
+  });
+
   test('watermark tile options visible when position is tiled', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await page.locator('#watermarkType').selectOption('text');

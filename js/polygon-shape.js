@@ -9,6 +9,7 @@ import {
   SUPERELLIPSE_EXPONENT_MIN,
   SUPERELLIPSE_EXPONENT_MAX,
 } from './config.js';
+import { advanceWhile, boundedCount } from './loop-guards.js';
 const TAU = Math.PI * 2;
 const GLOBAL_SHAPES = new Set(['rect', 'circle', 'ellipse', 'regular-octagon', 'regular-decagon', 'regular-dodecagon', 'regular-hexadecagon', 'regular-36-gon', 'regular-64-gon', 'rounded-rect', 'superellipse', 'capsule', 'diamond', 'regular-nonagon', 'regular-hexagon', 'hexagon', 'heart']);
 const CELL_SHAPES = new Set([...GLOBAL_SHAPES].filter((shape) => shape !== 'capsule' && shape !== 'diamond'));
@@ -114,7 +115,7 @@ export function regularPolygonVertices(width, height, inset, orientation, ox, oy
  */
 export function resampleClosedContour(points, count) {
   if (!Array.isArray(points) || points.length < 3) return points.slice();
-  const target = Math.max(3, Math.round(Number(count) || points.length));
+  const target = boundedCount(count, { min: 3, max: 10000, fallback: points.length });
   if (target <= points.length) return points.slice();
   const segLens = [];
   let totalLen = 0;
@@ -130,10 +131,14 @@ export function resampleClosedContour(points, count) {
     const targetLen = (k / target) * totalLen;
     let acc = 0;
     let idx = 0;
-    while (idx < segLens.length && (acc + segLens[idx]) < targetLen) {
-      acc += segLens[idx];
-      idx += 1;
-    }
+    advanceWhile({
+      test: () => idx < segLens.length && (acc + segLens[idx]) < targetLen,
+      body: () => {
+        acc += segLens[idx];
+        idx += 1;
+      },
+      maxIterations: segLens.length + 1,
+    });
     const a = points[idx % points.length];
     const b = points[(idx + 1) % points.length];
     const seg = Math.max(1e-9, segLens[idx % segLens.length]);

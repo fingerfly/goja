@@ -67,6 +67,10 @@ npm test
 `npm install` also runs `copy:vendor`, which copies `exifr` into `js/vendor/exifr.mjs`
 for the capture-date overlay.
 
+Dynamic-step loops (watermark tiling, contour sampling, edge paths) use
+`js/loop-guards.js` — always apply `positiveStep`, `boundedCount`, or
+`forEachByStep` when adding new ranged loops.
+
 ### E2E tests
 
 ```bash

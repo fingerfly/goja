@@ -7,6 +7,7 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const swSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf-8');
 
 const EXPORT_PIPELINE_ASSETS = [
+  './js/loop-guards.js',
   './js/unified-canvas-pipeline.js',
   './js/shape-clip-utils.js',
   './js/frame-shape-geometry.js',

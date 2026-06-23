@@ -8,6 +8,7 @@ import { makeSeededRng } from './edge-rng.js';
 import { getEdgeStyleProfile, normalizeEdgeStyle } from './edge-style-presets.js';
 import { normalizeCellShapeTemplate, normalizeShapeOrientation, normalizeSuperellipseExponent } from './frame-shape-geometry.js';
 import { sampleShapeContour } from './shape-contour.js';
+import { boundedCount } from './loop-guards.js';
 
 function clampNum(v, min, max, fallback) {
   const n = Number(v);
@@ -16,12 +17,13 @@ function clampNum(v, min, max, fallback) {
 }
 
 function edgePoints(x1, y1, x2, y2, amp, steps, offsetAt, axis) {
+  const safeSteps = boundedCount(steps, { min: 1, max: 500, fallback: 10 });
   const pts = [];
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
+  for (let i = 0; i <= safeSteps; i++) {
+    const t = i / safeSteps;
     const x = x1 + (x2 - x1) * t;
     const y = y1 + (y2 - y1) * t;
-    if (i === 0 || i === steps || amp <= 0) {
+    if (i === 0 || i === safeSteps || amp <= 0) {
       pts.push([x, y]);
     } else {
       const off = offsetAt(t);

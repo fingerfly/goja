@@ -2,19 +2,51 @@
 
 ## [Unreleased]
 
+## [10.2.6] - 2026-06-23
+
+### Fixed
+
+- **Export hang with tiled watermark**: 10.2.5 split row/column tile spacing
+  could produce a zero column step when `measureText` returned zero width
+  (common in the export worker), causing an infinite draw loop. Export stayed
+  on "Exporting…" after the worker timed out and the main thread hit the same
+  loop. Tiled spacing now enforces a minimum 1 px step with a font-based
+  fallback width. Worker `postMessage` clones layout/options as plain JSON
+  to avoid structured-clone failures on accidental circular references.
+
+### Added
+
+- **`js/loop-guards.js`**: shared helpers (`positiveStep`, `boundedCount`,
+  `forEachByStep`, `advanceWhile`, `boundedContourSamples`) applied across
+  watermark tiling, contour sampling, edge path stepping, and contour
+  resampling so dynamic loop steps and counts cannot run forever.
+
+### Tests
+
+- `npm test` (498 passed).
+- `npm run test:e2e` (80 passed).
+
 ## [10.2.5] - 2026-06-23
 
 
 ### Changed
 
-- **Watermark tile spacing**: control sets the **vertical pixel gap between
-  adjacent tiled watermarks** (0–400 px). Row step is `fontSize + gap`;
-  column step follows text width so rows can sit closer and the gap is
-  easier to tune.
-- **Watermark tile horizontal spacing**: new control sets the **horizontal
-  pixel gap between adjacent tiled watermarks** (0–400 px, default 0).
-  Column step is `textWidth + gap`; preview and export forward
+- **Watermark tile vertical spacing**: the spacing control now sets only the
+  **vertical pixel gap between adjacent tiled watermarks** (0–400 px,
+  default 80). Row step is `fontSize + gap`, independent of column pitch.
+- **Watermark tile horizontal spacing**: new `#watermarkTileColSpacing`
+  control sets the **horizontal pixel gap between adjacent tiled watermarks**
+  (0–400 px, default 0). Column step is `textWidth + gap`. Preview, export
+  handler, export worker, and unified canvas pipeline forward
   `watermarkTileColSpacing`.
+- **Tile spacing UI**: settings show separate **vertical** and **horizontal**
+  number inputs (plus rotation on the next row). Labels, hints, and all six
+  locales updated; `watermark-tile-controls.js` normalizes both gaps.
+
+### Tests
+
+- `npm test` (486 passed).
+- `npm run test:e2e` (79 passed).
 
 ## [10.2.4] - 2026-06-23
 

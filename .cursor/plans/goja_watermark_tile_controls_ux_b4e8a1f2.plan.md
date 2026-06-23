@@ -10,31 +10,31 @@ todos:
       TDD red — unit tests for normalizeTileSpacing/Rotation, parseNumBounded
       in grid-effects-settings, drawTiled spacing at new min; e2e visibility
       and touch-target checks for tiled controls.
-    status: pending
+    status: completed
   - id: rev65-watermark-tile-controls-module
     content: >-
       Add js/watermark-tile-controls.js (normalizeTileSpacing/Rotation,
       applyTileSpacingInputMode decimal, applyTileRotationInputMode via
       edge-controls); update config.js constants; wire setFormDefaults plus
       input+change normalize listeners in app-init.js (edgeFrequency pattern).
-    status: pending
+    status: completed
   - id: rev66-html-css-locales
     content: >-
       Replace range inputs in index.html with type=number controls, hint
       elements (#watermarkTileSpacingHint, #watermarkTileRotationHint), and
       aria-describedby on inputs; add hint i18n keys to all six locales.
-    status: pending
+    status: completed
   - id: rev67-grid-effects-bounded-parse
     content: >-
       Use parseNumBounded in getWatermarkOptions for tileSpacing/tileRotation;
       keep export/preview pipeline unchanged except clamped values.
-    status: pending
+    status: completed
   - id: rev68-validation-gate-and-changelog
     content: >-
       Run full npm test + test:e2e, cloc on touched files, update CHANGELOG
       [Unreleased] with today date and validation counts; version bump via
       sync-version when releasing.
-    status: pending
+    status: completed
 isProject: true
 parentPlan: goja-irregular-edge-plan_709ef89a.plan.md
 wave: 15
@@ -322,6 +322,7 @@ cloc --by-file --include-lang=JavaScript js/watermark-tile-controls.js js/grid-e
 
 **实现后复检（rev68 前勾选）：**
 
-- [ ] HTML hint 元素与 a11y 属性已落地
-- [ ] 六语种 hint i18n 已添加
-- [ ] 全量测试通过并写入 CHANGELOG 证据
+- [x] HTML hint 元素与 a11y 属性已落地
+- [x] 六语种 hint i18n 已添加
+- [x] 全量测试通过并写入 CHANGELOG 证据（10.2.6 (1), 2026-06-23）
+- [x] 10.2.6：`loop-guards.js` 与 tiled export 无限循环修复（`computeTiledSafeSpacing` + `forEachByStep`）

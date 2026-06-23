@@ -4,6 +4,7 @@ import {
   drawWatermark,
   computeTiledRowSpacing,
   computeTiledColSpacing,
+  computeTiledSafeSpacing,
 } from '../../js/watermark.js';
 
 let mockCtx;
@@ -74,6 +75,19 @@ describe('computeTiledColSpacing', () => {
 
   it('clamps negative gap to zero', () => {
     expect(computeTiledColSpacing(80, -5)).toBe(80);
+  });
+});
+
+describe('computeTiledSafeSpacing', () => {
+  it('never returns zero row or column spacing', () => {
+    const { rowSpacing, colSpacing } = computeTiledSafeSpacing(0, 0, 0, 0);
+    expect(rowSpacing).toBeGreaterThanOrEqual(1);
+    expect(colSpacing).toBeGreaterThanOrEqual(1);
+  });
+
+  it('uses font-based fallback when text width is zero', () => {
+    const { colSpacing } = computeTiledSafeSpacing(0, 32, 0, 0);
+    expect(colSpacing).toBeGreaterThanOrEqual(32);
   });
 });
 
@@ -206,6 +220,19 @@ describe('drawWatermark', () => {
       type: 'text', text: 'T', position: 'tiled', tileColSpacing: 200,
     });
     expect(tightCount).toBeGreaterThan(mockCtx.fillText.mock.calls.length);
+  });
+
+  it('tiled watermark completes when measureText returns zero width', () => {
+    mockCtx.measureText = vi.fn(() => ({ width: 0 }));
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text',
+      text: 'X',
+      position: 'tiled',
+      tileSpacing: 0,
+      tileColSpacing: 0,
+    });
+    expect(mockCtx.fillText.mock.calls.length).toBeGreaterThan(0);
+    expect(mockCtx.fillText.mock.calls.length).toBeLessThan(50000);
   });
 
   it('applies custom tile rotation in radians', () => {

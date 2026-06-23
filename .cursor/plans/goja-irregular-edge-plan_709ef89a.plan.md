@@ -1638,7 +1638,14 @@ For planning/verification, `rev34` is only considered complete when all items be
 
 ### Wave 15 Status
 
-- Status: **Ready to implement** (canonical plan review fixes applied 2026-06-23).
+- Status: **Shipped through 10.2.6 (1)** — tile spacing/rotation controls,
+  horizontal col spacing (10.2.5), export hang fix and `loop-guards.js`
+  (10.2.6). Full validation gates passed 2026-06-23.
 - Child plan: [goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md)
-  — review findings F1–F4 resolved in plan text; implementation pending rev64–rev68.
+  — review findings F1–F4 resolved; 10.2.6 closes export regression from
+  split row/column tile spacing.
 
+### Wave 16 Objectives (Next)
+
+- Monitor tiled-watermark export in production; extend loop-guard pattern if
+  new dynamic-step loops are added.
