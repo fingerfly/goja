@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [10.2.9] - 2026-06-24
+
+### Fixed
+
+- **iOS export stuck after open-in-new-tab**: Safari can suspend the page
+  before the options sheet finishes closing, leaving the gray backdrop,
+  `exportInProgress`, and the "导出中…" label stuck. Open-in-new-tab now
+  dismisses the sheet and runs `onDismiss` synchronously before opening the
+  link; tab open is deferred with `setTimeout(0)`. Returning to the app
+  runs `installExportPageLifecycle` on `pageshow` / `visibilitychange` to
+  recover orphaned backdrop state. A second Export click also recovers when
+  the guard is stuck without a visible sheet.
+
+### Tests
+
+- `npm test` (521 passed).
+- `npm run test:e2e` (81 passed).
+
 ## [10.2.8] - 2026-06-23
 
 ### Fixed

@@ -23,6 +23,15 @@ let focusReturnEl = null;
 let activeCleanup = null;
 let dismissCallback = null;
 
+/** @returns {boolean} Whether the export options sheet or backdrop is visible. */
+export function isExportOptionsOpen() {
+  const sheetEl = document.getElementById('exportOptionsSheet');
+  const backdropEl = document.getElementById('exportOptionsBackdrop');
+  return Boolean(
+    sheetEl?.classList.contains('open') || backdropEl?.classList.contains('open')
+  );
+}
+
 /**
  * Close the export options sheet and run any pending listener cleanup.
  * @param {boolean} [restoreFocus=true]
@@ -147,7 +156,12 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     copyBtn.onclick = runOption(callbacks.onCopy);
   }
 
-  openTabBtn.onclick = runOption(callbacks.onOpenInNewTab, false);
+  openTabBtn.onclick = (event) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    handleClose(false);
+    setTimeout(() => callbacks.onOpenInNewTab?.(), 0);
+  };
 
   backdropEl.addEventListener('click', () => handleClose());
   closeBtn?.addEventListener('click', () => handleClose());

@@ -4,9 +4,58 @@
  */
 import { EXPORT_URL_REVOKE_DELAY_MS, EXPORT_FILENAME_DEFAULT } from './config.js';
 import { sanitizeFilename } from './utils.js';
+import {
+  dismissExportOptions,
+  isExportOptionsOpen,
+} from './export-options.js';
 
 /** Guards concurrent export runs (double-click, frame-clamp await window). */
 let exportInProgress = false;
+
+/** @type {'idle' | 'rendering' | 'options'} */
+let exportPhase = 'idle';
+
+/**
+ * Clear a stuck export UI state (e.g. iOS tab switch before dismiss ran).
+ * @param {{ photos: { url: string }[] }} state
+ * @param {(count: number, isExporting: boolean) => void} updateActionButtons
+ */
+export function recoverStuckExportState(state, updateActionButtons) {
+  if (isExportOptionsOpen()) {
+    dismissExportOptions(false);
+  }
+  if (!exportInProgress) return;
+  if (exportPhase === 'rendering') return;
+  exportInProgress = false;
+  exportPhase = 'idle';
+  updateActionButtons(state.photos.length, false);
+}
+
+/**
+ * Reset export UI when the page becomes visible after background tab switch.
+ * @param {() => { photos: { url: string }[] }} getState
+ * @param {(count: number, isExporting: boolean) => void} updateActionButtons
+ * @returns {() => void} teardown
+ */
+export function installExportPageLifecycle(getState, updateActionButtons) {
+  const recover = () => {
+    if (document.visibilityState !== 'visible') return;
+    const state = getState();
+    if (!exportInProgress) return;
+    const stuckOptions =
+      exportPhase === 'options' && !isExportOptionsOpen();
+    const orphanBackdrop = isExportOptionsOpen() && exportPhase !== 'rendering';
+    if (stuckOptions || orphanBackdrop) {
+      recoverStuckExportState(state, updateActionButtons);
+    }
+  };
+  document.addEventListener('visibilitychange', recover);
+  window.addEventListener('pageshow', recover);
+  return () => {
+    document.removeEventListener('visibilitychange', recover);
+    window.removeEventListener('pageshow', recover);
+  };
+}
 
 /**
  * Runs the full export flow: clamp frame if needed, handleExport, showExportOptions.
@@ -17,14 +66,22 @@ let exportInProgress = false;
 export async function runExport(refs, state, deps) {
   const { photos, currentLayout } = state;
   if (!currentLayout || photos.length === 0) return;
-  if (exportInProgress) return;
 
-  exportInProgress = true;
   const { frameW, frameH, exportFilename, exportUseDate, formatSelect, exportBtn } = refs;
   const { clampFrameValue, showToast, t, buildForm, getGridEffectsOptions, handleExport, showExportOptions,
     downloadBlob, shareBlob, copyBlobToClipboard, formatDateTimeOriginal, getLocale,
     updateActionButtons, updatePreview } = deps;
 
+  if (exportInProgress) {
+    if (exportPhase === 'options' && !isExportOptionsOpen()) {
+      recoverStuckExportState(state, updateActionButtons);
+    } else {
+      return;
+    }
+  }
+
+  exportInProgress = true;
+  exportPhase = 'rendering';
   updateActionButtons(photos.length, true);
   let sheetOpened = false;
   try {
@@ -44,6 +101,7 @@ export async function runExport(refs, state, deps) {
     }
     const base = sanitizeFilename(exportFilename?.value, EXPORT_FILENAME_DEFAULT);
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
+    exportPhase = 'options';
     sheetOpened = showExportOptions(blob, withDate, formatSelect.value, {
       onShare: () => {
         shareBlob(blob, withDate).then(
@@ -74,9 +132,13 @@ export async function runExport(refs, state, deps) {
       focusReturnEl: exportBtn,
       onDismiss: () => {
         exportInProgress = false;
+        exportPhase = 'idle';
         updateActionButtons(state.photos.length, false);
       },
     });
+    if (sheetOpened) {
+      updateActionButtons(state.photos.length, false);
+    }
     if (!sheetOpened) {
       throw new Error('Export options UI unavailable');
     }
@@ -85,6 +147,7 @@ export async function runExport(refs, state, deps) {
   } finally {
     if (!sheetOpened) {
       exportInProgress = false;
+      exportPhase = 'idle';
       updateActionButtons(state.photos.length, false);
     }
   }
@@ -98,9 +161,11 @@ export function isExportInProgress() {
 /** Clears the export guard without invoking sheet onDismiss (e.g. Clear all). */
 export function cancelExportFlow() {
   exportInProgress = false;
+  exportPhase = 'idle';
 }
 
 /** @internal Resets export-in-progress guard for unit tests. */
 export function resetExportInProgressForTests() {
   exportInProgress = false;
+  exportPhase = 'idle';
 }

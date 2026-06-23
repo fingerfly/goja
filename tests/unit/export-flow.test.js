@@ -1,5 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runExport, resetExportInProgressForTests, isExportInProgress } from '../../js/export-flow.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  runExport,
+  resetExportInProgressForTests,
+  isExportInProgress,
+  recoverStuckExportState,
+  installExportPageLifecycle,
+} from '../../js/export-flow.js';
 
 describe('runExport', () => {
   let refs;
@@ -48,7 +54,7 @@ describe('runExport', () => {
     expect(deps.handleExport).toHaveBeenCalledWith(state.photos, state.currentLayout, expect.any(Object));
     expect(deps.showExportOptions).toHaveBeenCalled();
     expect(deps.updateActionButtons).toHaveBeenCalledWith(1, true);
-    expect(deps.updateActionButtons).not.toHaveBeenCalledWith(1, false);
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
   });
 
   it('re-enables export when the options sheet dismisses', async () => {
@@ -99,7 +105,14 @@ describe('runExport', () => {
   });
 
   it('ignores concurrent export while options sheet is open', async () => {
-    deps.showExportOptions.mockReturnValue(true);
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    deps.showExportOptions.mockImplementation(() => {
+      document.getElementById('exportOptionsBackdrop').classList.add('open');
+      return true;
+    });
     await runExport(refs, state, deps);
     await runExport(refs, state, deps);
     expect(deps.handleExport).toHaveBeenCalledTimes(1);
@@ -158,5 +171,33 @@ describe('runExport', () => {
     });
     await runExport(refs, state, deps);
     expect(isExportInProgress()).toBe(true);
+  });
+
+  it('recovers stuck guard when options phase has no open sheet', async () => {
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    expect(isExportInProgress()).toBe(true);
+    recoverStuckExportState(state, deps.updateActionButtons);
+    expect(isExportInProgress()).toBe(false);
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
+    await runExport(refs, state, deps);
+    expect(deps.handleExport).toHaveBeenCalledTimes(2);
+  });
+
+  it('installExportPageLifecycle clears stuck state on pageshow', async () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop" class="open"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+    window.dispatchEvent(new PageTransitionEvent('pageshow'));
+    expect(isExportInProgress()).toBe(false);
+    teardown();
   });
 });

@@ -12,7 +12,7 @@ import { readImageDimensions, debounce } from './utils.js';
 import { loadPhotos as loadPhotosFromFiles } from './photo-loader.js';
 import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
-import { runExport, cancelExportFlow } from './export-flow.js';
+import { runExport, cancelExportFlow, installExportPageLifecycle } from './export-flow.js';
 import { dismissExportOptions } from './export-options.js';
 import { buildFormFromRefs, getGridEffectsOptions } from './grid-effects-settings.js';
 import { renderGrid } from './preview-renderer.js';
@@ -131,6 +131,10 @@ export function bootstrap() {
 
   const frameInput = createFrameInputHandler({ clampFrameValue, isFrameValueValid, setFrameInputInvalidState, showToast, t, debounce });
   updateActionButtons(0);
+  installExportPageLifecycle(
+    () => stateRef,
+    (count, isExporting) => updateActionButtons(count, isExporting)
+  );
   $('#versionLabel').textContent = `v${VERSION_STRING}`;
 
   initApp({ dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect, exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmColor, wmColorGroup, wmTileOptionsGroup, wmPos, wmOpacity, wmFontSize, wmText, wmTileSpacing, wmTileColSpacing, wmTileRotation, showCaptureDate, captureDateOptionsGroup, vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos, captureDateOpacity, captureDateFontSize, edgeOptionsGroup, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent, previewGrid, preview, sPanel, sBackdrop, offlineBanner, langSelect, settingsPanelBody, settingsSectionTabs, settingsDoneBtn, settingsResetSectionBtn, settingsResetAllBtn }, stateRef, { loadPhotos, updatePreview, onExport, clearAll, applyRestoredState, onLangChange: () => { setLocale(langSelect.value); applyToDOM(); if (stateRef.photos.length > 0) populateTemplateSelect(templateSelect, stateRef.photos.length, getTemplatesForCount, t); if (stateRef.currentLayout) { renderGrid(previewGrid, preview, stateRef.photos, stateRef.currentLayout, buildForm(), { formatDateTimeOriginal, getLocale, t }); refreshRotationHandles(); } }, openFile: () => fileInput.click() }, frameInput, { setStoredTemplate, populateTemplateSelect, getTemplatesForCount, renderGrid, buildForm, formatDateTimeOriginal, getLocale, t, pushState, undo, redo, swapOrder, initSettingsPanel, initSettingsTabsNav, enableDragAndDrop, enableCellContextMenu, enableCellKeyboardNav, refreshRotationHandles });
