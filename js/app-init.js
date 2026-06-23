@@ -133,7 +133,10 @@ function syncSettingsVisibility(refs) {
   refs.wmPosGroup?.classList.toggle('hidden', !show);
   refs.wmOpacityGroup?.classList.toggle('hidden', !show);
   refs.wmFontSizeGroup?.classList.toggle('hidden', !show);
+  refs.wmColorGroup?.classList.toggle('hidden', !show);
   refs.wmTextGroup?.classList.toggle('hidden', refs.wmType?.value !== 'text' && refs.wmType?.value !== 'copyright');
+  const showTile = show && refs.wmPos?.value === 'tiled';
+  refs.wmTileOptionsGroup?.classList.toggle('hidden', !showTile);
   refs.captureDateOptionsGroup?.classList.toggle('hidden', !refs.showCaptureDate?.checked);
   refs.vignetteOptionsGroup?.classList.toggle('hidden', !refs.vignetteEnabled?.checked);
 }
@@ -164,8 +167,8 @@ function resetControls(rootEl) {
 export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const {
     dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect,
-    exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup,
-    wmPos, wmOpacity, wmFontSize, wmText, showCaptureDate, captureDateOptionsGroup,
+    exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmColorGroup, wmTileOptionsGroup,
+    wmPos, wmOpacity, wmFontSize, wmText, wmTileSpacing, wmTileRotation, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
     globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent,
@@ -243,10 +246,16 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
     syncSettingsVisibility(refs);
     updatePreview();
   });
-  wmPos?.addEventListener('change', updatePreview);
+  wmPos?.addEventListener('change', () => {
+    syncSettingsVisibility(refs);
+    updatePreview();
+  });
   wmOpacity?.addEventListener('input', updatePreview);
   wmFontSize?.addEventListener('change', updatePreview);
   wmText?.addEventListener('input', updatePreview);
+  wmTileSpacing?.addEventListener('input', updatePreview);
+  wmTileRotation?.addEventListener('input', updatePreview);
+  wmColor?.addEventListener('input', updatePreview);
   showCaptureDate?.addEventListener('change', () => {
     syncSettingsVisibility(refs);
     updatePreview();

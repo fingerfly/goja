@@ -20,6 +20,13 @@ export const WATERMARK_OPACITY_MAX = 0.9;
 export const WATERMARK_OPACITY_DEFAULT = 0.8;
 export const WATERMARK_POSITION_DEFAULT = 'bottom-right';
 export const WATERMARK_FONT_SCALE_DEFAULT = 1;
+export const WATERMARK_COLOR_DEFAULT = '#000000';
+export const WATERMARK_TILE_SPACING_MIN = 0.1;
+export const WATERMARK_TILE_SPACING_MAX = 0.5;
+export const WATERMARK_TILE_SPACING_DEFAULT = 0.2;
+export const WATERMARK_TILE_ROTATION_MIN = -90;
+export const WATERMARK_TILE_ROTATION_MAX = 90;
+export const WATERMARK_TILE_ROTATION_DEFAULT = -30;
 
 export const EXIF_TAG_SET = ['DateTimeOriginal'];
 

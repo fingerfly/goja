@@ -4,12 +4,9 @@
  * - Converts watermark mode/text inputs into final display text.
  * - Draws center, tiled, or corner watermark layouts on canvas.
  */
-const ROTATION_DEG = -30;
-const ROTATION_RAD = (ROTATION_DEG * Math.PI) / 180;
 const CENTER_FONT_RATIO = 0.08;
 const CORNER_FONT_RATIO = 0.025;
 const TILED_FONT_RATIO = 0.03;
-const TILE_SPACING_RATIO = 0.2;
 const CORNER_MARGIN_RATIO = 0.02;
 
 /** Returns 0–1 luminance (dark ≈ 0, light ≈ 1) from hex/rgb color */
@@ -63,20 +60,21 @@ export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
   const {
     type, text, position = 'bottom-right', locale = 'en',
     opacity = 0.8, fontScale = 1, backgroundColor = '#ffffff',
+    color, tileSpacing = 0.2, tileRotation = -30,
   } = options;
   const resolved = resolveWatermarkText(type, text, locale);
   if (!resolved) return;
 
   ctx.save();
-  const lum = luminanceFromColor(backgroundColor);
-  const isDark = lum < 0.5;
   const alpha = Math.min(0.9, Math.max(0.3, opacity));
-  ctx.fillStyle = isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)';
+  ctx.fillStyle = color || (luminanceFromColor(backgroundColor) < 0.5
+    ? 'rgb(255, 255, 255)'
+    : 'rgb(0, 0, 0)');
   ctx.textBaseline = 'middle';
 
   const opts = { fontScale, alpha };
   if (position === 'center') drawCenter(ctx, canvasWidth, canvasHeight, resolved, opts);
-  else if (position === 'tiled') drawTiled(ctx, canvasWidth, canvasHeight, resolved, opts);
+  else if (position === 'tiled') drawTiled(ctx, canvasWidth, canvasHeight, resolved, { ...opts, tileSpacing, tileRotation });
   else if (position === 'top-left') drawTopLeft(ctx, canvasWidth, canvasHeight, resolved, opts);
   else if (position === 'top-right') drawTopRight(ctx, canvasWidth, canvasHeight, resolved, opts);
   else if (position === 'bottom-left') drawBottomLeft(ctx, canvasWidth, canvasHeight, resolved, opts);
@@ -88,12 +86,13 @@ export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
 function drawCenter(ctx, w, h, text, opts = {}) {
   const scale = opts.fontScale ?? 1;
   const alpha = (opts.alpha ?? 0.8) * 0.38;
+  const centerRotationRad = (-30 * Math.PI) / 180;
   const fontSize = Math.round(w * CENTER_FONT_RATIO * scale);
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);
-  ctx.rotate(ROTATION_RAD);
+  ctx.rotate(centerRotationRad);
   ctx.fillText(text, 0, 0);
 }
 
@@ -133,15 +132,18 @@ function drawTiled(ctx, w, h, text, opts = {}) {
   const scale = opts.fontScale ?? 1;
   const alpha = (opts.alpha ?? 0.8) * 0.1875;
   const fontSize = Math.round(w * TILED_FONT_RATIO * scale);
+  const tileSpacingRatio = opts.tileSpacing ?? 0.2;
+  const tileRotationDeg = opts.tileRotation ?? -30;
+  const tileRotationRad = (tileRotationDeg * Math.PI) / 180;
   ctx.font = `${fontSize}px sans-serif`;
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
   const minSpacing = Math.max(textWidth, fontSize * 1.2) + fontSize * 0.5;
-  const spacing = Math.max(minSpacing, Math.round(w * TILE_SPACING_RATIO));
+  const spacing = Math.max(minSpacing, Math.round(w * tileSpacingRatio));
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);
-  ctx.rotate(ROTATION_RAD);
+  ctx.rotate(tileRotationRad);
   const diag = Math.sqrt(w * w + h * h);
   for (let y = -diag; y < diag; y += spacing) {
     for (let x = -diag; x < diag; x += spacing) {

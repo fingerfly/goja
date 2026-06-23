@@ -81,6 +81,9 @@ export function renderUnifiedCanvas(ctx, images, layout, options, drawCellConten
     opacity: options.watermarkOpacity,
     fontScale: options.watermarkFontScale,
     backgroundColor: options.backgroundColor ?? '#ffffff',
+    color: options.watermarkColor,
+    tileSpacing: options.watermarkTileSpacing,
+    tileRotation: options.watermarkTileRotation,
     locale: options.locale ?? 'en',
   });
   if (clipped) ctx.restore();
