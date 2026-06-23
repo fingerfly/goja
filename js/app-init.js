@@ -29,6 +29,14 @@ import {
   SUPERELLIPSE_EXPONENT_MIN,
   SUPERELLIPSE_EXPONENT_MAX,
   SUPERELLIPSE_EXPONENT_STEP,
+  WATERMARK_TILE_SPACING_MIN,
+  WATERMARK_TILE_SPACING_MAX,
+  WATERMARK_TILE_SPACING_DEFAULT,
+  WATERMARK_TILE_SPACING_STEP,
+  WATERMARK_TILE_ROTATION_MIN,
+  WATERMARK_TILE_ROTATION_MAX,
+  WATERMARK_TILE_ROTATION_DEFAULT,
+  WATERMARK_TILE_ROTATION_STEP,
 } from './config.js';
 import {
   normalizeEdgeAmplitude,
@@ -36,13 +44,19 @@ import {
   normalizeEdgeSeed,
   applyPlatformNumericInputMode,
 } from './edge-controls.js';
+import {
+  applyTileSpacingInputMode,
+  applyTileRotationInputMode,
+  normalizeTileSpacingInput,
+  normalizeTileRotationInput,
+} from './watermark-tile-controls.js';
 
 /**
  * Set form defaults using static config values.
  * @param {Record<string, any>} refs
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent, wmTileSpacing, wmTileRotation } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -89,6 +103,18 @@ function setFormDefaults(refs) {
     superellipseExponent.max = String(SUPERELLIPSE_EXPONENT_MAX);
     superellipseExponent.step = String(SUPERELLIPSE_EXPONENT_STEP);
     superellipseExponent.value = superellipseExponent.value || String(SUPERELLIPSE_EXPONENT_DEFAULT);
+  }
+  if (wmTileSpacing) {
+    wmTileSpacing.min = String(WATERMARK_TILE_SPACING_MIN);
+    wmTileSpacing.max = String(WATERMARK_TILE_SPACING_MAX);
+    wmTileSpacing.step = String(WATERMARK_TILE_SPACING_STEP);
+    wmTileSpacing.value = wmTileSpacing.value || String(WATERMARK_TILE_SPACING_DEFAULT);
+  }
+  if (wmTileRotation) {
+    wmTileRotation.min = String(WATERMARK_TILE_ROTATION_MIN);
+    wmTileRotation.max = String(WATERMARK_TILE_ROTATION_MAX);
+    wmTileRotation.step = String(WATERMARK_TILE_ROTATION_STEP);
+    wmTileRotation.value = wmTileRotation.value || String(WATERMARK_TILE_ROTATION_DEFAULT);
   }
 }
 
@@ -186,9 +212,13 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   applyPlatformNumericInputMode(edgeFrequency, userAgent);
   applyPlatformNumericInputMode(edgeSeed, userAgent);
+  applyTileSpacingInputMode(wmTileSpacing);
+  applyTileRotationInputMode(wmTileRotation, userAgent);
   syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'slider');
   normalizeEdgeFrequencyInput(edgeFrequency);
   normalizeEdgeSeedInput(edgeSeed);
+  normalizeTileSpacingInput(wmTileSpacing);
+  normalizeTileRotationInput(wmTileRotation);
   syncSettingsVisibility(refs);
 
   dropZone?.addEventListener('click', openFile);
@@ -253,8 +283,22 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   wmOpacity?.addEventListener('input', updatePreview);
   wmFontSize?.addEventListener('change', updatePreview);
   wmText?.addEventListener('input', updatePreview);
-  wmTileSpacing?.addEventListener('input', updatePreview);
-  wmTileRotation?.addEventListener('input', updatePreview);
+  wmTileSpacing?.addEventListener('input', () => {
+    normalizeTileSpacingInput(wmTileSpacing);
+    updatePreview();
+  });
+  wmTileSpacing?.addEventListener('change', () => {
+    normalizeTileSpacingInput(wmTileSpacing);
+    updatePreview();
+  });
+  wmTileRotation?.addEventListener('input', () => {
+    normalizeTileRotationInput(wmTileRotation);
+    updatePreview();
+  });
+  wmTileRotation?.addEventListener('change', () => {
+    normalizeTileRotationInput(wmTileRotation);
+    updatePreview();
+  });
   wmColor?.addEventListener('input', updatePreview);
   showCaptureDate?.addEventListener('change', () => {
     syncSettingsVisibility(refs);

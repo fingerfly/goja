@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [10.2.3] - 2026-06-23
+
+
+### Changed
+
+- **Watermark tile controls**: replaced range sliders for tile spacing and tile
+  rotation with `type="number"` inputs aligned to Goja edge/superellipse patterns.
+  Spacing minimum lowered from 0.1 to **0.02** with 0.01 step; rotation uses 1°
+  steps. Added `js/watermark-tile-controls.js`, i18n hints, and `aria-describedby`
+  on both inputs.
+
+### Tests
+
+- `npm test` (477 passed).
+- `npm run test:e2e` (79 passed).
+
 ## [10.2.2] - 2026-06-23
 
 

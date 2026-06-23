@@ -149,4 +149,18 @@ describe('drawWatermark', () => {
     });
     expect(mockCtx.fillStyle).toBe('#ff0000');
   });
+
+  it('draws tiled watermark with custom spacing at new minimum', () => {
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileSpacing: 0.02,
+    });
+    expect(mockCtx.fillText.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it('applies custom tile rotation in radians', () => {
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileRotation: -25,
+    });
+    expect(mockCtx.rotate).toHaveBeenCalledWith((-25 * Math.PI) / 180);
+  });
 });

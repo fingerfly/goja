@@ -8,7 +8,11 @@ import {
   WATERMARK_FONT_SCALE_DEFAULT,
   WATERMARK_COLOR_DEFAULT,
   WATERMARK_TILE_SPACING_DEFAULT,
+  WATERMARK_TILE_SPACING_MIN,
+  WATERMARK_TILE_SPACING_MAX,
   WATERMARK_TILE_ROTATION_DEFAULT,
+  WATERMARK_TILE_ROTATION_MIN,
+  WATERMARK_TILE_ROTATION_MAX,
   CAPTURE_DATE_OPACITY_DEFAULT,
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
@@ -72,8 +76,18 @@ export function getWatermarkOptions(form, locale = 'en') {
     fontScale: parseNum(form.wmFontSize, WATERMARK_FONT_SCALE_DEFAULT),
     backgroundColor: form.bgColor ?? '#ffffff',
     color: form.wmColor ?? WATERMARK_COLOR_DEFAULT,
-    tileSpacing: parseNum(form.wmTileSpacing, WATERMARK_TILE_SPACING_DEFAULT),
-    tileRotation: parseNum(form.wmTileRotation, WATERMARK_TILE_ROTATION_DEFAULT),
+    tileSpacing: parseNumBounded(
+      form.wmTileSpacing,
+      WATERMARK_TILE_SPACING_DEFAULT,
+      WATERMARK_TILE_SPACING_MIN,
+      WATERMARK_TILE_SPACING_MAX
+    ),
+    tileRotation: parseIntBounded(
+      form.wmTileRotation,
+      WATERMARK_TILE_ROTATION_DEFAULT,
+      WATERMARK_TILE_ROTATION_MIN,
+      WATERMARK_TILE_ROTATION_MAX
+    ),
     locale: locale ?? 'en',
   };
 }

@@ -1,6 +1,6 @@
 ---
 name: goja-advanced-irregular-edge-rollout-plan
-overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-13, and execute active Wave 14 frame-stroke parity hardening with source-of-truth governance, function-complexity guardrails, and validated release evidence.
+overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-14, and execute active Wave 15 watermark tile controls UX (rev64..rev68) with source-of-truth governance, function-complexity guardrails, and validated release evidence.
 todos:
   - id: phase0-modular-baseline
     content: Extract thin adapters/helpers first so each touched JS module can comply with SLOC<100 before feature logic lands.
@@ -242,6 +242,28 @@ todos:
   - id: rev63e-user-visual-signoff
     content: Obtain user visual confirmation for reported parity scenarios before marking rev63 complete.
     status: completed
+  - id: rev64-tdd-watermark-tile-controls-red
+    content: TDD red — unit/e2e tests for watermark tile spacing/rotation numeric controls and new spacing min.
+    status: pending
+  - id: rev65-watermark-tile-controls-module
+    content: >-
+      Add watermark-tile-controls.js (normalize + decimal spacing inputmode +
+      rotation applyPlatformNumericInputMode); config constants; app-init
+      setFormDefaults plus input+change normalize listeners.
+    status: pending
+  - id: rev66-html-css-locales
+    content: >-
+      Replace range sliders with number inputs, hint elements, aria-describedby,
+      and i18n hints in index.html plus six locales.
+    status: pending
+  - id: rev67-grid-effects-bounded-parse
+    content: Use parseNumBounded for tileSpacing/tileRotation in getWatermarkOptions.
+    status: pending
+  - id: rev68-validation-gate-and-changelog
+    content: >-
+      Full test gates, cloc on touched files, CHANGELOG [Unreleased] with
+      validation evidence; version bump via sync-version when releasing.
+    status: pending
 isProject: false
 ---
 
@@ -269,14 +291,18 @@ isProject: false
 ## Active Execution Window
 
 - Frontmatter `todos` includes historical completed waves for traceability.
-- Current executable window is **Wave 14 only**: `rev59..rev63`.
-- Any supplemental Wave 14 planning notes are reference-only once merged; this
-  master plan remains the sole execution authority.
+- Current executable window is **Wave 15 only**: `rev64..rev68`.
+- Child plan:
+  [goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md).
+- Wave 14 (`rev59..rev63`) is completed; supplemental Wave 14 notes are
+  reference-only.
+- This master plan remains the sole execution authority.
 - Wave 13 (`rev53..rev58`) is completed and retained as release evidence history.
 - Wave 12 (`rev49..rev52`) is completed and retained as release evidence history.
 - Wave 11 (`rev44..rev48`) is completed and retained as release evidence history.
 - Wave 10B (`rev40..rev43`) is completed and retained as release evidence history.
-- If any historical todo text conflicts with active Wave 14 policy, Wave 14 policy takes precedence.
+- If any historical todo text conflicts with active Wave 15 policy, Wave 15
+  policy takes precedence.
 - Before any new wave execution, synchronize frontmatter todo statuses with latest validated test evidence to avoid stale gating decisions.
 - Any historical mentions of `regular-hexagon`/`regular-nonagon`/`regular-triangle` are archival traceability only and must not be interpreted as active user-facing shape options under Wave 14.
 
@@ -1547,4 +1573,72 @@ For planning/verification, `rev34` is only considered complete when all items be
   - stroke-off parity,
   - stroke-on (`frame stroke=20`, high-contrast),
   - non-square regular-polygon parity.
+
+### Wave 15 Objectives (Active)
+
+- Replace watermark tile spacing (平铺间距) and tile rotation (平铺旋转)
+  range sliders with Goja-standard numeric inputs.
+- Lower `WATERMARK_TILE_SPACING_MIN` to a practical value (0.02).
+- Preserve preview/export parity and existing `drawTiled` anti-overlap behavior.
+- Enforce TDD-first, full test gates, and SLOC guardrails before closure.
+
+**Child plan (executable detail):**
+[goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md)
+
+### Wave 15 Implementation Actions (TDD-first)
+
+- **rev64-tdd-watermark-tile-controls-red**
+  - Add failing unit tests in `tests/unit/watermark-tile-controls.test.js`,
+    extend `grid-effects-settings.test.js` and `watermark.test.js`.
+  - Add failing e2e in `tests/e2e/goja.spec.js` for tiled visibility, numeric
+    input, and 44px touch targets.
+- **rev65-watermark-tile-controls-module**
+  - Create `js/watermark-tile-controls.js` with normalize helpers and split
+    input-mode helpers (spacing: decimal; rotation: `applyPlatformNumericInputMode`).
+  - Update `js/config.js` min/step constants; wire `js/app-init.js` with
+    `input`+`change` normalize + preview updates.
+- **rev66-html-css-locales**
+  - Change `index.html` controls from `range` to `number` with hint elements
+    (`#watermarkTileSpacingHint`, `#watermarkTileRotationHint`) and
+    `aria-describedby`.
+  - Add `watermarkTileSpacingHint` / `watermarkTileRotationHint` to all six
+    locales.
+- **rev67-grid-effects-bounded-parse**
+  - Apply `parseNumBounded` in `getWatermarkOptions` for spacing/rotation.
+- **rev68-validation-gate-and-changelog**
+  - Run targeted + full gates; update `CHANGELOG.md` under `[Unreleased]`.
+
+### Wave 15 Validation Gates
+
+- Targeted:
+  - `npx vitest run tests/unit/watermark-tile-controls.test.js tests/unit/grid-effects-settings.test.js tests/unit/watermark.test.js`
+  - `npx playwright test tests/e2e/goja.spec.js --grep "watermark tile|tiled"`
+- Full:
+  - `npm test`
+  - `npm run test:e2e`
+- SLOC:
+  - `cloc --by-file --include-lang=JavaScript js/watermark-tile-controls.js js/grid-effects-settings.js js/app-init.js tests/unit/watermark-tile-controls.test.js`
+
+### Wave 15 Acceptance Criteria
+
+- Tile spacing and rotation use `type="number"` (not range sliders).
+- `WATERMARK_TILE_SPACING_MIN` is 0.02 with step 0.01.
+- Six locales include hint keys; inputs use `aria-describedby`; controls meet
+  44px touch minimum.
+- Saved/exported values clamp correctly; preview updates on input/change.
+- Full validation gates pass with recorded evidence.
+
+### Wave 15 Execution Order
+
+1. `rev64-tdd-watermark-tile-controls-red`
+2. `rev65-watermark-tile-controls-module`
+3. `rev66-html-css-locales`
+4. `rev67-grid-effects-bounded-parse`
+5. `rev68-validation-gate-and-changelog`
+
+### Wave 15 Status
+
+- Status: **Ready to implement** (canonical plan review fixes applied 2026-06-23).
+- Child plan: [goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md)
+  — review findings F1–F4 resolved in plan text; implementation pending rev64–rev68.
 

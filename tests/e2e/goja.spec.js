@@ -731,6 +731,59 @@ test.describe('Goja App', () => {
     expect(download.suggestedFilename()).toMatch(/goja-grid\.(jpg|png)/);
   });
 
+  test('watermark tile options visible when position is tiled', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkPos').selectOption('bottom-right');
+    await expect(page.locator('#watermarkTileOptionsGroup')).toHaveClass(/hidden/);
+    await page.locator('#watermarkPos').selectOption('tiled');
+    await expect(page.locator('#watermarkTileOptionsGroup')).not.toHaveClass(/hidden/);
+  });
+
+  test('watermark tile spacing accepts numeric input', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkPos').selectOption('tiled');
+    await page.locator('#watermarkTileSpacing').fill('0.15');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('0.15');
+  });
+
+  test('watermark tile controls meet 44px touch target', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkPos').selectOption('tiled');
+    const spacingBox = await page.locator('#watermarkTileSpacing').boundingBox();
+    expect(spacingBox?.height).toBeGreaterThanOrEqual(44);
+    const rotationBox = await page.locator('#watermarkTileRotation').boundingBox();
+    expect(rotationBox?.height).toBeGreaterThanOrEqual(44);
+  });
+
+  test('watermark tile hints linked via aria-describedby', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkPos').selectOption('tiled');
+    await expect(page.locator('#watermarkTileSpacingHint')).toBeVisible();
+    await expect(page.locator('#watermarkTileRotationHint')).toBeVisible();
+    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute(
+      'aria-describedby', 'watermarkTileSpacingHint'
+    );
+    await expect(page.locator('#watermarkTileRotation')).toHaveAttribute(
+      'aria-describedby', 'watermarkTileRotationHint'
+    );
+  });
+
+  test('watermark tile spacing and rotation init from config', async ({ page }) => {
+    await page.locator('#settingsBtn').click();
+    await page.locator('#watermarkType').selectOption('text');
+    await page.locator('#watermarkPos').selectOption('tiled');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('0.2');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('min', '0.02');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('max', '0.5');
+    await expect(page.locator('#watermarkTileRotation')).toHaveValue('-30');
+    await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('min', '-90');
+    await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('max', '90');
+  });
+
   test('checkbox label has touch target at least 44px', async ({ page }) => {
     await page.locator('#settingsBtn').click();
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
