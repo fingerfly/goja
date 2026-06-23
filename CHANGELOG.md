@@ -4,9 +4,6 @@
 
 ## [10.2.1] - 2026-06-23
 
-
-## [10.2.0] - 2026-06-23
-
 ### Added
 
 - **Watermark tint color**: users can now set an explicit tint color for watermark
@@ -25,10 +22,18 @@
 - All six locale dictionaries updated with `watermarkColor`, `watermarkTileSpacing`,
   and `watermarkTileRotation` keys (en, zh-Hans, zh-Hant, es, ja, eo).
 
+### Fixed
+
+- **`js/app-init.js`**: `wmColor` was missing from the destructuring assignment
+  in `initApp()`, causing a `ReferenceError` in ESM strict mode that prevented the
+  settings panel from opening. Added `wmColor` to the destructuring and refs.
+- **`js/app-bootstrap.js`**: added the missing `wmColor` property to the `refs`
+  object passed to `initApp()`.
+
 ### Tests
 
 - `npm test` (`461` passed).
-- `npm run test:e2e` (`73` passed; 1 pre-existing flaky touch-menu timeout).
+- `npm run test:e2e` (`74` passed).
 
 ## [10.1.9] - 2026-06-22
 
