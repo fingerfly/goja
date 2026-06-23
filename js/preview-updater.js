@@ -5,6 +5,7 @@
  * - Restores historical state for undo/redo operations.
  * - Rebinds resize handlers and action-button enabled states.
  */
+import { isExportInProgress } from './export-flow.js';
 
 /**
  * Build preview updater functions that own render/restore orchestration.
@@ -28,7 +29,14 @@ export function createPreviewUpdater(stateRef, refs, deps) {
   const { previewGrid, preview, gapSlider, frameW, frameH, imageFit, templateSelect, addBtn, clearBtn, exportBtn, dropZone } = refs;
 
   function updateActionButtons(photosCount, isExporting = false) {
-    syncActionButtons(addBtn, clearBtn, exportBtn, t, photosCount, isExporting);
+    syncActionButtons(
+      addBtn,
+      clearBtn,
+      exportBtn,
+      t,
+      photosCount,
+      isExporting || isExportInProgress()
+    );
   }
 
   function showUI(show) {

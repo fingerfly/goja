@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createPreviewUpdater } from '../../js/preview-updater.js';
+import * as exportFlow from '../../js/export-flow.js';
 
 describe('createPreviewUpdater', () => {
   let stateRef;
@@ -75,6 +76,21 @@ describe('createPreviewUpdater', () => {
     expect(deps.computeGridLayout).toHaveBeenCalledWith(
       expect.any(Array),
       expect.objectContaining({ outputWidth: 320, outputHeight: 320 })
+    );
+  });
+
+  it('updatePreview keeps export disabled while export is in progress', async () => {
+    vi.spyOn(exportFlow, 'isExportInProgress').mockReturnValue(true);
+    stateRef.photos = [{ url: 'blob:1', width: 100, height: 100 }];
+    const updater = createPreviewUpdater(stateRef, refs, deps);
+    await updater.updatePreview();
+    expect(deps.syncActionButtons).toHaveBeenCalledWith(
+      refs.addBtn,
+      refs.clearBtn,
+      refs.exportBtn,
+      deps.t,
+      1,
+      true
     );
   });
 });

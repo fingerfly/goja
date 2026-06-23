@@ -26,6 +26,7 @@ export async function runExport(refs, state, deps) {
     updateActionButtons, updatePreview } = deps;
 
   updateActionButtons(photos.length, true);
+  let sheetOpened = false;
   try {
     let w = clampFrameValue(frameW.value);
     let h = clampFrameValue(frameH.value);
@@ -43,7 +44,7 @@ export async function runExport(refs, state, deps) {
     }
     const base = sanitizeFilename(exportFilename?.value, EXPORT_FILENAME_DEFAULT);
     const withDate = exportUseDate?.checked ? `${base}-${new Date().toISOString().slice(0, 10)}` : base;
-    const opened = showExportOptions(blob, withDate, formatSelect.value, {
+    sheetOpened = showExportOptions(blob, withDate, formatSelect.value, {
       onShare: () => {
         shareBlob(blob, withDate).then(
           () => showToast(t('exportSuccess'), 'success'),
@@ -68,18 +69,35 @@ export async function runExport(refs, state, deps) {
         a.target = '_blank';
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), EXPORT_URL_REVOKE_DELAY_MS);
-        showToast(t('exportSuccess'), 'success');
       },
-    }, { focusReturnEl: exportBtn });
-    if (!opened) {
+    }, {
+      focusReturnEl: exportBtn,
+      onDismiss: () => {
+        exportInProgress = false;
+        updateActionButtons(state.photos.length, false);
+      },
+    });
+    if (!sheetOpened) {
       throw new Error('Export options UI unavailable');
     }
   } catch (err) {
     showToast(`${t('exportFailed')} — ${err?.message ?? String(err)}`, 'error');
   } finally {
-    exportInProgress = false;
-    updateActionButtons(photos.length, false);
+    if (!sheetOpened) {
+      exportInProgress = false;
+      updateActionButtons(state.photos.length, false);
+    }
   }
+}
+
+/** @returns {boolean} Whether an export run is active (sheet open or rendering). */
+export function isExportInProgress() {
+  return exportInProgress;
+}
+
+/** Clears the export guard without invoking sheet onDismiss (e.g. Clear all). */
+export function cancelExportFlow() {
+  exportInProgress = false;
 }
 
 /** @internal Resets export-in-progress guard for unit tests. */

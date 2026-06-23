@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runExport, resetExportInProgressForTests } from '../../js/export-flow.js';
+import { runExport, resetExportInProgressForTests, isExportInProgress } from '../../js/export-flow.js';
 
 describe('runExport', () => {
   let refs;
@@ -48,7 +48,25 @@ describe('runExport', () => {
     expect(deps.handleExport).toHaveBeenCalledWith(state.photos, state.currentLayout, expect.any(Object));
     expect(deps.showExportOptions).toHaveBeenCalled();
     expect(deps.updateActionButtons).toHaveBeenCalledWith(1, true);
+    expect(deps.updateActionButtons).not.toHaveBeenCalledWith(1, false);
+  });
+
+  it('re-enables export when the options sheet dismisses', async () => {
+    deps.showExportOptions.mockImplementation((_blob, _name, _fmt, _handlers, opts) => {
+      opts?.onDismiss?.();
+      return true;
+    });
+    await runExport(refs, state, deps);
     expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
+  });
+
+  it('does not show success toast for open in new tab handler', async () => {
+    deps.showExportOptions.mockImplementation((blob, filename, format, handlers) => {
+      handlers.onOpenInNewTab?.();
+      return true;
+    });
+    await runExport(refs, state, deps);
+    expect(deps.showToast).not.toHaveBeenCalledWith('exportSuccess', 'success');
   });
 
   it('calls updatePreview when frame values are clamped', async () => {
@@ -72,11 +90,19 @@ describe('runExport', () => {
     deps.handleExport.mockReturnValue(new Promise((resolve) => {
       resolveExport = resolve;
     }));
+    deps.showExportOptions.mockImplementation(() => true);
     const first = runExport(refs, state, deps);
     await runExport(refs, state, deps);
     expect(deps.handleExport).toHaveBeenCalledTimes(1);
     resolveExport(new Blob(['x'], { type: 'image/jpeg' }));
     await first;
+  });
+
+  it('ignores concurrent export while options sheet is open', async () => {
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    await runExport(refs, state, deps);
+    expect(deps.handleExport).toHaveBeenCalledTimes(1);
   });
 
   it('shows error toast when handleExport returns empty blob', async () => {
@@ -96,6 +122,7 @@ describe('runExport', () => {
       expect.stringContaining('exportFailed'),
       'error'
     );
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
   });
 
   it('disables export before frame clamp await completes', async () => {
@@ -109,5 +136,27 @@ describe('runExport', () => {
     expect(deps.updateActionButtons).toHaveBeenCalledWith(1, true);
     resolvePreview();
     await pending;
+  });
+
+  it('onDismiss uses live photo count from state', async () => {
+    let capturedOnDismiss;
+    deps.showExportOptions.mockImplementation((_blob, _name, _fmt, _handlers, opts) => {
+      capturedOnDismiss = opts?.onDismiss;
+      return true;
+    });
+    await runExport(refs, state, deps);
+    state.photos = [];
+    capturedOnDismiss?.();
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(0, false);
+  });
+
+  it('keeps export guard active when updatePreview runs mid-export', async () => {
+    refs.frameW.value = '100';
+    deps.clampFrameValue.mockReturnValue(320);
+    deps.updatePreview.mockImplementation(async () => {
+      expect(isExportInProgress()).toBe(true);
+    });
+    await runExport(refs, state, deps);
+    expect(isExportInProgress()).toBe(true);
   });
 });

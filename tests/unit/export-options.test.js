@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { canShareFiles, canCopyImage, showExportOptions, dismissExportOptions } from '../../js/export-options.js';
+import {
+  canShareFiles,
+  canCopyImage,
+  showExportOptions,
+  dismissExportOptions,
+  resetExportOptionsStateForTests,
+} from '../../js/export-options.js';
 
 describe('canShareFiles', () => {
   it('returns true when navigator.share exists', () => {
@@ -59,6 +65,7 @@ describe('canCopyImage', () => {
 
 describe('showExportOptions', () => {
   beforeEach(() => {
+    resetExportOptionsStateForTests();
     document.body.innerHTML = `
       <div id="exportOptionsBackdrop"></div>
       <aside id="exportOptionsSheet" aria-hidden="true">
@@ -136,5 +143,57 @@ describe('showExportOptions', () => {
     showExportOptions(blob, 'test', 'image/png', {});
     dismissExportOptions();
     expect(document.getElementById('exportOptionsSheet').classList.contains('open')).toBe(false);
+  });
+
+  it('calls onDismiss when the sheet closes', () => {
+    const onDismiss = vi.fn();
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {}, { onDismiss });
+    dismissExportOptions();
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onDismiss when reopening silently', () => {
+    const onDismiss = vi.fn();
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {}, { onDismiss });
+    showExportOptions(blob, 'test', 'image/png', {}, { onDismiss: vi.fn() });
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  it('open in new tab closes sheet without focusing export button', () => {
+    vi.stubGlobal('navigator', { canShare: vi.fn(() => false), clipboard: undefined });
+    const exportBtn = document.createElement('button');
+    exportBtn.id = 'exportBtn';
+    document.body.appendChild(exportBtn);
+    const focusSpy = vi.spyOn(exportBtn, 'focus');
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', { onOpenInNewTab: vi.fn() }, {
+      focusReturnEl: exportBtn,
+    });
+    document.getElementById('exportOptionOpenInNewTab').click();
+    expect(document.getElementById('exportOptionsSheet').classList.contains('open')).toBe(false);
+    expect(focusSpy).not.toHaveBeenCalled();
+  });
+
+  it('reopen-after-open-in-new-tab cycle keeps sheet open on second show', () => {
+    vi.stubGlobal('navigator', { canShare: vi.fn(() => false), clipboard: undefined });
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', { onOpenInNewTab: vi.fn() });
+    document.getElementById('exportOptionOpenInNewTab').click();
+    showExportOptions(blob, 'test', 'image/png', {});
+    const sheet = document.getElementById('exportOptionsSheet');
+    expect(sheet.classList.contains('open')).toBe(true);
+  });
+
+  it('backdrop click closes sheet without treating event as restoreFocus flag', async () => {
+    const exportBtn = document.createElement('button');
+    const focusSpy = vi.spyOn(exportBtn, 'focus');
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {}, { focusReturnEl: exportBtn });
+    document.getElementById('exportOptionsBackdrop').click();
+    expect(document.getElementById('exportOptionsSheet').classList.contains('open')).toBe(false);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(focusSpy).toHaveBeenCalled();
   });
 });

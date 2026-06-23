@@ -21,27 +21,43 @@ export function canCopyImage(blob) {
 
 let focusReturnEl = null;
 let activeCleanup = null;
+let dismissCallback = null;
 
 /**
  * Close the export options sheet and run any pending listener cleanup.
  * @param {boolean} [restoreFocus=true]
+ * @param {{ notify?: boolean }} [options]
  */
-export function dismissExportOptions(restoreFocus = true) {
+export function dismissExportOptions(restoreFocus = true, options = {}) {
+  const notify = options.notify !== false;
   if (activeCleanup) {
     activeCleanup();
     activeCleanup = null;
   }
   const sheetEl = document.getElementById('exportOptionsSheet');
   const backdropEl = document.getElementById('exportOptionsBackdrop');
-  if (!sheetEl || !backdropEl) return;
+  if (!sheetEl || !backdropEl) {
+    if (notify) invokeDismissCallback();
+    return;
+  }
   sheetEl.classList.remove('open');
   backdropEl.classList.remove('open');
   sheetEl.setAttribute('aria-hidden', 'true');
   backdropEl.setAttribute('aria-hidden', 'true');
   if (restoreFocus && focusReturnEl?.focus) {
-    focusReturnEl.focus();
+    const el = focusReturnEl;
+    focusReturnEl = null;
+    requestAnimationFrame(() => el.focus());
+  } else if (!restoreFocus) {
     focusReturnEl = null;
   }
+  if (notify) invokeDismissCallback();
+}
+
+function invokeDismissCallback() {
+  const cb = dismissCallback;
+  dismissCallback = null;
+  if (cb) cb();
 }
 
 /**
@@ -66,7 +82,8 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
 
   if (!sheetEl || !backdropEl || !downloadBtn || !openTabBtn) return false;
 
-  dismissExportOptions(false);
+  dismissExportOptions(false, { notify: false });
+  dismissCallback = options.onDismiss ?? null;
 
   const showShare = canShareFiles() && shareBtn;
   const showCopy = canCopyImage(blob) && copyBtn;
@@ -98,43 +115,42 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     backdropEl.removeEventListener('click', handleClose);
     closeBtn?.removeEventListener('click', handleClose);
     document.removeEventListener('keydown', onKeydown);
+    if (shareBtn) shareBtn.onclick = null;
+    downloadBtn.onclick = null;
+    if (copyBtn) copyBtn.onclick = null;
+    openTabBtn.onclick = null;
     activeCleanup = null;
   };
 
-  const handleClose = () => {
-    dismissExportOptions(true);
+  const handleClose = (restoreFocus = true) => {
+    dismissExportOptions(restoreFocus);
   };
 
   const onKeydown = (e) => {
     if (e.key === 'Escape') handleClose();
   };
 
+  const runOption = (callback, restoreFocus = true) => (event) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    callback?.();
+    handleClose(restoreFocus);
+  };
+
   if (shareBtn) {
-    shareBtn.onclick = () => {
-      callbacks.onShare?.();
-      handleClose();
-    };
+    shareBtn.onclick = runOption(callbacks.onShare);
   }
 
-  downloadBtn.onclick = () => {
-    callbacks.onDownload?.();
-    handleClose();
-  };
+  downloadBtn.onclick = runOption(callbacks.onDownload);
 
   if (copyBtn) {
-    copyBtn.onclick = () => {
-      callbacks.onCopy?.();
-      handleClose();
-    };
+    copyBtn.onclick = runOption(callbacks.onCopy);
   }
 
-  openTabBtn.onclick = () => {
-    callbacks.onOpenInNewTab?.();
-    handleClose();
-  };
+  openTabBtn.onclick = runOption(callbacks.onOpenInNewTab, false);
 
-  backdropEl.addEventListener('click', handleClose);
-  closeBtn?.addEventListener('click', handleClose);
+  backdropEl.addEventListener('click', () => handleClose());
+  closeBtn?.addEventListener('click', () => handleClose());
   document.addEventListener('keydown', onKeydown);
   activeCleanup = cleanup;
 
@@ -148,4 +164,11 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     .find((b) => b.style.display !== 'none');
   if (firstVisible) firstVisible.focus();
   return true;
+}
+
+/** @internal Resets module state for unit tests. */
+export function resetExportOptionsStateForTests() {
+  focusReturnEl = null;
+  activeCleanup = null;
+  dismissCallback = null;
 }

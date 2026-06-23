@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+## [10.2.8] - 2026-06-23
+
+### Fixed
+
+- **Export buttons re-enabled mid-export**: frame clamp and other
+  `updatePreview` calls during export ran `showUI`, which synced action
+  buttons with `isExporting=false` while the export guard was still active.
+  `preview-updater` now respects `isExportInProgress()` so Export/Clear stay
+  disabled until the options sheet dismisses or the flow errors out.
+- **Stale photo count on dismiss**: export `onDismiss` and error cleanup now
+  read `state.photos.length` instead of a captured array reference so Clear
+  and cell deletes during an open options sheet restore the correct button
+  state.
+- **Clear during open export sheet**: `clearAll` cancels the export guard and
+  closes the options sheet without invoking a stale `onDismiss`.
+- **Export options backdrop handler**: backdrop and close listeners no longer
+  pass the click `Event` into `dismissExportOptions` as `restoreFocus`.
+- **Export open-in-new-tab re-entry**: keep Export disabled until the
+  options sheet dismisses so tap bleed-through cannot start a hidden second
+  export; defer focus restore and skip it for open-in-new-tab; clear option
+  button handlers on teardown; remove the success toast for open-in-new-tab
+  (download/share/copy toasts unchanged).
+
+### Tests
+
+- `npm test` (518 passed).
+- `npm run test:e2e` (81 passed).
+
 ## [10.2.7] - 2026-06-23
 
 ### Fixed

@@ -12,7 +12,8 @@ import { readImageDimensions, debounce } from './utils.js';
 import { loadPhotos as loadPhotosFromFiles } from './photo-loader.js';
 import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
-import { runExport } from './export-flow.js';
+import { runExport, cancelExportFlow } from './export-flow.js';
+import { dismissExportOptions } from './export-options.js';
 import { buildFormFromRefs, getGridEffectsOptions } from './grid-effects-settings.js';
 import { renderGrid } from './preview-renderer.js';
 import { showExportOptions } from './export-options.js';
@@ -112,6 +113,8 @@ export function bootstrap() {
   const loadPhotos = (files) => loadPhotosFromFiles(files, { photos: stateRef.photos, maxPhotos: MAX_PHOTOS, currentLayout: stateRef.currentLayout, pushState, onComplete: updatePreview, onLoadError: (err) => showToast(`${t('loadFailed')} — ${err?.message ?? err}`, 'error'), loadingOverlay, loadingText, t, readImageDimensions, readDateTimeOriginal });
   const onExport = () => runExport({ frameW, frameH, exportFilename, exportUseDate, formatSelect, exportBtn }, { photos: stateRef.photos, currentLayout: stateRef.currentLayout }, { clampFrameValue, showToast, t, buildForm, getGridEffectsOptions, handleExport, showExportOptions, downloadBlob, shareBlob, copyBlobToClipboard, formatDateTimeOriginal, getLocale, updateActionButtons, updatePreview });
   const clearAll = () => {
+    cancelExportFlow();
+    dismissExportOptions(false, { notify: false });
     stateRef.photos.forEach((p) => URL.revokeObjectURL(p.url));
     cleanupRotation?.();
     cleanupRotation = null;

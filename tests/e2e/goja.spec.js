@@ -118,7 +118,28 @@ test.describe('Goja App', () => {
       page.locator('#exportOptionOpenInNewTab').click(),
     ]);
     await expect(newPage).toHaveURL(/^blob:/);
+    await expect(page.locator('#exportOptionsSheet')).not.toHaveClass(/open/);
+    await expect(page.locator('.toast')).not.toBeVisible();
     await newPage.close();
+  });
+
+  test('export works again after open in new tab and closing tab', async ({ page, context }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator('#exportOptionOpenInNewTab').click(),
+    ]);
+    await newPage.close();
+    await expect(page.locator('#exportBtn')).toBeEnabled();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/, { timeout: 15000 });
+    await expect(page.locator('#exportOptionDownload')).toBeVisible();
   });
 
   test('export download option triggers download and toast', async ({ page }) => {
