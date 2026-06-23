@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+## [10.2.7] - 2026-06-23
+
+### Fixed
+
+- **Export concurrency**: `runExport` ignores overlapping runs and disables
+  Export/Clear immediately so frame-clamp preview work cannot be double-clicked
+  and photo blob URLs are not revoked mid-export via Clear.
+- **Invalid export blob**: worker and main-thread paths reject empty or missing
+  blobs instead of opening the options sheet with bad data; user sees an error
+  toast.
+- **Export options sheet re-entry**: reopening the sheet tears down prior
+  backdrop/keydown listeners so Escape and backdrop clicks close once; invalid
+  blobs and missing DOM return `false` with a flow-level error toast.
+
+### Tests
+
+- `npm test` (507 passed).
+- `npm run test:e2e` (80 passed).
+
 ## [10.2.6] - 2026-06-23
 
 ### Fixed

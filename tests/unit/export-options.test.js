@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { canShareFiles, canCopyImage, showExportOptions } from '../../js/export-options.js';
+import { canShareFiles, canCopyImage, showExportOptions, dismissExportOptions } from '../../js/export-options.js';
 
 describe('canShareFiles', () => {
   it('returns true when navigator.share exists', () => {
@@ -109,5 +109,32 @@ describe('showExportOptions', () => {
     const downloadBtn = document.getElementById('exportOptionDownload');
     expect(downloadBtn.classList.contains('btn-primary')).toBe(true);
     navigator.share = origShare;
+  });
+
+  it('returns false for empty blob', () => {
+    const blob = new Blob([], { type: 'image/png' });
+    expect(showExportOptions(blob, 'test', 'image/png', {})).toBe(false);
+  });
+
+  it('returns false when required DOM nodes are missing', () => {
+    document.body.innerHTML = '';
+    const blob = new Blob(['x'], { type: 'image/png' });
+    expect(showExportOptions(blob, 'test', 'image/png', {})).toBe(false);
+  });
+
+  it('reopens without stacking backdrop listeners', () => {
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {});
+    showExportOptions(blob, 'test', 'image/png', {});
+    const backdrop = document.getElementById('exportOptionsBackdrop');
+    backdrop.click();
+    expect(document.getElementById('exportOptionsSheet').classList.contains('open')).toBe(false);
+  });
+
+  it('dismissExportOptions closes an open sheet', () => {
+    const blob = new Blob(['x'], { type: 'image/png' });
+    showExportOptions(blob, 'test', 'image/png', {});
+    dismissExportOptions();
+    expect(document.getElementById('exportOptionsSheet').classList.contains('open')).toBe(false);
   });
 });

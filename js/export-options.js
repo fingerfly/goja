@@ -1,6 +1,9 @@
 /**
- * Returns true if Share should be shown. Only show when navigator.share exists.
- * Browsers without Web Share API (e.g. OPPO built-in) must not show Share to avoid "Share not supported" error.
+ * Purpose: Export options sheet after a successful render.
+ * Description:
+ * - Shows share/download/copy/open actions for the exported blob.
+ * - Tears down prior sheet listeners before reopening.
+ * - Returns focus to the export button when the sheet closes.
  */
 export function canShareFiles() {
   return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
@@ -17,19 +20,42 @@ export function canCopyImage(blob) {
 }
 
 let focusReturnEl = null;
+let activeCleanup = null;
 
-function close(sheetEl, backdropEl) {
+/**
+ * Close the export options sheet and run any pending listener cleanup.
+ * @param {boolean} [restoreFocus=true]
+ */
+export function dismissExportOptions(restoreFocus = true) {
+  if (activeCleanup) {
+    activeCleanup();
+    activeCleanup = null;
+  }
+  const sheetEl = document.getElementById('exportOptionsSheet');
+  const backdropEl = document.getElementById('exportOptionsBackdrop');
+  if (!sheetEl || !backdropEl) return;
   sheetEl.classList.remove('open');
   backdropEl.classList.remove('open');
   sheetEl.setAttribute('aria-hidden', 'true');
   backdropEl.setAttribute('aria-hidden', 'true');
-  if (focusReturnEl?.focus) {
+  if (restoreFocus && focusReturnEl?.focus) {
     focusReturnEl.focus();
     focusReturnEl = null;
   }
 }
 
+/**
+ * Show export action sheet for a rendered blob.
+ * @param {Blob} blob
+ * @param {string} filename
+ * @param {string} format
+ * @param {object} callbacks
+ * @param {object} [options]
+ * @returns {boolean} false when blob or required DOM is missing
+ */
 export function showExportOptions(blob, filename, format, callbacks, options = {}) {
+  if (!(blob instanceof Blob) || blob.size === 0) return false;
+
   const sheetEl = document.getElementById('exportOptionsSheet');
   const backdropEl = document.getElementById('exportOptionsBackdrop');
   const shareBtn = document.getElementById('exportOptionShare');
@@ -38,13 +64,19 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
   const openTabBtn = document.getElementById('exportOptionOpenInNewTab');
   const closeBtn = document.getElementById('exportOptionsCloseBtn');
 
-  if (!sheetEl || !backdropEl) return;
+  if (!sheetEl || !backdropEl || !downloadBtn || !openTabBtn) return false;
 
-  const showShare = canShareFiles();
-  const showCopy = canCopyImage(blob);
+  dismissExportOptions(false);
 
-  shareBtn.style.display = showShare ? '' : 'none';
-  copyBtn.style.display = showCopy ? '' : 'none';
+  const showShare = canShareFiles() && shareBtn;
+  const showCopy = canCopyImage(blob) && copyBtn;
+
+  if (shareBtn) {
+    shareBtn.style.display = showShare ? '' : 'none';
+  }
+  if (copyBtn) {
+    copyBtn.style.display = showCopy ? '' : 'none';
+  }
   downloadBtn.style.display = '';
   openTabBtn.style.display = '';
 
@@ -54,8 +86,8 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     downloadBtn.classList.remove('btn-primary');
     downloadBtn.classList.add('btn-secondary');
   } else {
-    shareBtn.classList.remove('btn-primary');
-    shareBtn.classList.add('btn-secondary');
+    shareBtn?.classList.remove('btn-primary');
+    shareBtn?.classList.add('btn-secondary');
     downloadBtn.classList.add('btn-primary');
     downloadBtn.classList.remove('btn-secondary');
   }
@@ -66,31 +98,35 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     backdropEl.removeEventListener('click', handleClose);
     closeBtn?.removeEventListener('click', handleClose);
     document.removeEventListener('keydown', onKeydown);
+    activeCleanup = null;
   };
 
   const handleClose = () => {
-    close(sheetEl, backdropEl);
-    cleanup();
+    dismissExportOptions(true);
   };
 
   const onKeydown = (e) => {
     if (e.key === 'Escape') handleClose();
   };
 
-  shareBtn.onclick = () => {
-    callbacks.onShare?.();
-    handleClose();
-  };
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      callbacks.onShare?.();
+      handleClose();
+    };
+  }
 
   downloadBtn.onclick = () => {
     callbacks.onDownload?.();
     handleClose();
   };
 
-  copyBtn.onclick = () => {
-    callbacks.onCopy?.();
-    handleClose();
-  };
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      callbacks.onCopy?.();
+      handleClose();
+    };
+  }
 
   openTabBtn.onclick = () => {
     callbacks.onOpenInNewTab?.();
@@ -100,12 +136,16 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
   backdropEl.addEventListener('click', handleClose);
   closeBtn?.addEventListener('click', handleClose);
   document.addEventListener('keydown', onKeydown);
+  activeCleanup = cleanup;
 
   sheetEl.classList.add('open');
   backdropEl.classList.add('open');
   sheetEl.setAttribute('aria-hidden', 'false');
   backdropEl.setAttribute('aria-hidden', 'false');
 
-  const firstVisible = [shareBtn, downloadBtn, copyBtn, openTabBtn].find((b) => b?.style?.display !== 'none');
+  const firstVisible = [shareBtn, downloadBtn, copyBtn, openTabBtn]
+    .filter(Boolean)
+    .find((b) => b.style.display !== 'none');
   if (firstVisible) firstVisible.focus();
+  return true;
 }

@@ -33,7 +33,7 @@ describe('syncActionButtons', () => {
   it('disables Export and sets exporting text when isExporting is true', () => {
     syncActionButtons(addBtn, clearBtn, exportBtn, t, 3, true);
     expect(addBtn.disabled).toBe(false);
-    expect(clearBtn.disabled).toBe(false);
+    expect(clearBtn.disabled).toBe(true);
     expect(exportBtn.disabled).toBe(true);
     expect(exportBtn.textContent).toBe('Exporting...');
   });

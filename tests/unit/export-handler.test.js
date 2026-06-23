@@ -346,6 +346,42 @@ describe('handleExport', () => {
     }
   });
 
+  it('falls back to main thread when worker returns no blob', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const origWorker = globalThis.Worker;
+    const origOffscreenCanvas = globalThis.OffscreenCanvas;
+    const origCreateImageBitmap = globalThis.createImageBitmap;
+
+    globalThis.Worker = class {
+      postMessage() {
+        queueMicrotask(() => {
+          this.onmessage?.({ data: {} });
+        });
+      }
+      terminate() {}
+    };
+    globalThis.OffscreenCanvas = class {};
+    globalThis.createImageBitmap = vi.fn();
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    try {
+      const blob = await handleExport(photos, layout);
+      expect(blob).toBeInstanceOf(Blob);
+    } finally {
+      globalThis.Worker = origWorker;
+      globalThis.OffscreenCanvas = origOffscreenCanvas;
+      globalThis.createImageBitmap = origCreateImageBitmap;
+      globalThis.Image = origImage;
+    }
+  });
+
   it('rejects worker export when layout payload is not serializable', async () => {
     const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
     const layout = makeLayout();

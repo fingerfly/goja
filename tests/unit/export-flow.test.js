@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runExport } from '../../js/export-flow.js';
+import { runExport, resetExportInProgressForTests } from '../../js/export-flow.js';
 
 describe('runExport', () => {
   let refs;
@@ -7,6 +7,7 @@ describe('runExport', () => {
   let deps;
 
   beforeEach(() => {
+    resetExportInProgressForTests();
     refs = {
       frameW: { value: '1080' },
       frameH: { value: '720' },
@@ -26,7 +27,7 @@ describe('runExport', () => {
       buildForm: vi.fn().mockReturnValue({ format: 'image/jpeg' }),
       getGridEffectsOptions: vi.fn().mockReturnValue({}),
       handleExport: vi.fn().mockResolvedValue(new Blob(['x'], { type: 'image/jpeg' })),
-      showExportOptions: vi.fn(),
+      showExportOptions: vi.fn().mockReturnValue(true),
       downloadBlob: vi.fn(),
       shareBlob: vi.fn(),
       copyBlobToClipboard: vi.fn(),
@@ -64,5 +65,49 @@ describe('runExport', () => {
     const call = deps.showExportOptions.mock.calls[0];
     expect(call[1]).not.toMatch(/[\/\\?%*:|"<>]/);
     expect(call[1]).toBe('etcpasswd');
+  });
+
+  it('ignores concurrent export while one is in progress', async () => {
+    let resolveExport;
+    deps.handleExport.mockReturnValue(new Promise((resolve) => {
+      resolveExport = resolve;
+    }));
+    const first = runExport(refs, state, deps);
+    await runExport(refs, state, deps);
+    expect(deps.handleExport).toHaveBeenCalledTimes(1);
+    resolveExport(new Blob(['x'], { type: 'image/jpeg' }));
+    await first;
+  });
+
+  it('shows error toast when handleExport returns empty blob', async () => {
+    deps.handleExport.mockResolvedValue(new Blob([], { type: 'image/jpeg' }));
+    await runExport(refs, state, deps);
+    expect(deps.showExportOptions).not.toHaveBeenCalled();
+    expect(deps.showToast).toHaveBeenCalledWith(
+      expect.stringContaining('exportFailed'),
+      'error'
+    );
+  });
+
+  it('shows error toast when showExportOptions cannot open', async () => {
+    deps.showExportOptions.mockReturnValue(false);
+    await runExport(refs, state, deps);
+    expect(deps.showToast).toHaveBeenCalledWith(
+      expect.stringContaining('exportFailed'),
+      'error'
+    );
+  });
+
+  it('disables export before frame clamp await completes', async () => {
+    refs.frameW.value = '100';
+    deps.clampFrameValue.mockReturnValue(320);
+    let resolvePreview;
+    deps.updatePreview.mockReturnValue(new Promise((resolve) => {
+      resolvePreview = resolve;
+    }));
+    const pending = runExport(refs, state, deps);
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(1, true);
+    resolvePreview();
+    await pending;
   });
 });

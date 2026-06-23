@@ -139,8 +139,13 @@ function exportViaWorker(photos, layout, options) {
     );
     worker = new Worker(new URL('./export-worker.js', import.meta.url), { type: 'module' });
     worker.onmessage = (e) => {
-      if (e.data?.error) finish(reject, new Error(e.data.error));
-      else finish(resolve, e.data.blob);
+      if (e.data?.error) {
+        finish(reject, new Error(e.data.error));
+      } else if (!(e.data?.blob instanceof Blob)) {
+        finish(reject, new Error('Export produced no image data'));
+      } else {
+        finish(resolve, e.data.blob);
+      }
     };
     worker.onerror = () => finish(reject, new Error('Worker failed'));
     worker.onmessageerror = () => finish(reject, new Error('Worker message failed'));

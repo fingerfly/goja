@@ -1638,12 +1638,13 @@ For planning/verification, `rev34` is only considered complete when all items be
 
 ### Wave 15 Status
 
-- Status: **Shipped through 10.2.6 (1)** — tile spacing/rotation controls,
+- Status: **Shipped through 10.2.7 (1)** — tile spacing/rotation controls,
   horizontal col spacing (10.2.5), export hang fix and `loop-guards.js`
-  (10.2.6). Full validation gates passed 2026-06-23.
+  (10.2.6), export concurrency/blob/sheet re-entry hardening (10.2.7).
+  Full validation gates passed 2026-06-23.
 - Child plan: [goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md)
   — review findings F1–F4 resolved; 10.2.6 closes export regression from
-  split row/column tile spacing.
+  split row/column tile spacing; 10.2.7 closes remaining export path bugs.
 
 ### Wave 16 Objectives (Next)
 

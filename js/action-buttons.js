@@ -5,7 +5,7 @@
 export function syncActionButtons(addBtn, clearBtn, exportBtn, t, photosCount, isExporting = false) {
   const hasPhotos = photosCount > 0;
   addBtn.disabled = false;
-  clearBtn.disabled = false;
+  clearBtn.disabled = isExporting;
   exportBtn.disabled = !hasPhotos || isExporting;
   exportBtn.textContent = isExporting ? t('exporting') : t('exportBtn');
 }

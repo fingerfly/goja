@@ -326,3 +326,4 @@ cloc --by-file --include-lang=JavaScript js/watermark-tile-controls.js js/grid-e
 - [x] 六语种 hint i18n 已添加
 - [x] 全量测试通过并写入 CHANGELOG 证据（10.2.6 (1), 2026-06-23）
 - [x] 10.2.6：`loop-guards.js` 与 tiled export 无限循环修复（`computeTiledSafeSpacing` + `forEachByStep`）
+- [x] 10.2.7：export 并发守卫、空 blob 校验、options sheet 重入清理（507 unit + 80 e2e）
