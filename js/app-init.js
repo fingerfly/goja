@@ -33,6 +33,10 @@ import {
   WATERMARK_TILE_SPACING_MAX,
   WATERMARK_TILE_SPACING_DEFAULT,
   WATERMARK_TILE_SPACING_STEP,
+  WATERMARK_TILE_COL_SPACING_MIN,
+  WATERMARK_TILE_COL_SPACING_MAX,
+  WATERMARK_TILE_COL_SPACING_DEFAULT,
+  WATERMARK_TILE_COL_SPACING_STEP,
   WATERMARK_TILE_ROTATION_MIN,
   WATERMARK_TILE_ROTATION_MAX,
   WATERMARK_TILE_ROTATION_DEFAULT,
@@ -46,8 +50,10 @@ import {
 } from './edge-controls.js';
 import {
   applyTileSpacingInputMode,
+  applyTileColSpacingInputMode,
   applyTileRotationInputMode,
   normalizeTileSpacingInput,
+  normalizeTileColSpacingInput,
   normalizeTileRotationInput,
 } from './watermark-tile-controls.js';
 
@@ -56,7 +62,7 @@ import {
  * @param {Record<string, any>} refs
  */
 function setFormDefaults(refs) {
-  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent, wmTileSpacing, wmTileRotation } = refs;
+  const { gapSlider, wmOpacity, captureDatePos, captureDateOpacity, vignetteStrength, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed, globalFrameShape, globalFrameStrokeWidth, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent, wmTileSpacing, wmTileColSpacing, wmTileRotation } = refs;
   if (gapSlider) {
     gapSlider.min = String(GAP_MIN);
     gapSlider.max = String(GAP_MAX);
@@ -109,6 +115,12 @@ function setFormDefaults(refs) {
     wmTileSpacing.max = String(WATERMARK_TILE_SPACING_MAX);
     wmTileSpacing.step = String(WATERMARK_TILE_SPACING_STEP);
     wmTileSpacing.value = wmTileSpacing.value || String(WATERMARK_TILE_SPACING_DEFAULT);
+  }
+  if (wmTileColSpacing) {
+    wmTileColSpacing.min = String(WATERMARK_TILE_COL_SPACING_MIN);
+    wmTileColSpacing.max = String(WATERMARK_TILE_COL_SPACING_MAX);
+    wmTileColSpacing.step = String(WATERMARK_TILE_COL_SPACING_STEP);
+    wmTileColSpacing.value = wmTileColSpacing.value || String(WATERMARK_TILE_COL_SPACING_DEFAULT);
   }
   if (wmTileRotation) {
     wmTileRotation.min = String(WATERMARK_TILE_ROTATION_MIN);
@@ -194,7 +206,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const {
     dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect,
     exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmColor, wmColorGroup, wmTileOptionsGroup,
-    wmPos, wmOpacity, wmFontSize, wmText, wmTileSpacing, wmTileRotation, showCaptureDate, captureDateOptionsGroup,
+    wmPos, wmOpacity, wmFontSize, wmText, wmTileSpacing, wmTileColSpacing, wmTileRotation, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
     globalFrameShape, globalFrameStrokeEnabled, globalFrameStrokeWidth, globalFrameStrokeColor, globalFrameStrokeOpacity, outsideBackgroundColor, cellShapeTemplate, cellShapeOrientation, superellipseExponent,
@@ -213,11 +225,13 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   applyPlatformNumericInputMode(edgeFrequency, userAgent);
   applyPlatformNumericInputMode(edgeSeed, userAgent);
   applyTileSpacingInputMode(wmTileSpacing, userAgent);
+  applyTileColSpacingInputMode(wmTileColSpacing, userAgent);
   applyTileRotationInputMode(wmTileRotation, userAgent);
   syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'slider');
   normalizeEdgeFrequencyInput(edgeFrequency);
   normalizeEdgeSeedInput(edgeSeed);
   normalizeTileSpacingInput(wmTileSpacing);
+  normalizeTileColSpacingInput(wmTileColSpacing);
   normalizeTileRotationInput(wmTileRotation);
   syncSettingsVisibility(refs);
 
@@ -289,6 +303,14 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   });
   wmTileSpacing?.addEventListener('change', () => {
     normalizeTileSpacingInput(wmTileSpacing);
+    updatePreview();
+  });
+  wmTileColSpacing?.addEventListener('input', () => {
+    normalizeTileColSpacingInput(wmTileColSpacing);
+    updatePreview();
+  });
+  wmTileColSpacing?.addEventListener('change', () => {
+    normalizeTileColSpacingInput(wmTileColSpacing);
     updatePreview();
   });
   wmTileRotation?.addEventListener('input', () => {

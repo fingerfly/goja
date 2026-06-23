@@ -11,6 +11,7 @@ import {
   WATERMARK_POSITION_DEFAULT,
   WATERMARK_FONT_SCALE_DEFAULT,
   WATERMARK_TILE_SPACING_DEFAULT,
+  WATERMARK_TILE_COL_SPACING_DEFAULT,
   WATERMARK_TILE_ROTATION_DEFAULT,
   CAPTURE_DATE_OPACITY_DEFAULT,
   CAPTURE_DATE_POSITION_DEFAULT,
@@ -43,6 +44,7 @@ self.onmessage = async (e) => {
       watermarkType = 'none', watermarkText = '', watermarkPos = WATERMARK_POSITION_DEFAULT,
       watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT,
       watermarkColor, watermarkTileSpacing = WATERMARK_TILE_SPACING_DEFAULT,
+      watermarkTileColSpacing = WATERMARK_TILE_COL_SPACING_DEFAULT,
       watermarkTileRotation = WATERMARK_TILE_ROTATION_DEFAULT, locale = 'en',
       showCaptureDate = false, captureDatePos = CAPTURE_DATE_POSITION_DEFAULT, captureDateOpacity = CAPTURE_DATE_OPACITY_DEFAULT,
       captureDateFontScale = CAPTURE_DATE_FONT_SCALE_DEFAULT, dateOriginals = [] } = options;
@@ -82,6 +84,7 @@ self.onmessage = async (e) => {
       watermarkFontScale,
       watermarkColor,
       watermarkTileSpacing,
+      watermarkTileColSpacing,
       watermarkTileRotation,
       locale,
       dateOriginals,

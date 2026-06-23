@@ -83,6 +83,7 @@ export function renderUnifiedCanvas(ctx, images, layout, options, drawCellConten
     backgroundColor: options.backgroundColor ?? '#ffffff',
     color: options.watermarkColor,
     tileSpacing: options.watermarkTileSpacing,
+    tileColSpacing: options.watermarkTileColSpacing,
     tileRotation: options.watermarkTileRotation,
     locale: options.locale ?? 'en',
   });

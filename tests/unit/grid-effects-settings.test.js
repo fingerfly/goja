@@ -16,6 +16,7 @@ describe('buildFormFromRefs', () => {
       wmOpacity: { value: '0.5' },
       wmFontSize: { value: '1' },
       wmTileSpacing: { value: '120' },
+      wmTileColSpacing: { value: '30' },
       wmTileRotation: { value: '-45' },
       showCaptureDate: { checked: true },
       captureDatePos: { value: 'bottom-left' },
@@ -44,6 +45,7 @@ describe('buildFormFromRefs', () => {
     expect(form.wmType).toBe('text');
     expect(form.wmText).toBe('Hi');
     expect(form.wmTileSpacing).toBe('120');
+    expect(form.wmTileColSpacing).toBe('30');
     expect(form.wmTileRotation).toBe('-45');
     expect(form.showCaptureDate).toBe(true);
     expect(form.filterPreset).toBe('grayscale');
@@ -91,15 +93,18 @@ describe('getWatermarkOptions', () => {
     expect(opts.fontScale).toBe(1);
     expect(opts.backgroundColor).toBe('#ffffff');
     expect(opts.tileSpacing).toBe(80);
+    expect(opts.tileColSpacing).toBe(0);
     expect(opts.tileRotation).toBe(-30);
   });
 
   it('clamps tile spacing and rotation to config bounds', () => {
     const opts = getWatermarkOptions({
       wmTileSpacing: '-10',
+      wmTileColSpacing: '500',
       wmTileRotation: '100',
     }, 'en');
     expect(opts.tileSpacing).toBe(0);
+    expect(opts.tileColSpacing).toBe(400);
     expect(opts.tileRotation).toBe(90);
   });
 });

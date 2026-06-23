@@ -30,16 +30,23 @@ function luminanceFromColor(cssColor) {
 }
 
 /**
- * Grid center step from text metrics and pixel gap between watermarks.
- * @param {number} textWidth
+ * Row step: font height plus vertical gap between adjacent tiled rows.
  * @param {number} fontSize
- * @param {number} gapPx
+ * @param {number} verticalGapPx
  * @returns {number}
  */
-export function computeTiledGridSpacing(textWidth, fontSize, gapPx) {
-  const gap = Math.max(0, gapPx);
-  const minExtent = Math.max(textWidth, fontSize * 1.2);
-  return minExtent + gap;
+export function computeTiledRowSpacing(fontSize, verticalGapPx) {
+  return fontSize + Math.max(0, verticalGapPx);
+}
+
+/**
+ * Column step: text width plus horizontal gap between adjacent tiles.
+ * @param {number} textWidth
+ * @param {number} horizontalGapPx
+ * @returns {number}
+ */
+export function computeTiledColSpacing(textWidth, horizontalGapPx) {
+  return textWidth + Math.max(0, horizontalGapPx);
 }
 
 /**
@@ -72,7 +79,7 @@ export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
   const {
     type, text, position = 'bottom-right', locale = 'en',
     opacity = 0.8, fontScale = 1, backgroundColor = '#ffffff',
-    color, tileSpacing = 80, tileRotation = -30,
+    color, tileSpacing = 80, tileColSpacing = 0, tileRotation = -30,
   } = options;
   const resolved = resolveWatermarkText(type, text, locale);
   if (!resolved) return;
@@ -86,7 +93,11 @@ export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
 
   const opts = { fontScale, alpha };
   if (position === 'center') drawCenter(ctx, canvasWidth, canvasHeight, resolved, opts);
-  else if (position === 'tiled') drawTiled(ctx, canvasWidth, canvasHeight, resolved, { ...opts, tileSpacing, tileRotation });
+  else if (position === 'tiled') {
+    drawTiled(ctx, canvasWidth, canvasHeight, resolved, {
+      ...opts, tileSpacing, tileColSpacing, tileRotation,
+    });
+  }
   else if (position === 'top-left') drawTopLeft(ctx, canvasWidth, canvasHeight, resolved, opts);
   else if (position === 'top-right') drawTopRight(ctx, canvasWidth, canvasHeight, resolved, opts);
   else if (position === 'bottom-left') drawBottomLeft(ctx, canvasWidth, canvasHeight, resolved, opts);
@@ -145,19 +156,21 @@ function drawTiled(ctx, w, h, text, opts = {}) {
   const alpha = (opts.alpha ?? 0.8) * 0.1875;
   const fontSize = Math.round(w * TILED_FONT_RATIO * scale);
   const tileGapPx = opts.tileSpacing ?? 80;
+  const tileColGapPx = opts.tileColSpacing ?? 0;
   const tileRotationDeg = opts.tileRotation ?? -30;
   const tileRotationRad = (tileRotationDeg * Math.PI) / 180;
   ctx.font = `${fontSize}px sans-serif`;
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
-  const spacing = computeTiledGridSpacing(textWidth, fontSize, tileGapPx);
+  const rowSpacing = computeTiledRowSpacing(fontSize, tileGapPx);
+  const colSpacing = computeTiledColSpacing(textWidth, tileColGapPx);
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);
   ctx.rotate(tileRotationRad);
   const diag = Math.sqrt(w * w + h * h);
-  for (let y = -diag; y < diag; y += spacing) {
-    for (let x = -diag; x < diag; x += spacing) {
+  for (let y = -diag; y < diag; y += rowSpacing) {
+    for (let x = -diag; x < diag; x += colSpacing) {
       ctx.fillText(text, x, y);
     }
   }

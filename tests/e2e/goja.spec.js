@@ -746,6 +746,8 @@ test.describe('Goja App', () => {
     await page.locator('#watermarkPos').selectOption('tiled');
     await page.locator('#watermarkTileSpacing').fill('120');
     await expect(page.locator('#watermarkTileSpacing')).toHaveValue('120');
+    await page.locator('#watermarkTileColSpacing').fill('40');
+    await expect(page.locator('#watermarkTileColSpacing')).toHaveValue('40');
   });
 
   test('watermark tile controls meet 44px touch target', async ({ page }) => {
@@ -754,6 +756,8 @@ test.describe('Goja App', () => {
     await page.locator('#watermarkPos').selectOption('tiled');
     const spacingBox = await page.locator('#watermarkTileSpacing').boundingBox();
     expect(spacingBox?.height).toBeGreaterThanOrEqual(44);
+    const colSpacingBox = await page.locator('#watermarkTileColSpacing').boundingBox();
+    expect(colSpacingBox?.height).toBeGreaterThanOrEqual(44);
     const rotationBox = await page.locator('#watermarkTileRotation').boundingBox();
     expect(rotationBox?.height).toBeGreaterThanOrEqual(44);
   });
@@ -763,9 +767,13 @@ test.describe('Goja App', () => {
     await page.locator('#watermarkType').selectOption('text');
     await page.locator('#watermarkPos').selectOption('tiled');
     await expect(page.locator('#watermarkTileSpacingHint')).toBeVisible();
+    await expect(page.locator('#watermarkTileColSpacingHint')).toBeVisible();
     await expect(page.locator('#watermarkTileRotationHint')).toBeVisible();
     await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute(
       'aria-describedby', 'watermarkTileSpacingHint'
+    );
+    await expect(page.locator('#watermarkTileColSpacing')).toHaveAttribute(
+      'aria-describedby', 'watermarkTileColSpacingHint'
     );
     await expect(page.locator('#watermarkTileRotation')).toHaveAttribute(
       'aria-describedby', 'watermarkTileRotationHint'
@@ -779,6 +787,9 @@ test.describe('Goja App', () => {
     await expect(page.locator('#watermarkTileSpacing')).toHaveValue('80');
     await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('min', '0');
     await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('max', '400');
+    await expect(page.locator('#watermarkTileColSpacing')).toHaveValue('0');
+    await expect(page.locator('#watermarkTileColSpacing')).toHaveAttribute('min', '0');
+    await expect(page.locator('#watermarkTileColSpacing')).toHaveAttribute('max', '400');
     await expect(page.locator('#watermarkTileRotation')).toHaveValue('-30');
     await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('min', '-90');
     await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('max', '90');

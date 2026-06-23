@@ -9,6 +9,10 @@ import {
   WATERMARK_TILE_SPACING_MAX,
   WATERMARK_TILE_SPACING_DEFAULT,
   WATERMARK_TILE_SPACING_STEP,
+  WATERMARK_TILE_COL_SPACING_MIN,
+  WATERMARK_TILE_COL_SPACING_MAX,
+  WATERMARK_TILE_COL_SPACING_DEFAULT,
+  WATERMARK_TILE_COL_SPACING_STEP,
   WATERMARK_TILE_ROTATION_MIN,
   WATERMARK_TILE_ROTATION_MAX,
   WATERMARK_TILE_ROTATION_DEFAULT,
@@ -23,7 +27,7 @@ function clamp(value, min, max, fallback) {
 }
 
 /**
- * Normalize tile spacing gap (px) between watermarks to [min, max].
+ * Normalize vertical tile spacing gap (px) to [min, max].
  * @param {unknown} value
  * @returns {number}
  */
@@ -33,6 +37,20 @@ export function normalizeTileSpacing(value) {
     WATERMARK_TILE_SPACING_MIN,
     WATERMARK_TILE_SPACING_MAX,
     WATERMARK_TILE_SPACING_DEFAULT
+  ));
+}
+
+/**
+ * Normalize horizontal tile spacing gap (px) to [min, max].
+ * @param {unknown} value
+ * @returns {number}
+ */
+export function normalizeTileColSpacing(value) {
+  return Math.round(clamp(
+    value,
+    WATERMARK_TILE_COL_SPACING_MIN,
+    WATERMARK_TILE_COL_SPACING_MAX,
+    WATERMARK_TILE_COL_SPACING_DEFAULT
   ));
 }
 
@@ -51,7 +69,7 @@ export function normalizeTileRotation(value) {
 }
 
 /**
- * Apply integer pixel input mode for tile spacing gap.
+ * Apply integer pixel input mode for vertical tile spacing gap.
  * @param {HTMLInputElement | null} inputEl
  * @param {string} [userAgent]
  */
@@ -61,6 +79,19 @@ export function applyTileSpacingInputMode(inputEl, userAgent = '') {
   inputEl.step = String(WATERMARK_TILE_SPACING_STEP);
   inputEl.min = String(WATERMARK_TILE_SPACING_MIN);
   inputEl.max = String(WATERMARK_TILE_SPACING_MAX);
+}
+
+/**
+ * Apply integer pixel input mode for horizontal tile spacing gap.
+ * @param {HTMLInputElement | null} inputEl
+ * @param {string} [userAgent]
+ */
+export function applyTileColSpacingInputMode(inputEl, userAgent = '') {
+  applyPlatformNumericInputMode(inputEl, userAgent);
+  if (!inputEl) return;
+  inputEl.step = String(WATERMARK_TILE_COL_SPACING_STEP);
+  inputEl.min = String(WATERMARK_TILE_COL_SPACING_MIN);
+  inputEl.max = String(WATERMARK_TILE_COL_SPACING_MAX);
 }
 
 /**
@@ -77,12 +108,21 @@ export function applyTileRotationInputMode(inputEl, userAgent = '') {
 }
 
 /**
- * Write normalized spacing back to a tile spacing input element.
+ * Write normalized vertical spacing back to a tile spacing input element.
  * @param {HTMLInputElement | null} inputEl
  */
 export function normalizeTileSpacingInput(inputEl) {
   if (!inputEl) return;
   inputEl.value = String(normalizeTileSpacing(inputEl.value));
+}
+
+/**
+ * Write normalized horizontal spacing back to a tile col spacing input.
+ * @param {HTMLInputElement | null} inputEl
+ */
+export function normalizeTileColSpacingInput(inputEl) {
+  if (!inputEl) return;
+  inputEl.value = String(normalizeTileColSpacing(inputEl.value));
 }
 
 /**

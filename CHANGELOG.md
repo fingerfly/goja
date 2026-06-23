@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [10.2.5] - 2026-06-23
+
+
+### Changed
+
+- **Watermark tile spacing**: control sets the **vertical pixel gap between
+  adjacent tiled watermarks** (0–400 px). Row step is `fontSize + gap`;
+  column step follows text width so rows can sit closer and the gap is
+  easier to tune.
+- **Watermark tile horizontal spacing**: new control sets the **horizontal
+  pixel gap between adjacent tiled watermarks** (0–400 px, default 0).
+  Column step is `textWidth + gap`; preview and export forward
+  `watermarkTileColSpacing`.
+
 ## [10.2.4] - 2026-06-23
 
 

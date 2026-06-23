@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { resolveWatermarkText, drawWatermark, computeTiledGridSpacing } from '../../js/watermark.js';
+import {
+  resolveWatermarkText,
+  drawWatermark,
+  computeTiledRowSpacing,
+  computeTiledColSpacing,
+} from '../../js/watermark.js';
 
 let mockCtx;
 
@@ -52,13 +57,23 @@ describe('resolveWatermarkText', () => {
   });
 });
 
-describe('computeTiledGridSpacing', () => {
-  it('adds pixel gap to text extent for grid step', () => {
-    expect(computeTiledGridSpacing(100, 32, 40)).toBe(140);
+describe('computeTiledRowSpacing', () => {
+  it('adds vertical pixel gap to font size for row step', () => {
+    expect(computeTiledRowSpacing(32, 40)).toBe(72);
   });
 
-  it('uses font size when wider than text width', () => {
-    expect(computeTiledGridSpacing(20, 50, 10)).toBe(70);
+  it('clamps negative gap to zero', () => {
+    expect(computeTiledRowSpacing(50, -5)).toBe(50);
+  });
+});
+
+describe('computeTiledColSpacing', () => {
+  it('adds horizontal pixel gap to text width for column step', () => {
+    expect(computeTiledColSpacing(100, 40)).toBe(140);
+  });
+
+  it('clamps negative gap to zero', () => {
+    expect(computeTiledColSpacing(80, -5)).toBe(80);
   });
 });
 
@@ -160,11 +175,37 @@ describe('drawWatermark', () => {
     expect(mockCtx.fillStyle).toBe('#ff0000');
   });
 
-  it('draws tiled watermark with custom pixel gap', () => {
+  it('draws tiled watermark with custom vertical pixel gap', () => {
     drawWatermark(mockCtx, 1080, 1080, {
       type: 'text', text: 'T', position: 'tiled', tileSpacing: 40,
     });
     expect(mockCtx.fillText.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it('tighter vertical gap tiles more rows than a wide gap', () => {
+    mockCtx.measureText = vi.fn(() => ({ width: 80 }));
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileSpacing: 0,
+    });
+    const tightCount = mockCtx.fillText.mock.calls.length;
+    mockCtx.fillText.mockClear();
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileSpacing: 200,
+    });
+    expect(tightCount).toBeGreaterThan(mockCtx.fillText.mock.calls.length);
+  });
+
+  it('tighter horizontal gap tiles more columns than a wide gap', () => {
+    mockCtx.measureText = vi.fn(() => ({ width: 80 }));
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileColSpacing: 0,
+    });
+    const tightCount = mockCtx.fillText.mock.calls.length;
+    mockCtx.fillText.mockClear();
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'T', position: 'tiled', tileColSpacing: 200,
+    });
+    expect(tightCount).toBeGreaterThan(mockCtx.fillText.mock.calls.length);
   });
 
   it('applies custom tile rotation in radians', () => {

@@ -287,7 +287,8 @@ describe('handleExport', () => {
         watermarkOpacity: 0.7,
         watermarkFontScale: 1.1,
         watermarkColor: '#ff0000',
-        watermarkTileSpacing: 0.35,
+        watermarkTileSpacing: 80,
+        watermarkTileColSpacing: 40,
         watermarkTileRotation: 45,
         locale: 'en',
       });
@@ -297,7 +298,8 @@ describe('handleExport', () => {
         expect.anything(),
         expect.objectContaining({
           watermarkColor: '#ff0000',
-          watermarkTileSpacing: 0.35,
+          watermarkTileSpacing: 80,
+          watermarkTileColSpacing: 40,
           watermarkTileRotation: 45,
         }),
         expect.any(Function)

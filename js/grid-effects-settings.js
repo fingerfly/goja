@@ -10,6 +10,9 @@ import {
   WATERMARK_TILE_SPACING_DEFAULT,
   WATERMARK_TILE_SPACING_MIN,
   WATERMARK_TILE_SPACING_MAX,
+  WATERMARK_TILE_COL_SPACING_DEFAULT,
+  WATERMARK_TILE_COL_SPACING_MIN,
+  WATERMARK_TILE_COL_SPACING_MAX,
   WATERMARK_TILE_ROTATION_DEFAULT,
   WATERMARK_TILE_ROTATION_MIN,
   WATERMARK_TILE_ROTATION_MAX,
@@ -82,6 +85,12 @@ export function getWatermarkOptions(form, locale = 'en') {
       WATERMARK_TILE_SPACING_MIN,
       WATERMARK_TILE_SPACING_MAX
     ),
+    tileColSpacing: parseIntBounded(
+      form.wmTileColSpacing,
+      WATERMARK_TILE_COL_SPACING_DEFAULT,
+      WATERMARK_TILE_COL_SPACING_MIN,
+      WATERMARK_TILE_COL_SPACING_MAX
+    ),
     tileRotation: parseIntBounded(
       form.wmTileRotation,
       WATERMARK_TILE_ROTATION_DEFAULT,
@@ -122,6 +131,7 @@ export function buildFormFromRefs(refs, includeFormat = false) {
     wmFontSize: refs.wmFontSize?.value,
     wmColor: refs.wmColor?.value,
     wmTileSpacing: refs.wmTileSpacing?.value,
+    wmTileColSpacing: refs.wmTileColSpacing?.value,
     wmTileRotation: refs.wmTileRotation?.value,
     showCaptureDate: refs.showCaptureDate?.checked,
     captureDatePos: refs.captureDatePos?.value,
@@ -192,6 +202,7 @@ export function getGridEffectsOptions(form, photos, formatDateTimeOriginal, getL
     watermarkFontScale: wm.fontScale,
     watermarkColor: wm.color,
     watermarkTileSpacing: wm.tileSpacing,
+    watermarkTileColSpacing: wm.tileColSpacing,
     watermarkTileRotation: wm.tileRotation,
     locale: wm.locale,
     showCaptureDate,

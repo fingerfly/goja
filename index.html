@@ -390,16 +390,25 @@
           <label for="watermarkColor" data-i18n="watermarkColor">Color</label>
           <input type="color" id="watermarkColor" value="#000000">
         </div>
-        <div class="control-row control-row--pair hidden" id="watermarkTileOptionsGroup">
-          <div class="control-group">
-            <label for="watermarkTileSpacing" data-i18n="watermarkTileSpacing">Tile spacing</label>
-            <input type="number" id="watermarkTileSpacing" min="0" max="400" step="1" value="80" inputmode="numeric" aria-describedby="watermarkTileSpacingHint">
-            <p class="control-hint" id="watermarkTileSpacingHint" data-i18n="watermarkTileSpacingHint">Gap between watermarks in pixels (0–400).</p>
+        <div class="hidden" id="watermarkTileOptionsGroup">
+          <div class="control-row control-row--pair">
+            <div class="control-group">
+              <label for="watermarkTileSpacing" data-i18n="watermarkTileSpacing">Vertical spacing</label>
+              <input type="number" id="watermarkTileSpacing" min="0" max="400" step="1" value="80" inputmode="numeric" aria-describedby="watermarkTileSpacingHint">
+              <p class="control-hint" id="watermarkTileSpacingHint" data-i18n="watermarkTileSpacingHint">Vertical gap between adjacent tiled watermarks in pixels (0–400).</p>
+            </div>
+            <div class="control-group">
+              <label for="watermarkTileColSpacing" data-i18n="watermarkTileColSpacing">Horizontal spacing</label>
+              <input type="number" id="watermarkTileColSpacing" min="0" max="400" step="1" value="0" inputmode="numeric" aria-describedby="watermarkTileColSpacingHint">
+              <p class="control-hint" id="watermarkTileColSpacingHint" data-i18n="watermarkTileColSpacingHint">Horizontal gap between adjacent tiled watermarks in pixels (0–400).</p>
+            </div>
           </div>
-          <div class="control-group">
-            <label for="watermarkTileRotation" data-i18n="watermarkTileRotation">Tile rotation</label>
-            <input type="number" id="watermarkTileRotation" min="-90" max="90" step="1" value="-30" inputmode="numeric" aria-describedby="watermarkTileRotationHint">
-            <p class="control-hint" id="watermarkTileRotationHint" data-i18n="watermarkTileRotationHint">Degrees from -90 to 90, step 1.</p>
+          <div class="control-row">
+            <div class="control-group control-group--full">
+              <label for="watermarkTileRotation" data-i18n="watermarkTileRotation">Tile rotation</label>
+              <input type="number" id="watermarkTileRotation" min="-90" max="90" step="1" value="-30" inputmode="numeric" aria-describedby="watermarkTileRotationHint">
+              <p class="control-hint" id="watermarkTileRotationHint" data-i18n="watermarkTileRotationHint">Degrees from -90 to 90, step 1.</p>
+            </div>
           </div>
         </div>
         <div class="control-group control-group--full hidden" id="watermarkTextGroup">
