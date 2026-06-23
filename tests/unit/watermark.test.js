@@ -140,4 +140,13 @@ describe('drawWatermark', () => {
     });
     expect(mockCtx.fillStyle).toBe('rgb(0, 0, 0)');
   });
+
+  it('uses explicit color when provided', () => {
+    drawWatermark(mockCtx, 1080, 1080, {
+      type: 'text', text: 'X', position: 'bottom-right',
+      backgroundColor: '#ffffff',
+      color: '#ff0000',
+    });
+    expect(mockCtx.fillStyle).toBe('#ff0000');
+  });
 });

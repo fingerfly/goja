@@ -13,6 +13,8 @@ import {
   WATERMARK_OPACITY_DEFAULT,
   WATERMARK_POSITION_DEFAULT,
   WATERMARK_FONT_SCALE_DEFAULT,
+  WATERMARK_TILE_SPACING_DEFAULT,
+  WATERMARK_TILE_ROTATION_DEFAULT,
   CAPTURE_DATE_OPACITY_DEFAULT,
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
@@ -42,7 +44,9 @@ function exportMainThread(photos, layout, options) {
   const { format = 'image/jpeg', fitMode = 'cover', filter = 'none' } = options;
   const { vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT } = options;
   const { watermarkType = 'none', watermarkText = '', watermarkPos = WATERMARK_POSITION_DEFAULT,
-    watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT, locale = 'en' } = options;
+    watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT,
+    watermarkColor, watermarkTileSpacing = WATERMARK_TILE_SPACING_DEFAULT,
+    watermarkTileRotation = WATERMARK_TILE_ROTATION_DEFAULT, locale = 'en' } = options;
   const { showCaptureDate = false, captureDatePos = CAPTURE_DATE_POSITION_DEFAULT,
     captureDateOpacity = CAPTURE_DATE_OPACITY_DEFAULT, captureDateFontScale = CAPTURE_DATE_FONT_SCALE_DEFAULT, dateOriginals = [] } = options;
   const photoOrder = layout.photoOrder || photos.map((_, i) => i);
@@ -88,6 +92,9 @@ function exportMainThread(photos, layout, options) {
       watermarkPos,
       watermarkOpacity,
       watermarkFontScale,
+      watermarkColor,
+      watermarkTileSpacing,
+      watermarkTileRotation,
       locale,
       dateOriginals,
     }, (drawCtx, image, cell, drawOptions) => {

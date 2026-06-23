@@ -10,6 +10,8 @@ import {
   WATERMARK_OPACITY_DEFAULT,
   WATERMARK_POSITION_DEFAULT,
   WATERMARK_FONT_SCALE_DEFAULT,
+  WATERMARK_TILE_SPACING_DEFAULT,
+  WATERMARK_TILE_ROTATION_DEFAULT,
   CAPTURE_DATE_OPACITY_DEFAULT,
   CAPTURE_DATE_POSITION_DEFAULT,
   CAPTURE_DATE_FONT_SCALE_DEFAULT,
@@ -33,7 +35,9 @@ self.onmessage = async (e) => {
     const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
       filter = 'none', vignetteEnabled = false, vignetteStrength = VIGNETTE_STRENGTH_DEFAULT,
       watermarkType = 'none', watermarkText = '', watermarkPos = WATERMARK_POSITION_DEFAULT,
-      watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT, locale = 'en',
+      watermarkOpacity = WATERMARK_OPACITY_DEFAULT, watermarkFontScale = WATERMARK_FONT_SCALE_DEFAULT,
+      watermarkColor, watermarkTileSpacing = WATERMARK_TILE_SPACING_DEFAULT,
+      watermarkTileRotation = WATERMARK_TILE_ROTATION_DEFAULT, locale = 'en',
       showCaptureDate = false, captureDatePos = CAPTURE_DATE_POSITION_DEFAULT, captureDateOpacity = CAPTURE_DATE_OPACITY_DEFAULT,
       captureDateFontScale = CAPTURE_DATE_FONT_SCALE_DEFAULT, dateOriginals = [] } = options;
     const bg = options.backgroundColor ?? '#ffffff';
@@ -70,6 +74,9 @@ self.onmessage = async (e) => {
       watermarkPos,
       watermarkOpacity,
       watermarkFontScale,
+      watermarkColor,
+      watermarkTileSpacing,
+      watermarkTileRotation,
       locale,
       dateOriginals,
     }, (drawCtx, image, cell, drawOptions) => {

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [10.2.2] - 2026-06-23
+
+
+### Fixed
+
+- **Export watermark color**: `export-handler.js` and `export-worker.js` now
+  forward `watermarkColor`, `watermarkTileSpacing`, and `watermarkTileRotation`
+  to the unified canvas pipeline. Previously export omitted these options, so
+  watermarks fell back to luminance-based black/white and appeared gray in output.
+
 ## [10.2.1] - 2026-06-23
 
 ### Added
