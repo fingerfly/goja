@@ -104,7 +104,7 @@ describe('runExport', () => {
     await first;
   });
 
-  it('ignores concurrent export while options sheet is open', async () => {
+  it('recovers and re-exports when options sheet is open on second click', async () => {
     document.body.innerHTML = `
       <div id="exportOptionsBackdrop"></div>
       <aside id="exportOptionsSheet"></aside>
@@ -115,7 +115,7 @@ describe('runExport', () => {
     });
     await runExport(refs, state, deps);
     await runExport(refs, state, deps);
-    expect(deps.handleExport).toHaveBeenCalledTimes(1);
+    expect(deps.handleExport).toHaveBeenCalledTimes(2);
   });
 
   it('shows error toast when handleExport returns empty blob', async () => {
@@ -196,8 +196,26 @@ describe('runExport', () => {
       configurable: true,
       value: 'visible',
     });
-    window.dispatchEvent(new PageTransitionEvent('pageshow'));
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
     expect(isExportInProgress()).toBe(false);
+    teardown();
+  });
+
+  it('installExportPageLifecycle clears options sheet on pagehide', async () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    deps.showExportOptions.mockImplementation(() => {
+      document.getElementById('exportOptionsBackdrop').classList.add('open');
+      return true;
+    });
+    await runExport(refs, state, deps);
+    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    window.dispatchEvent(new PageTransitionEvent('pagehide'));
+    expect(isExportInProgress()).toBe(false);
+    expect(document.getElementById('exportOptionsBackdrop').classList.contains('open'))
+      .toBe(false);
     teardown();
   });
 });

@@ -21,14 +21,28 @@ let exportPhase = 'idle';
  * @param {(count: number, isExporting: boolean) => void} updateActionButtons
  */
 export function recoverStuckExportState(state, updateActionButtons) {
-  if (isExportOptionsOpen()) {
-    dismissExportOptions(false);
+  ensureExportUiIdle(state, updateActionButtons);
+}
+
+/**
+ * Dismiss orphan sheet/backdrop and reset export guard unless rendering.
+ * @param {{ photos: { url: string }[] }} state
+ * @param {(count: number, isExporting: boolean) => void} updateActionButtons
+ */
+export function ensureExportUiIdle(state, updateActionButtons) {
+  const sheetOpen = isExportOptionsOpen();
+  if (sheetOpen) {
+    dismissExportOptions(false, {
+      notify: exportInProgress && exportPhase === 'options',
+    });
   }
-  if (!exportInProgress) return;
-  if (exportPhase === 'rendering') return;
-  exportInProgress = false;
-  exportPhase = 'idle';
-  updateActionButtons(state.photos.length, false);
+  if (exportInProgress && exportPhase !== 'rendering') {
+    exportInProgress = false;
+    exportPhase = 'idle';
+    updateActionButtons(state.photos.length, false);
+  } else if (sheetOpen) {
+    updateActionButtons(state.photos.length, false);
+  }
 }
 
 /**
@@ -38,22 +52,35 @@ export function recoverStuckExportState(state, updateActionButtons) {
  * @returns {() => void} teardown
  */
 export function installExportPageLifecycle(getState, updateActionButtons) {
-  const recover = () => {
+  const syncOnShow = (event) => {
     if (document.visibilityState !== 'visible') return;
     const state = getState();
-    if (!exportInProgress) return;
-    const stuckOptions =
-      exportPhase === 'options' && !isExportOptionsOpen();
-    const orphanBackdrop = isExportOptionsOpen() && exportPhase !== 'rendering';
-    if (stuckOptions || orphanBackdrop) {
-      recoverStuckExportState(state, updateActionButtons);
+    const needsRecover = event?.persisted
+      || isExportOptionsOpen()
+      || (exportInProgress && exportPhase !== 'rendering');
+    if (needsRecover) {
+      ensureExportUiIdle(state, updateActionButtons);
     }
   };
-  document.addEventListener('visibilitychange', recover);
-  window.addEventListener('pageshow', recover);
+  const syncOnHide = () => {
+    if (exportPhase === 'options' || isExportOptionsOpen()) {
+      ensureExportUiIdle(getState(), updateActionButtons);
+    }
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === 'hidden') {
+      syncOnHide();
+    } else {
+      syncOnShow(undefined);
+    }
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+  window.addEventListener('pageshow', syncOnShow);
+  window.addEventListener('pagehide', syncOnHide);
   return () => {
-    document.removeEventListener('visibilitychange', recover);
-    window.removeEventListener('pageshow', recover);
+    document.removeEventListener('visibilitychange', onVisibility);
+    window.removeEventListener('pageshow', syncOnShow);
+    window.removeEventListener('pagehide', syncOnHide);
   };
 }
 
@@ -72,13 +99,10 @@ export async function runExport(refs, state, deps) {
     downloadBlob, shareBlob, copyBlobToClipboard, formatDateTimeOriginal, getLocale,
     updateActionButtons, updatePreview } = deps;
 
-  if (exportInProgress) {
-    if (exportPhase === 'options' && !isExportOptionsOpen()) {
-      recoverStuckExportState(state, updateActionButtons);
-    } else {
-      return;
-    }
+  if (exportInProgress && exportPhase === 'rendering') {
+    return;
   }
+  ensureExportUiIdle(state, updateActionButtons);
 
   exportInProgress = true;
   exportPhase = 'rendering';
@@ -121,11 +145,14 @@ export async function runExport(refs, state, deps) {
       },
       onOpenInNewTab: () => {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.rel = 'noopener';
-        a.target = '_blank';
-        a.click();
+        const opened = window.open(url, '_blank', 'noopener');
+        if (!opened) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.rel = 'noopener';
+          a.target = '_blank';
+          a.click();
+        }
         setTimeout(() => URL.revokeObjectURL(url), EXPORT_URL_REVOKE_DELAY_MS);
       },
     }, {

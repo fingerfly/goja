@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [10.2.10] - 2026-06-24
+
+### Fixed
+
+- **iOS export stuck after in-app back (`<`)**: Returning from
+  open-in-new-tab via the bottom-left back control can restore the page
+  from bfcache with the export backdrop and guard still active. Export
+  now resets on `pagehide`, `visibilitychange` (hidden), and bfcache
+  `pageshow` (`persisted`). A second Export click also clears orphan
+  sheet/backdrop state before starting a new run.
+- **iOS second-export hang**: Safari export workers can stall after a
+  tab switch; iOS/iPadOS now renders on the main thread instead of the
+  worker.
+- **Open-in-new-tab navigation**: Prefer `window.open` with anchor
+  fallback so the options sheet can dismiss before navigation.
+
+### Tests
+
+- `npm test` (525 passed).
+- `npm run test:e2e` (81 passed).
+
 ## [10.2.9] - 2026-06-24
 
 ### Fixed

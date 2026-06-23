@@ -162,7 +162,20 @@ function exportViaWorker(photos, layout, options) {
   });
 }
 
-const USE_WORKER = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap !== 'undefined';
+const USE_WORKER = typeof OffscreenCanvas !== 'undefined'
+  && typeof createImageBitmap !== 'undefined'
+  && !isIosLikeDevice();
+
+/**
+ * True on iPhone/iPad/iPod and iPadOS desktop UA.
+ * @param {string} [userAgent]
+ * @returns {boolean}
+ */
+export function isIosLikeDevice(userAgent = navigator?.userAgent ?? '') {
+  if (/iPhone|iPad|iPod/i.test(userAgent)) return true;
+  if (typeof navigator === 'undefined') return false;
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
 
 /**
  * Clone export payload for worker postMessage (plain data only).

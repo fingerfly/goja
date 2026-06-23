@@ -3,7 +3,7 @@ import * as imageProcessor from '../../js/image-processor.js';
 import * as captureDateOverlay from '../../js/capture-date-overlay.js';
 import * as imageEffects from '../../js/image-effects.js';
 import * as unifiedCanvasPipeline from '../../js/unified-canvas-pipeline.js';
-import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from '../../js/export-handler.js';
+import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard, isIosLikeDevice } from '../../js/export-handler.js';
 import { EXPORT_WORKER_TIMEOUT_MS } from '../../js/config.js';
 
 const mockGradient = { addColorStop: vi.fn() };
@@ -496,5 +496,19 @@ describe('copyBlobToClipboard', () => {
     await copyBlobToClipboard(blob);
     expect(writeMock).toHaveBeenCalledWith(expect.any(Array));
     globalThis.ClipboardItem = origClipboardItem;
+  });
+});
+
+describe('isIosLikeDevice', () => {
+  it('detects iPhone user agent', () => {
+    expect(isIosLikeDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')).toBe(true);
+  });
+
+  it('detects iPad user agent', () => {
+    expect(isIosLikeDevice('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)')).toBe(true);
+  });
+
+  it('returns false for desktop Chrome', () => {
+    expect(isIosLikeDevice('Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome/120.0')).toBe(false);
   });
 });
