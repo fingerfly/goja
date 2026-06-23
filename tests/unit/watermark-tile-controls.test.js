@@ -5,20 +5,20 @@ import {
 } from '../../js/watermark-tile-controls.js';
 
 describe('normalizeTileSpacing', () => {
-  it('clamps below minimum to 0.02', () => {
-    expect(normalizeTileSpacing('0.015')).toBe(0.02);
+  it('clamps below minimum to 0', () => {
+    expect(normalizeTileSpacing('-5')).toBe(0);
   });
 
-  it('clamps above maximum to 0.5', () => {
-    expect(normalizeTileSpacing('0.555')).toBe(0.5);
+  it('clamps above maximum to 400', () => {
+    expect(normalizeTileSpacing('555')).toBe(400);
   });
 
   it('returns default for invalid input', () => {
-    expect(normalizeTileSpacing('abc')).toBe(0.2);
+    expect(normalizeTileSpacing('abc')).toBe(80);
   });
 
-  it('rounds to two decimal places', () => {
-    expect(normalizeTileSpacing('0.123')).toBe(0.12);
+  it('rounds to integer pixels', () => {
+    expect(normalizeTileSpacing('42.6')).toBe(43);
   });
 });
 

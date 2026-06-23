@@ -111,7 +111,7 @@ export default {
   watermarkFontSize: 'Tipara grando',
   watermarkColor: 'Koloro',
   watermarkTileSpacing: 'Kahelinterspaco',
-  watermarkTileSpacingHint: 'Proporcio de la kanvaslarĝo (0.02–0.50).',
+  watermarkTileSpacingHint: 'Interspaco inter filigranoj en rastrumeroj (0–400).',
   watermarkTileRotation: 'Kahelrotacio',
   watermarkTileRotationHint: 'Gradoj de -90 ĝis 90, paŝo 1.',
   fontSizeSmall: 'Eta',

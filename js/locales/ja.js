@@ -111,7 +111,7 @@ export default {
   watermarkFontSize: 'フォントサイズ',
   watermarkColor: '色',
   watermarkTileSpacing: 'タイル間隔',
-  watermarkTileSpacingHint: 'キャンバス幅に対する比率（0.02–0.50）。',
+  watermarkTileSpacingHint: '透かし同士の間隔（ピクセル、0–400）。',
   watermarkTileRotation: 'タイル回転',
   watermarkTileRotationHint: '角度 -90° から 90°、1° 刻み。',
   fontSizeSmall: '小',

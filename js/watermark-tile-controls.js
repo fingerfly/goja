@@ -1,7 +1,7 @@
 /**
  * Purpose: Normalize watermark tile spacing and rotation UI values.
  * Description:
- * - Clamps spacing ratio and rotation angle to config bounds.
+ * - Clamps pixel gap between tiled watermarks and rotation angle to config bounds.
  * - Applies platform-appropriate input modes for tile controls.
  */
 import {
@@ -23,19 +23,17 @@ function clamp(value, min, max, fallback) {
 }
 
 /**
- * Normalize tile spacing ratio to [min, max] with two decimal places.
+ * Normalize tile spacing gap (px) between watermarks to [min, max].
  * @param {unknown} value
  * @returns {number}
  */
 export function normalizeTileSpacing(value) {
-  const clamped = clamp(
+  return Math.round(clamp(
     value,
     WATERMARK_TILE_SPACING_MIN,
     WATERMARK_TILE_SPACING_MAX,
     WATERMARK_TILE_SPACING_DEFAULT
-  );
-  const rounded = Math.round(clamped * 100) / 100;
-  return Number(rounded.toFixed(2));
+  ));
 }
 
 /**
@@ -53,13 +51,13 @@ export function normalizeTileRotation(value) {
 }
 
 /**
- * Apply decimal number input mode for tile spacing (all platforms).
+ * Apply integer pixel input mode for tile spacing gap.
  * @param {HTMLInputElement | null} inputEl
+ * @param {string} [userAgent]
  */
-export function applyTileSpacingInputMode(inputEl) {
+export function applyTileSpacingInputMode(inputEl, userAgent = '') {
+  applyPlatformNumericInputMode(inputEl, userAgent);
   if (!inputEl) return;
-  inputEl.type = 'number';
-  inputEl.inputMode = 'decimal';
   inputEl.step = String(WATERMARK_TILE_SPACING_STEP);
   inputEl.min = String(WATERMARK_TILE_SPACING_MIN);
   inputEl.max = String(WATERMARK_TILE_SPACING_MAX);

@@ -123,7 +123,7 @@ export default {
   watermarkFontSize: '字體大小',
   watermarkColor: '顏色',
   watermarkTileSpacing: '平鋪間距',
-  watermarkTileSpacingHint: '占畫布寬度的比例（0.02–0.50）。',
+  watermarkTileSpacingHint: '水印之間的間距，單位像素（0–400）。',
   watermarkTileRotation: '平鋪旋轉',
   watermarkTileRotationHint: '角度範圍 -90° 至 90°，步進 1°。',
   fontSizeSmall: '小',

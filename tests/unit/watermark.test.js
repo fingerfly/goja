@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { resolveWatermarkText, drawWatermark } from '../../js/watermark.js';
+import { resolveWatermarkText, drawWatermark, computeTiledGridSpacing } from '../../js/watermark.js';
 
 let mockCtx;
 
@@ -49,6 +49,16 @@ describe('resolveWatermarkText', () => {
   it('ignores user text for "datetime"', () => {
     const result = resolveWatermarkText('datetime', 'ignored');
     expect(result).toMatch(/\d{4}/);
+  });
+});
+
+describe('computeTiledGridSpacing', () => {
+  it('adds pixel gap to text extent for grid step', () => {
+    expect(computeTiledGridSpacing(100, 32, 40)).toBe(140);
+  });
+
+  it('uses font size when wider than text width', () => {
+    expect(computeTiledGridSpacing(20, 50, 10)).toBe(70);
   });
 });
 
@@ -150,9 +160,9 @@ describe('drawWatermark', () => {
     expect(mockCtx.fillStyle).toBe('#ff0000');
   });
 
-  it('draws tiled watermark with custom spacing at new minimum', () => {
+  it('draws tiled watermark with custom pixel gap', () => {
     drawWatermark(mockCtx, 1080, 1080, {
-      type: 'text', text: 'T', position: 'tiled', tileSpacing: 0.02,
+      type: 'text', text: 'T', position: 'tiled', tileSpacing: 40,
     });
     expect(mockCtx.fillText.mock.calls.length).toBeGreaterThan(1);
   });

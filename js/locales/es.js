@@ -111,7 +111,7 @@ export default {
   watermarkFontSize: 'Tamaño de fuente',
   watermarkColor: 'Color',
   watermarkTileSpacing: 'Espaciado de mosaico',
-  watermarkTileSpacingHint: 'Proporción del ancho del lienzo (0.02–0.50).',
+  watermarkTileSpacingHint: 'Espacio entre marcas de agua en píxeles (0–400).',
   watermarkTileRotation: 'Rotación de mosaico',
   watermarkTileRotationHint: 'Grados de -90 a 90, paso 1.',
   fontSizeSmall: 'Pequeño',

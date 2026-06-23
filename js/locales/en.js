@@ -124,7 +124,7 @@ export default {
   watermarkFontSize: 'Font size',
   watermarkColor: 'Color',
   watermarkTileSpacing: 'Tile spacing',
-  watermarkTileSpacingHint: 'Ratio of canvas width (0.02–0.50).',
+  watermarkTileSpacingHint: 'Gap between watermarks in pixels (0–400).',
   watermarkTileRotation: 'Tile rotation',
   watermarkTileRotationHint: 'Degrees from -90 to 90, step 1.',
   fontSizeSmall: 'Small',

@@ -30,7 +30,19 @@ function luminanceFromColor(cssColor) {
 }
 
 /**
- * Resolve watermark text from type and user input.
+ * Grid center step from text metrics and pixel gap between watermarks.
+ * @param {number} textWidth
+ * @param {number} fontSize
+ * @param {number} gapPx
+ * @returns {number}
+ */
+export function computeTiledGridSpacing(textWidth, fontSize, gapPx) {
+  const gap = Math.max(0, gapPx);
+  const minExtent = Math.max(textWidth, fontSize * 1.2);
+  return minExtent + gap;
+}
+
+/**
  * @param {string} type
  * @param {string} userText
  * @param {string} [locale]
@@ -60,7 +72,7 @@ export function drawWatermark(ctx, canvasWidth, canvasHeight, options) {
   const {
     type, text, position = 'bottom-right', locale = 'en',
     opacity = 0.8, fontScale = 1, backgroundColor = '#ffffff',
-    color, tileSpacing = 0.2, tileRotation = -30,
+    color, tileSpacing = 80, tileRotation = -30,
   } = options;
   const resolved = resolveWatermarkText(type, text, locale);
   if (!resolved) return;
@@ -132,14 +144,13 @@ function drawTiled(ctx, w, h, text, opts = {}) {
   const scale = opts.fontScale ?? 1;
   const alpha = (opts.alpha ?? 0.8) * 0.1875;
   const fontSize = Math.round(w * TILED_FONT_RATIO * scale);
-  const tileSpacingRatio = opts.tileSpacing ?? 0.2;
+  const tileGapPx = opts.tileSpacing ?? 80;
   const tileRotationDeg = opts.tileRotation ?? -30;
   const tileRotationRad = (tileRotationDeg * Math.PI) / 180;
   ctx.font = `${fontSize}px sans-serif`;
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
-  const minSpacing = Math.max(textWidth, fontSize * 1.2) + fontSize * 0.5;
-  const spacing = Math.max(minSpacing, Math.round(w * tileSpacingRatio));
+  const spacing = computeTiledGridSpacing(textWidth, fontSize, tileGapPx);
   ctx.globalAlpha = alpha;
   ctx.textAlign = 'center';
   ctx.translate(w / 2, h / 2);

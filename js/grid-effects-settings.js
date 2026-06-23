@@ -76,7 +76,7 @@ export function getWatermarkOptions(form, locale = 'en') {
     fontScale: parseNum(form.wmFontSize, WATERMARK_FONT_SCALE_DEFAULT),
     backgroundColor: form.bgColor ?? '#ffffff',
     color: form.wmColor ?? WATERMARK_COLOR_DEFAULT,
-    tileSpacing: parseNumBounded(
+    tileSpacing: parseIntBounded(
       form.wmTileSpacing,
       WATERMARK_TILE_SPACING_DEFAULT,
       WATERMARK_TILE_SPACING_MIN,

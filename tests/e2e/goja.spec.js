@@ -744,8 +744,8 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await page.locator('#watermarkType').selectOption('text');
     await page.locator('#watermarkPos').selectOption('tiled');
-    await page.locator('#watermarkTileSpacing').fill('0.15');
-    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('0.15');
+    await page.locator('#watermarkTileSpacing').fill('120');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('120');
   });
 
   test('watermark tile controls meet 44px touch target', async ({ page }) => {
@@ -776,9 +776,9 @@ test.describe('Goja App', () => {
     await page.locator('#settingsBtn').click();
     await page.locator('#watermarkType').selectOption('text');
     await page.locator('#watermarkPos').selectOption('tiled');
-    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('0.2');
-    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('min', '0.02');
-    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('max', '0.5');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveValue('80');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('min', '0');
+    await expect(page.locator('#watermarkTileSpacing')).toHaveAttribute('max', '400');
     await expect(page.locator('#watermarkTileRotation')).toHaveValue('-30');
     await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('min', '-90');
     await expect(page.locator('#watermarkTileRotation')).toHaveAttribute('max', '90');

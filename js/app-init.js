@@ -212,7 +212,7 @@ export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   applyPlatformNumericInputMode(edgeFrequency, userAgent);
   applyPlatformNumericInputMode(edgeSeed, userAgent);
-  applyTileSpacingInputMode(wmTileSpacing);
+  applyTileSpacingInputMode(wmTileSpacing, userAgent);
   applyTileRotationInputMode(wmTileRotation, userAgent);
   syncEdgeAmplitudeInputs(edgeIntensity, edgeIntensityInput, 'slider');
   normalizeEdgeFrequencyInput(edgeFrequency);

@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [10.2.4] - 2026-06-23
+
+
+### Changed
+
+- **Watermark tile spacing**: spacing control now sets the **pixel gap between
+  tiled watermarks** (0–400 px, default 80), not a ratio of canvas width.
+  Grid step is `max(textWidth, fontSize × 1.2) + gap`.
+
+### Tests
+
+- `npm test` (479 passed).
+- `npm run test:e2e` (79 passed).
+
 ## [10.2.3] - 2026-06-23
 
 
