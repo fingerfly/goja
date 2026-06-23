@@ -5,7 +5,7 @@
  * - Cleans old caches on activate and handles skip-waiting messages.
  * - Serves cached assets with network fallback for fetch requests.
  */
-const CACHE_NAME = 'goja-v10.2.2-1';
+const CACHE_NAME = 'goja-v10.2.2-2';
 const ASSETS = [
   './',
   './index.html',
@@ -34,6 +34,15 @@ const ASSETS = [
   './js/version.js',
   './js/drag-handler.js',
   './js/watermark.js',
+  './js/unified-canvas-pipeline.js',
+  './js/shape-clip-utils.js',
+  './js/frame-shape-geometry.js',
+  './js/shape-contour.js',
+  './js/polygon-shape.js',
+  './js/edge-export-clip.js',
+  './js/edge-shape-engine.js',
+  './js/edge-rng.js',
+  './js/edge-style-presets.js',
   './js/grid-effects-settings.js',
   './js/update-banner.js',
   './js/template-storage.js',
@@ -84,6 +93,10 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const protocol = new URL(event.request.url).protocol;
+  if (protocol !== 'http:' && protocol !== 'https:') {
+    return;
+  }
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))

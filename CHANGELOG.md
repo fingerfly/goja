@@ -11,6 +11,11 @@
   forward `watermarkColor`, `watermarkTileSpacing`, and `watermarkTileRotation`
   to the unified canvas pipeline. Previously export omitted these options, so
   watermarks fell back to luminance-based black/white and appeared gray in output.
+- **Export hang on Export click**: service worker no longer intercepts `blob:`
+  fetches (worker photo loads use blob URLs). Added export pipeline modules to
+  `sw.js` precache (`unified-canvas-pipeline.js`, shape/edge modules). Export
+  worker fetch failures now post explicit errors; `exportViaWorker` adds timeout
+  and `messageerror` handling with main-thread fallback.
 
 ## [10.2.1] - 2026-06-23
 

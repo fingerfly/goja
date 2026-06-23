@@ -59,6 +59,7 @@ export const FILTER_VINTAGE_BRIGHTNESS = 1.05;
 export const FILTER_VINTAGE_CONTRAST = 1.1;
 export const FILTER_BLUR_PX = 1.5;
 export const EXPORT_URL_REVOKE_DELAY_MS = 60000;
+export const EXPORT_WORKER_TIMEOUT_MS = 60000;
 export const EXPORT_FILENAME_DEFAULT = 'goja-grid';
 export const EXPORT_FILENAME_MAX_LENGTH = 200;
 

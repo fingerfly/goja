@@ -4,6 +4,7 @@ import * as captureDateOverlay from '../../js/capture-date-overlay.js';
 import * as imageEffects from '../../js/image-effects.js';
 import * as unifiedCanvasPipeline from '../../js/unified-canvas-pipeline.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from '../../js/export-handler.js';
+import { EXPORT_WORKER_TIMEOUT_MS } from '../../js/config.js';
 
 const mockGradient = { addColorStop: vi.fn() };
 const mockCtx = {
@@ -304,6 +305,42 @@ describe('handleExport', () => {
     } finally {
       globalThis.Image = origImage;
       spy.mockRestore();
+    }
+  });
+
+  it('falls back to main thread when worker export times out', async () => {
+    const photos = [{ url: 'blob:valid-url', width: 100, height: 100 }];
+    const layout = makeLayout();
+    const origWorker = globalThis.Worker;
+    const origOffscreenCanvas = globalThis.OffscreenCanvas;
+    const origCreateImageBitmap = globalThis.createImageBitmap;
+
+    globalThis.Worker = class {
+      postMessage() {}
+      terminate() {}
+    };
+    globalThis.OffscreenCanvas = class {};
+    globalThis.createImageBitmap = vi.fn();
+
+    const origImage = globalThis.Image;
+    globalThis.Image = class {
+      set src(_) { setTimeout(() => this.onload && this.onload(), 0); }
+      get naturalWidth() { return 100; }
+      get naturalHeight() { return 100; }
+    };
+
+    vi.useFakeTimers();
+    try {
+      const exportPromise = handleExport(photos, layout);
+      await vi.advanceTimersByTimeAsync(EXPORT_WORKER_TIMEOUT_MS);
+      const blob = await exportPromise;
+      expect(blob).toBeInstanceOf(Blob);
+    } finally {
+      vi.useRealTimers();
+      globalThis.Worker = origWorker;
+      globalThis.OffscreenCanvas = origOffscreenCanvas;
+      globalThis.createImageBitmap = origCreateImageBitmap;
+      globalThis.Image = origImage;
     }
   });
 

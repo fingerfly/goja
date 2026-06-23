@@ -26,6 +26,7 @@ import {
   OUTSIDE_BACKGROUND_COLOR_DEFAULT,
   CELL_SHAPE_TEMPLATE_DEFAULT,
   CELL_SHAPE_ORIENTATION_DEFAULT,
+  EXPORT_WORKER_TIMEOUT_MS,
 } from './config.js';
 
 /**
@@ -119,17 +120,31 @@ function exportViaWorker(photos, layout, options) {
   return new Promise((resolve, reject) => {
     const blobUrls = photos.map((p) => p.url);
     const angles = photos.map((p) => p.angle || 0);
-    const worker = new Worker(new URL('./export-worker.js', import.meta.url), { type: 'module' });
+    let worker;
+    let settled = false;
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      worker?.terminate();
+      fn(value);
+    };
+    const timer = setTimeout(
+      () => finish(reject, new Error('Export timed out')),
+      EXPORT_WORKER_TIMEOUT_MS
+    );
+    worker = new Worker(new URL('./export-worker.js', import.meta.url), { type: 'module' });
     worker.onmessage = (e) => {
-      worker.terminate();
-      if (e.data.error) reject(new Error(e.data.error));
-      else resolve(e.data.blob);
+      if (e.data?.error) finish(reject, new Error(e.data.error));
+      else finish(resolve, e.data.blob);
     };
-    worker.onerror = () => {
-      worker.terminate();
-      reject(new Error('Worker failed'));
-    };
-    worker.postMessage({ layout, options, blobUrls, angles });
+    worker.onerror = () => finish(reject, new Error('Worker failed'));
+    worker.onmessageerror = () => finish(reject, new Error('Worker message failed'));
+    try {
+      worker.postMessage({ layout, options, blobUrls, angles });
+    } catch (err) {
+      finish(reject, err instanceof Error ? err : new Error(String(err)));
+    }
   });
 }
 

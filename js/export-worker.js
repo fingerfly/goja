@@ -29,7 +29,13 @@ self.onmessage = async (e) => {
   const { layout, options, blobUrls, angles = [] } = e.data;
   try {
     const photoOrder = layout.photoOrder || blobUrls.map((_, i) => i);
-    const blobs = await Promise.all(blobUrls.map((url) => fetch(url).then((r) => r.blob())));
+    const blobs = await Promise.all(blobUrls.map(async (url, i) => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to load photo ${i + 1}`);
+      }
+      return response.blob();
+    }));
     const bitmaps = await Promise.all(blobs.map((b) => createImageBitmap(b)));
 
     const { backgroundColor = '#ffffff', format = 'image/jpeg', fitMode = 'cover',
