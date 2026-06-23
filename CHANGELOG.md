@@ -2,8 +2,33 @@
 
 ## [Unreleased]
 
+## [10.2.1] - 2026-06-23
+
+
 ## [10.2.0] - 2026-06-23
 
+### Added
+
+- **Watermark tint color**: users can now set an explicit tint color for watermark
+  text via a color picker in Settings. When no color is chosen, the watermark
+  falls back to luminance-based auto-detection (white on dark backgrounds, black
+  on light backgrounds). The color control uses the existing `<input type="color">`
+  pattern consistent with other Goja color options.
+- **Tile spacing control**: a range slider (0.1–0.5 ratio of canvas width) adjusts
+  the density of repeated watermark text when position is set to "tiled". This
+  replaces the previously hardcoded spacing ratio.
+- **Tile rotation control**: a range slider (-90° to 90°) adjusts the angle of
+  each tiled watermark instance. This replaces the previously hardcoded -30°
+  rotation value.
+- Tile spacing and rotation controls are conditionally visible only when watermark
+  type is not "none" and position is set to "tiled".
+- All six locale dictionaries updated with `watermarkColor`, `watermarkTileSpacing`,
+  and `watermarkTileRotation` keys (en, zh-Hans, zh-Hant, es, ja, eo).
+
+### Tests
+
+- `npm test` (`461` passed).
+- `npm run test:e2e` (`73` passed; 1 pre-existing flaky touch-menu timeout).
 
 ## [10.1.9] - 2026-06-22
 

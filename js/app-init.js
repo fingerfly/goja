@@ -167,7 +167,7 @@ function resetControls(rootEl) {
 export function initApp(refs, stateRef, handlers, frameInput, deps) {
   const {
     dropZone, fileInput, addBtn, gapSlider, bgColor, frameW, frameH, imageFit, templateSelect,
-    exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmColorGroup, wmTileOptionsGroup,
+    exportBtn, clearBtn, wmType, wmPosGroup, wmOpacityGroup, wmFontSizeGroup, wmTextGroup, wmColor, wmColorGroup, wmTileOptionsGroup,
     wmPos, wmOpacity, wmFontSize, wmText, wmTileSpacing, wmTileRotation, showCaptureDate, captureDateOptionsGroup,
     vignetteEnabled, vignetteOptionsGroup, filterPreset, vignetteStrength, captureDatePos,
     captureDateOpacity, captureDateFontSize, edgeStyle, edgeIntensity, edgeIntensityInput, edgeFrequency, edgeSeed,
