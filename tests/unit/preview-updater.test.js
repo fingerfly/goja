@@ -79,8 +79,8 @@ describe('createPreviewUpdater', () => {
     );
   });
 
-  it('updatePreview keeps export disabled while export is in progress', async () => {
-    vi.spyOn(exportFlow, 'isExportInProgress').mockReturnValue(true);
+  it('updatePreview keeps export disabled while export is rendering', async () => {
+    vi.spyOn(exportFlow, 'isExportRendering').mockReturnValue(true);
     stateRef.photos = [{ url: 'blob:1', width: 100, height: 100 }];
     const updater = createPreviewUpdater(stateRef, refs, deps);
     await updater.updatePreview();

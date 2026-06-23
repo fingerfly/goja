@@ -15,6 +15,9 @@ let exportInProgress = false;
 /** @type {'idle' | 'rendering' | 'options'} */
 let exportPhase = 'idle';
 
+/** Invalidates in-flight render when user starts a new export. */
+let exportGeneration = 0;
+
 /**
  * Clear a stuck export UI state (e.g. iOS tab switch before dismiss ran).
  * @param {{ photos: { url: string }[] }} state
@@ -29,17 +32,20 @@ export function recoverStuckExportState(state, updateActionButtons) {
  * @param {{ photos: { url: string }[] }} state
  * @param {(count: number, isExporting: boolean) => void} updateActionButtons
  */
-export function ensureExportUiIdle(state, updateActionButtons) {
+export function ensureExportUiIdle(state, updateActionButtons, options = {}) {
+  const { force = false } = options;
   const sheetOpen = isExportOptionsOpen();
   if (sheetOpen) {
     dismissExportOptions(false, {
       notify: exportInProgress && exportPhase === 'options',
     });
   }
-  if (exportInProgress && exportPhase !== 'rendering') {
-    exportInProgress = false;
-    exportPhase = 'idle';
-    updateActionButtons(state.photos.length, false);
+  if (force || (exportInProgress && exportPhase !== 'rendering')) {
+    if (exportInProgress || sheetOpen) {
+      exportInProgress = false;
+      exportPhase = 'idle';
+      updateActionButtons(state.photos.length, false);
+    }
   } else if (sheetOpen) {
     updateActionButtons(state.photos.length, false);
   }
@@ -57,15 +63,19 @@ export function installExportPageLifecycle(getState, updateActionButtons) {
     const state = getState();
     const needsRecover = event?.persisted
       || isExportOptionsOpen()
-      || (exportInProgress && exportPhase !== 'rendering');
+      || exportInProgress;
     if (needsRecover) {
-      ensureExportUiIdle(state, updateActionButtons);
+      ensureExportUiIdle(state, updateActionButtons, { force: true });
     }
   };
   const syncOnHide = () => {
-    if (exportPhase === 'options' || isExportOptionsOpen()) {
-      ensureExportUiIdle(getState(), updateActionButtons);
+    if (exportInProgress || isExportOptionsOpen()) {
+      ensureExportUiIdle(getState(), updateActionButtons, { force: true });
     }
+  };
+  const syncOnFocus = () => {
+    if (!exportInProgress && !isExportOptionsOpen()) return;
+    ensureExportUiIdle(getState(), updateActionButtons, { force: true });
   };
   const onVisibility = () => {
     if (document.visibilityState === 'hidden') {
@@ -77,10 +87,12 @@ export function installExportPageLifecycle(getState, updateActionButtons) {
   document.addEventListener('visibilitychange', onVisibility);
   window.addEventListener('pageshow', syncOnShow);
   window.addEventListener('pagehide', syncOnHide);
+  window.addEventListener('focus', syncOnFocus);
   return () => {
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('pageshow', syncOnShow);
     window.removeEventListener('pagehide', syncOnHide);
+    window.removeEventListener('focus', syncOnFocus);
   };
 }
 
@@ -100,9 +112,11 @@ export async function runExport(refs, state, deps) {
     updateActionButtons, updatePreview } = deps;
 
   if (exportInProgress && exportPhase === 'rendering') {
-    return;
+    exportGeneration += 1;
   }
-  ensureExportUiIdle(state, updateActionButtons);
+  const generation = exportGeneration + 1;
+  exportGeneration = generation;
+  ensureExportUiIdle(state, updateActionButtons, { force: true });
 
   exportInProgress = true;
   exportPhase = 'rendering';
@@ -120,6 +134,9 @@ export async function runExport(refs, state, deps) {
     const form = buildForm(true);
     const opts = getGridEffectsOptions(form, photos, formatDateTimeOriginal, getLocale);
     const blob = await handleExport(photos, currentLayout, opts);
+    if (generation !== exportGeneration) {
+      return;
+    }
     if (!(blob instanceof Blob) || blob.size === 0) {
       throw new Error('Export produced no image data');
     }
@@ -170,14 +187,25 @@ export async function runExport(refs, state, deps) {
       throw new Error('Export options UI unavailable');
     }
   } catch (err) {
+    if (generation !== exportGeneration) {
+      return;
+    }
     showToast(`${t('exportFailed')} — ${err?.message ?? String(err)}`, 'error');
   } finally {
+    if (generation !== exportGeneration) {
+      return;
+    }
     if (!sheetOpened) {
       exportInProgress = false;
       exportPhase = 'idle';
       updateActionButtons(state.photos.length, false);
     }
   }
+}
+
+/** @returns {boolean} Whether canvas export is actively rendering. */
+export function isExportRendering() {
+  return exportInProgress && exportPhase === 'rendering';
 }
 
 /** @returns {boolean} Whether an export run is active (sheet open or rendering). */
@@ -195,4 +223,5 @@ export function cancelExportFlow() {
 export function resetExportInProgressForTests() {
   exportInProgress = false;
   exportPhase = 'idle';
+  exportGeneration = 0;
 }

@@ -29,7 +29,54 @@ import {
   CELL_SHAPE_TEMPLATE_DEFAULT,
   CELL_SHAPE_ORIENTATION_DEFAULT,
   EXPORT_WORKER_TIMEOUT_MS,
+  EXPORT_IMAGE_LOAD_TIMEOUT_MS,
 } from './config.js';
+
+/**
+ * Reject when a promise does not settle within the given time.
+ * @template T
+ * @param {Promise<T>} promise
+ * @param {number} timeoutMs
+ * @param {string} message
+ * @returns {Promise<T>}
+ */
+function withTimeout(promise, timeoutMs, message) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(message)),
+      timeoutMs
+    );
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+}
+
+/**
+ * Load one photo for export with a bounded wait.
+ * @param {string} url
+ * @param {number} index
+ * @returns {Promise<HTMLImageElement>}
+ */
+function loadExportImage(url, index) {
+  return withTimeout(
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load photo ${index + 1}`));
+      img.src = url;
+    }),
+    EXPORT_IMAGE_LOAD_TIMEOUT_MS,
+    `Photo ${index + 1} load timed out`
+  );
+}
 
 /**
  * Render and export on the main thread.
@@ -59,15 +106,9 @@ function exportMainThread(photos, layout, options) {
   const canvas = createGridCanvas(layout, { backgroundColor: bg });
   const ctx = canvas.getContext('2d');
 
-  return Promise.all(photos.map((p, i) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error(`Failed to load photo ${i + 1}`));
-      img.src = p.url;
-    });
-  })).then((imgElements) => {
-    renderUnifiedCanvas(ctx, imgElements, layout, {
+  return withTimeout(
+    Promise.all(photos.map((p, i) => loadExportImage(p.url, i))).then((imgElements) => {
+      renderUnifiedCanvas(ctx, imgElements, layout, {
       fitMode,
       backgroundColor: bg,
       filter,
@@ -109,8 +150,11 @@ function exportMainThread(photos, layout, options) {
         captureDateStr: dateOriginals[photoOrder[drawOptions.cellIndex]],
       });
     });
-    return exportCanvasAsBlob(canvas, format);
-  });
+      return exportCanvasAsBlob(canvas, format);
+    }),
+    EXPORT_WORKER_TIMEOUT_MS,
+    'Export timed out'
+  );
 }
 
 /**

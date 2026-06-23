@@ -3,6 +3,7 @@ import {
   runExport,
   resetExportInProgressForTests,
   isExportInProgress,
+  isExportRendering,
   recoverStuckExportState,
   installExportPageLifecycle,
 } from '../../js/export-flow.js';
@@ -91,16 +92,23 @@ describe('runExport', () => {
     expect(call[1]).toBe('etcpasswd');
   });
 
-  it('ignores concurrent export while one is in progress', async () => {
-    let resolveExport;
-    deps.handleExport.mockReturnValue(new Promise((resolve) => {
-      resolveExport = resolve;
-    }));
-    deps.showExportOptions.mockImplementation(() => true);
+  it('cancels hung render and starts a new export on second click', async () => {
+    let resolveFirst;
+    let callCount = 0;
+    deps.handleExport.mockImplementation(() => {
+      callCount += 1;
+      if (callCount === 1) {
+        return new Promise((resolve) => {
+          resolveFirst = resolve;
+        });
+      }
+      return Promise.resolve(new Blob(['x'], { type: 'image/jpeg' }));
+    });
+    deps.showExportOptions.mockReturnValue(true);
     const first = runExport(refs, state, deps);
     await runExport(refs, state, deps);
-    expect(deps.handleExport).toHaveBeenCalledTimes(1);
-    resolveExport(new Blob(['x'], { type: 'image/jpeg' }));
+    expect(deps.handleExport).toHaveBeenCalledTimes(2);
+    resolveFirst(new Blob(['x'], { type: 'image/jpeg' }));
     await first;
   });
 
@@ -217,5 +225,25 @@ describe('runExport', () => {
     expect(document.getElementById('exportOptionsBackdrop').classList.contains('open'))
       .toBe(false);
     teardown();
+  });
+
+  it('installExportPageLifecycle clears stuck state on window focus', async () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop" class="open"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    window.dispatchEvent(new Event('focus'));
+    expect(isExportInProgress()).toBe(false);
+    teardown();
+  });
+
+  it('isExportRendering is false while options sheet is open', async () => {
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    expect(isExportInProgress()).toBe(true);
+    expect(isExportRendering()).toBe(false);
   });
 });

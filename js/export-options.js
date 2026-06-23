@@ -159,8 +159,9 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
   openTabBtn.onclick = (event) => {
     event?.preventDefault?.();
     event?.stopPropagation?.();
+    const openTab = callbacks.onOpenInNewTab;
     handleClose(false);
-    setTimeout(() => callbacks.onOpenInNewTab?.(), 0);
+    openTab?.();
   };
 
   backdropEl.addEventListener('click', () => handleClose());

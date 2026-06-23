@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [10.2.11] - 2026-06-24
+
+### Fixed
+
+- **iOS export stuck after in-app back (`<`) — pass 2**: The options
+  sheet kept the export guard active, so the top-bar Export button stayed
+  on 「导出中…」 and disabled while the gray backdrop remained — recovery
+  clicks never reached `runExport`. Only the rendering phase now disables
+  Export (`isExportRendering`); the options sheet shows the normal
+  「导出」 label again.
+- **Open-in-new-tab on iOS**: Removed `setTimeout(0)` before
+  `window.open` so dismiss runs synchronously and the user-gesture chain
+  is preserved when Safari opens the preview.
+- **Overlay return without pagehide**: Added `window` `focus` recovery
+  when the page was frozen under an in-app browser overlay (no
+  `visibilitychange` / `pagehide`).
+- **Hung second export**: Main-thread export now times out (60s) and
+  each photo load is bounded (30s). A second Export click cancels a
+  stale in-flight render via a generation token.
+
+### Tests
+
+- `npm test` (527 passed).
+- `npm run test:e2e` (81 passed).
+
 ## [10.2.10] - 2026-06-24
 
 ### Fixed
