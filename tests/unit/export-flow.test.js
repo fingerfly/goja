@@ -1,16 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('../../js/export-open-target.js', () => ({
-  shouldUseInAppBlobPreview: vi.fn(() => false),
-}));
+vi.mock('../../js/export-pwa-preview.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    shouldUseInAppBlobPreview: vi.fn(() => false),
+  };
+});
 
-import { shouldUseInAppBlobPreview } from '../../js/export-open-target.js';
+import { shouldUseInAppBlobPreview } from '../../js/export-pwa-preview.js';
 import {
   runExport,
   resetExportInProgressForTests,
   isExportInProgress,
   isExportRendering,
-  recoverStuckExportState,
   forceExportUiReset,
   getExportPhase,
 } from '../../js/export-flow.js';
@@ -204,7 +207,7 @@ describe('runExport', () => {
     deps.showExportOptions.mockReturnValue(true);
     await runExport(refs, state, deps);
     expect(isExportInProgress()).toBe(true);
-    recoverStuckExportState(state, deps.updateActionButtons);
+    forceExportUiReset(state, deps.updateActionButtons);
     expect(isExportInProgress()).toBe(false);
     expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
     await runExport(refs, state, deps);

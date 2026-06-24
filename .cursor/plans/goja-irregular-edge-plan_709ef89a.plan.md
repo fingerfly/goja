@@ -1,6 +1,6 @@
 ---
 name: goja-advanced-irregular-edge-rollout-plan
-overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-15, and execute active Wave 17 iOS export recovery (rev69..rev76) with source-of-truth governance, function-complexity guardrails, and validated release evidence.
+overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-17, with Wave 17 iOS export recovery closed (user PWA sign-off 2026-06-24).
 todos:
   - id: phase0-modular-baseline
     content: Extract thin adapters/helpers first so each touched JS module can comply with SLOC<100 before feature logic lands.
@@ -291,9 +291,10 @@ isProject: false
 ## Active Execution Window
 
 - Frontmatter `todos` includes historical completed waves for traceability.
-- Current executable window is **Wave 17 only**: `rev69..rev76`.
-- Child plan:
-  [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md).
+- Current executable window: **none active** — Wave 17 closed 2026-06-24.
+- Last completed wave:
+  [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md)
+  (rev69–rev77).
 - Wave 15 (`rev64..rev68`) is shipped through **10.2.11**; Wave 16 is
   deferred (production monitoring).
 - Wave 14 (`rev59..rev63`) is completed; supplemental Wave 14 notes are
@@ -303,8 +304,8 @@ isProject: false
 - Wave 12 (`rev49..rev52`) is completed and retained as release evidence history.
 - Wave 11 (`rev44..rev48`) is completed and retained as release evidence history.
 - Wave 10B (`rev40..rev43`) is completed and retained as release evidence history.
-- If any historical todo text conflicts with active Wave 17 policy, Wave 17
-  policy takes precedence.
+- If any historical todo text conflicts with completed Wave 17 policy, Wave 17
+  closeout record takes precedence.
 - Before any new wave execution, synchronize frontmatter todo statuses with latest validated test evidence to avoid stale gating decisions.
 - Any historical mentions of `regular-hexagon`/`regular-nonagon`/`regular-triangle` are archival traceability only and must not be interpreted as active user-facing shape options under Wave 14.
 
@@ -1725,12 +1726,12 @@ For planning/verification, `rev34` is only considered complete when all items be
 
 ### Wave 17 Status
 
-- Status: **10.2.12 lifecycle fixes deployed; pass 3 in-app PWA preview ready
-  locally — user PWA retest pending (rev75) before next deploy**.
+- Status: **Closed — user iPhone PWA sign-off recorded (2026-06-24)**.
 - Child plan:
   [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md)
-- Automated evidence (pass 3 local): `npm test` 542 passed,
-  `npm run test:e2e` 82 passed.
-- User evidence (2026-06-24): Win11 Chrome OK, iPhone Chrome OK, **iPhone PWA
-  still broken on 10.2.12** — root cause: `window.open` overlay return fires no
-  lifecycle events; fix routes iOS PWA to in-app preview instead.
+- Shipped fix: pass 3 in-app PWA preview (`export-pwa-preview.js`); lifecycle
+  hardening in 10.2.12; final resolution confirmed on home-screen PWA.
+- Automated evidence: `npm test` 541 passed, `npm run test:e2e` 82 passed.
+- Manual evidence: Win11 Chrome OK, iPhone Chrome OK, iPhone PWA OK.
+- Cleanup (rev78): removed obsolete PWA overlay recovery; in-app preview is
+  the sole PWA path; lifecycle covers browser tabs only.

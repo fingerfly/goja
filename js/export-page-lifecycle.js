@@ -1,104 +1,12 @@
 /**
- * Purpose: Recover export UI after iOS Safari lifecycle transitions.
+ * Purpose: Recover export UI after tab lifecycle transitions.
  * Description:
- * - Listens for pageshow/pagehide, visibility, focus, freeze/resume.
- * - Arms touch/pointer recovery when PWA open-in-new-tab may skip events.
- * - Delegates hard reset to export-flow forceExportUiReset.
+ * - Resets orphan sheet/backdrop on bfcache pageshow, pagehide, and iOS focus.
+ * - iOS PWA preview uses in-app overlay; this covers browser tab edge cases.
  */
 import { isIosLikeDevice } from './export-handler.js';
-import {
-  isStandaloneDisplayMode,
-  isIosStandaloneWebApp,
-} from './display-mode.js';
 
 const IOS_FOCUS_DEBOUNCE_MS = 75;
-const INTERACTION_RECOVERY_MS = 120000;
-
-/** Set when open-in-new-tab runs in iOS PWA (overlay return may skip pagehide). */
-let awaitingPwaExportReturn = false;
-
-let lifecycleGetState = null;
-let lifecycleUpdateButtons = null;
-let lifecycleAdapters = null;
-let interactionTeardown = null;
-let interactionTimer = null;
-
-function isIosPwaContext() {
-  return isIosLikeDevice()
-    && (isStandaloneDisplayMode() || isIosStandaloneWebApp());
-}
-
-function disarmInteractionRecovery() {
-  if (interactionTimer) {
-    clearTimeout(interactionTimer);
-    interactionTimer = null;
-  }
-  if (interactionTeardown) {
-    interactionTeardown();
-    interactionTeardown = null;
-  }
-}
-
-/**
- * Mark that the user may return from an in-app preview overlay (iOS PWA).
- */
-export function markAwaitingPwaExportReturn() {
-  if (!isIosPwaContext()) return;
-  awaitingPwaExportReturn = true;
-  armInteractionRecovery();
-}
-
-function armInteractionRecovery() {
-  if (!lifecycleGetState || !lifecycleUpdateButtons || !lifecycleAdapters) {
-    return;
-  }
-  disarmInteractionRecovery();
-
-  const { forceExportUiReset, isExportInProgress, isExportOptionsOpen } =
-    lifecycleAdapters;
-
-  const reset = () => {
-    forceExportUiReset(lifecycleGetState(), lifecycleUpdateButtons);
-    requestAnimationFrame(() => {
-      forceExportUiReset(lifecycleGetState(), lifecycleUpdateButtons);
-    });
-  };
-
-  const tryRecover = () => {
-    if (!awaitingPwaExportReturn
-      && !isExportInProgress()
-      && !isExportOptionsOpen()) {
-      return;
-    }
-    awaitingPwaExportReturn = false;
-    reset();
-    disarmInteractionRecovery();
-  };
-
-  const onTouch = () => tryRecover();
-  const onFocus = () => tryRecover();
-
-  document.addEventListener('touchstart', onTouch, { capture: true, passive: true });
-  document.addEventListener('pointerdown', onTouch, { capture: true, passive: true });
-  window.addEventListener('focus', onFocus, { capture: true });
-
-  interactionTeardown = () => {
-    document.removeEventListener('touchstart', onTouch, { capture: true });
-    document.removeEventListener('pointerdown', onTouch, { capture: true });
-    window.removeEventListener('focus', onFocus, { capture: true });
-  };
-
-  interactionTimer = setTimeout(() => {
-    awaitingPwaExportReturn = false;
-    disarmInteractionRecovery();
-  }, INTERACTION_RECOVERY_MS);
-}
-
-/** @internal Resets PWA return flag for unit tests. */
-export function resetAwaitingPwaExportReturnForTests() {
-  awaitingPwaExportReturn = false;
-  disarmInteractionRecovery();
-}
 
 /**
  * @param {() => { photos: { url: string }[] }} getState
@@ -116,10 +24,6 @@ export function installExportPageLifecycle(
   updateActionButtons,
   adapters
 ) {
-  lifecycleGetState = getState;
-  lifecycleUpdateButtons = updateActionButtons;
-  lifecycleAdapters = adapters;
-
   const {
     forceExportUiReset,
     isExportInProgress,
@@ -131,73 +35,44 @@ export function installExportPageLifecycle(
     forceExportUiReset(getState(), updateActionButtons, options);
   };
 
-  const isIosPwa = () => isIosPwaContext();
-
   const doubleReset = () => {
     reset();
     requestAnimationFrame(() => reset());
   };
 
-  const recoverPwaReturn = () => {
-    if (!awaitingPwaExportReturn) return false;
-    awaitingPwaExportReturn = false;
-    disarmInteractionRecovery();
-    doubleReset();
-    return true;
-  };
-
   const syncOnShow = (event) => {
     if (document.visibilityState !== 'visible') return;
-    if (recoverPwaReturn()) return;
-
-    const orphanDom = isExportOptionsOpen();
-    const activeExport = isExportInProgress();
-    const pwaReturn = isIosPwa();
-    const needsRecover = event?.persisted || orphanDom || activeExport;
+    const needsRecover = event?.persisted
+      || isExportOptionsOpen()
+      || isExportInProgress();
     if (!needsRecover) return;
-
-    reset();
-    if (event?.persisted || (pwaReturn && (orphanDom || activeExport))) {
-      requestAnimationFrame(() => reset());
+    if (event?.persisted) {
+      doubleReset();
+    } else {
+      reset();
     }
   };
 
   const syncOnHide = () => {
     if (!isExportInProgress() && !isExportOptionsOpen()) return;
-    reset({
-      notifyDismiss: getExportPhase() === 'options',
-    });
+    reset({ notifyDismiss: getExportPhase() === 'options' });
   };
 
   let focusTimer = null;
   const syncOnFocus = () => {
     if (!isIosLikeDevice()) return;
-    if (recoverPwaReturn()) return;
     if (!isExportInProgress() && !isExportOptionsOpen()) return;
     clearTimeout(focusTimer);
-    focusTimer = setTimeout(() => {
-      if (isIosPwa()) {
-        doubleReset();
-      } else {
-        reset();
-      }
-    }, IOS_FOCUS_DEBOUNCE_MS);
+    focusTimer = setTimeout(() => reset(), IOS_FOCUS_DEBOUNCE_MS);
   };
 
   const syncOnFreeze = () => {
     if (!isExportInProgress() && !isExportOptionsOpen()) return;
-    reset({
-      notifyDismiss: getExportPhase() === 'options',
-    });
+    reset({ notifyDismiss: getExportPhase() === 'options' });
   };
 
   const syncOnResume = () => {
-    if (recoverPwaReturn()) return;
     if (!isExportInProgress() && !isExportOptionsOpen()) return;
-    if (isIosPwa()) {
-      doubleReset();
-      return;
-    }
     reset();
   };
 
@@ -218,11 +93,6 @@ export function installExportPageLifecycle(
 
   return () => {
     clearTimeout(focusTimer);
-    awaitingPwaExportReturn = false;
-    disarmInteractionRecovery();
-    lifecycleGetState = null;
-    lifecycleUpdateButtons = null;
-    lifecycleAdapters = null;
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('pageshow', syncOnShow);
     window.removeEventListener('pagehide', syncOnHide);

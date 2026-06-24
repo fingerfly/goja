@@ -4,8 +4,18 @@
  * - Avoids window.open navigation that orphan export UI on back.
  * - Revokes blob URL on close; Escape and close button dismiss.
  */
+import { isIosLikeDevice } from './export-handler.js';
+import { isStandaloneDisplayMode } from './display-mode.js';
 
 let activeCleanup = null;
+
+/**
+ * True when blob preview must stay in the PWA webview (iOS home screen).
+ * @returns {boolean}
+ */
+export function shouldUseInAppBlobPreview() {
+  return isIosLikeDevice() && isStandaloneDisplayMode();
+}
 
 /** @returns {boolean} */
 export function isExportPwaPreviewOpen() {

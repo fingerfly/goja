@@ -4,15 +4,16 @@
  */
 import { EXPORT_URL_REVOKE_DELAY_MS, EXPORT_FILENAME_DEFAULT } from './config.js';
 import { sanitizeFilename } from './utils.js';
-import { markAwaitingPwaExportReturn } from './export-page-lifecycle.js';
-import { shouldUseInAppBlobPreview } from './export-open-target.js';
-import { openExportPwaPreview } from './export-pwa-preview.js';
+import {
+  shouldUseInAppBlobPreview,
+  openExportPwaPreview,
+  closeExportPwaPreview,
+} from './export-pwa-preview.js';
 import {
   dismissExportOptions,
   isExportOptionsOpen,
   forceCloseExportOptionsDom,
 } from './export-options.js';
-import { closeExportPwaPreview } from './export-pwa-preview.js';
 
 /** Guards concurrent export runs (double-click, frame-clamp await window). */
 let exportInProgress = false;
@@ -22,15 +23,6 @@ let exportPhase = 'idle';
 
 /** Invalidates in-flight render when user starts a new export. */
 let exportGeneration = 0;
-
-/**
- * Clear a stuck export UI state (e.g. iOS tab switch before dismiss ran).
- * @param {{ photos: { url: string }[] }} state
- * @param {(count: number, isExporting: boolean) => void} updateActionButtons
- */
-export function recoverStuckExportState(state, updateActionButtons) {
-  forceExportUiReset(state, updateActionButtons);
-}
 
 /**
  * Idempotent hard reset: DOM sheet/backdrop + export guard + action buttons.
@@ -148,7 +140,6 @@ export async function runExport(refs, state, deps) {
           });
           return;
         }
-        markAwaitingPwaExportReturn();
         const url = URL.createObjectURL(blob);
         const opened = window.open(url, '_blank', 'noopener');
         if (!opened) {

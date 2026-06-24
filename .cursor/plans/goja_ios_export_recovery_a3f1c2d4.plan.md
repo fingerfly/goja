@@ -51,12 +51,23 @@ todos:
       Document and execute manual iPhone matrix (open-in-new-tab + in-app
       back, Share sheet return, second export, PWA vs Safari tab); record pass
       evidence before closeout.
-    status: pending
+    status: completed
   - id: rev76-validation-gate-changelog
     content: >-
       Full npm test + test:e2e; cloc on touched JS; CHANGELOG [Unreleased];
       version bump only after user confirms iPhone pass.
-    status: in_progress
+    status: completed
+  - id: rev77-ios-pwa-in-app-preview
+    content: >-
+      iOS PWA standalone uses in-app full-screen blob preview instead of
+      window.open; export-pwa-preview.js with shouldUseInAppBlobPreview.
+    status: completed
+  - id: rev78-export-recovery-cleanup
+    content: >-
+      Remove obsolete markAwaitingPwaExportReturn, interaction recovery,
+      export-open-target.js, recoverStuckExportState; merge standalone
+      detection; simplify export-page-lifecycle for browser tabs.
+    status: completed
 isProject: false
 ---
 
