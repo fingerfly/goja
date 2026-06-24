@@ -165,7 +165,7 @@ describe('showExportOptions', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it('open in new tab dismisses sheet before invoking callback', () => {
+  it('open in new tab dismisses sheet before invoking callback', async () => {
     vi.stubGlobal('navigator', { canShare: vi.fn(() => false), clipboard: undefined });
     const order = [];
     const onOpenInNewTab = vi.fn(() => order.push('open'));
@@ -176,6 +176,8 @@ describe('showExportOptions', () => {
     document.getElementById('exportOptionOpenInNewTab').click();
     expect(isExportOptionsOpen()).toBe(false);
     expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(order).toEqual(['dismiss']);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(onOpenInNewTab).toHaveBeenCalledTimes(1);
     expect(order).toEqual(['dismiss', 'open']);
   });

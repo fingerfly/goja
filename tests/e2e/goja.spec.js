@@ -142,6 +142,30 @@ test.describe('Goja App', () => {
     await expect(page.locator('#exportOptionDownload')).toBeVisible();
   });
 
+  test('export recovers after bfcache persisted pageshow following open in new tab', async ({ page, context }) => {
+    const fileInput = page.locator('#fileInput');
+    await fileInput.setInputFiles([
+      path.join(fixtures, 'landscape.jpg'),
+      path.join(fixtures, 'portrait.jpg'),
+    ]);
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/);
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator('#exportOptionOpenInNewTab').click(),
+    ]);
+    await newPage.close();
+    await page.evaluate(() => {
+      document.getElementById('exportOptionsBackdrop')?.classList.add('open');
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+    });
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(r)));
+    await expect(page.locator('#exportOptionsBackdrop')).not.toHaveClass(/open/);
+    await expect(page.locator('#exportBtn')).toBeEnabled();
+    await page.locator('#exportBtn').click();
+    await expect(page.locator('#exportOptionsSheet')).toHaveClass(/open/, { timeout: 15000 });
+  });
+
   test('export download option triggers download and toast', async ({ page }) => {
     const fileInput = page.locator('#fileInput');
     await fileInput.setInputFiles([

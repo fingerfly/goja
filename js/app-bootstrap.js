@@ -12,8 +12,9 @@ import { readImageDimensions, debounce } from './utils.js';
 import { loadPhotos as loadPhotosFromFiles } from './photo-loader.js';
 import { readDateTimeOriginal, formatDateTimeOriginal } from './exif.js';
 import { handleExport, downloadBlob, shareBlob, copyBlobToClipboard } from './export-handler.js';
-import { runExport, cancelExportFlow, installExportPageLifecycle } from './export-flow.js';
-import { dismissExportOptions } from './export-options.js';
+import { runExport, cancelExportFlow, forceExportUiReset, isExportInProgress, getExportPhase } from './export-flow.js';
+import { dismissExportOptions, isExportOptionsOpen } from './export-options.js';
+import { installExportPageLifecycle } from './export-page-lifecycle.js';
 import { buildFormFromRefs, getGridEffectsOptions } from './grid-effects-settings.js';
 import { renderGrid } from './preview-renderer.js';
 import { showExportOptions } from './export-options.js';
@@ -133,7 +134,13 @@ export function bootstrap() {
   updateActionButtons(0);
   installExportPageLifecycle(
     () => stateRef,
-    (count, isExporting) => updateActionButtons(count, isExporting)
+    (count, isExporting) => updateActionButtons(count, isExporting),
+    {
+      forceExportUiReset,
+      isExportInProgress,
+      isExportOptionsOpen,
+      getExportPhase,
+    }
   );
   $('#versionLabel').textContent = `v${VERSION_STRING}`;
 

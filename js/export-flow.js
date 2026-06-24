@@ -4,9 +4,11 @@
  */
 import { EXPORT_URL_REVOKE_DELAY_MS, EXPORT_FILENAME_DEFAULT } from './config.js';
 import { sanitizeFilename } from './utils.js';
+import { markAwaitingPwaExportReturn } from './export-page-lifecycle.js';
 import {
   dismissExportOptions,
   isExportOptionsOpen,
+  forceCloseExportOptionsDom,
 } from './export-options.js';
 
 /** Guards concurrent export runs (double-click, frame-clamp await window). */
@@ -24,7 +26,27 @@ let exportGeneration = 0;
  * @param {(count: number, isExporting: boolean) => void} updateActionButtons
  */
 export function recoverStuckExportState(state, updateActionButtons) {
-  ensureExportUiIdle(state, updateActionButtons);
+  forceExportUiReset(state, updateActionButtons);
+}
+
+/**
+ * Idempotent hard reset: DOM sheet/backdrop + export guard + action buttons.
+ * @param {{ photos: { url: string }[] }} state
+ * @param {(count: number, isExporting: boolean) => void} updateActionButtons
+ * @param {{ notifyDismiss?: boolean }} [options]
+ */
+export function forceExportUiReset(state, updateActionButtons, options = {}) {
+  const { notifyDismiss = false } = options;
+  const sheetOpen = isExportOptionsOpen();
+  if (sheetOpen) {
+    dismissExportOptions(false, {
+      notify: notifyDismiss && exportInProgress && exportPhase === 'options',
+    });
+  }
+  forceCloseExportOptionsDom();
+  exportInProgress = false;
+  exportPhase = 'idle';
+  updateActionButtons(state.photos.length, false);
 }
 
 /**
@@ -34,66 +56,18 @@ export function recoverStuckExportState(state, updateActionButtons) {
  */
 export function ensureExportUiIdle(state, updateActionButtons, options = {}) {
   const { force = false } = options;
-  const sheetOpen = isExportOptionsOpen();
-  if (sheetOpen) {
-    dismissExportOptions(false, {
-      notify: exportInProgress && exportPhase === 'options',
+  if (force) {
+    forceExportUiReset(state, updateActionButtons, {
+      notifyDismiss: exportPhase === 'options',
+    });
+    return;
+  }
+  if (exportInProgress && exportPhase === 'rendering') return;
+  if (exportInProgress || isExportOptionsOpen()) {
+    forceExportUiReset(state, updateActionButtons, {
+      notifyDismiss: exportPhase === 'options',
     });
   }
-  if (force || (exportInProgress && exportPhase !== 'rendering')) {
-    if (exportInProgress || sheetOpen) {
-      exportInProgress = false;
-      exportPhase = 'idle';
-      updateActionButtons(state.photos.length, false);
-    }
-  } else if (sheetOpen) {
-    updateActionButtons(state.photos.length, false);
-  }
-}
-
-/**
- * Reset export UI when the page becomes visible after background tab switch.
- * @param {() => { photos: { url: string }[] }} getState
- * @param {(count: number, isExporting: boolean) => void} updateActionButtons
- * @returns {() => void} teardown
- */
-export function installExportPageLifecycle(getState, updateActionButtons) {
-  const syncOnShow = (event) => {
-    if (document.visibilityState !== 'visible') return;
-    const state = getState();
-    const needsRecover = event?.persisted
-      || isExportOptionsOpen()
-      || exportInProgress;
-    if (needsRecover) {
-      ensureExportUiIdle(state, updateActionButtons, { force: true });
-    }
-  };
-  const syncOnHide = () => {
-    if (exportInProgress || isExportOptionsOpen()) {
-      ensureExportUiIdle(getState(), updateActionButtons, { force: true });
-    }
-  };
-  const syncOnFocus = () => {
-    if (!exportInProgress && !isExportOptionsOpen()) return;
-    ensureExportUiIdle(getState(), updateActionButtons, { force: true });
-  };
-  const onVisibility = () => {
-    if (document.visibilityState === 'hidden') {
-      syncOnHide();
-    } else {
-      syncOnShow(undefined);
-    }
-  };
-  document.addEventListener('visibilitychange', onVisibility);
-  window.addEventListener('pageshow', syncOnShow);
-  window.addEventListener('pagehide', syncOnHide);
-  window.addEventListener('focus', syncOnFocus);
-  return () => {
-    document.removeEventListener('visibilitychange', onVisibility);
-    window.removeEventListener('pageshow', syncOnShow);
-    window.removeEventListener('pagehide', syncOnHide);
-    window.removeEventListener('focus', syncOnFocus);
-  };
 }
 
 /**
@@ -161,6 +135,7 @@ export async function runExport(refs, state, deps) {
         );
       },
       onOpenInNewTab: () => {
+        markAwaitingPwaExportReturn();
         const url = URL.createObjectURL(blob);
         const opened = window.open(url, '_blank', 'noopener');
         if (!opened) {
@@ -211,6 +186,11 @@ export function isExportRendering() {
 /** @returns {boolean} Whether an export run is active (sheet open or rendering). */
 export function isExportInProgress() {
   return exportInProgress;
+}
+
+/** @returns {'idle' | 'rendering' | 'options'} Current export phase. */
+export function getExportPhase() {
+  return exportPhase;
 }
 
 /** Clears the export guard without invoking sheet onDismiss (e.g. Clear all). */

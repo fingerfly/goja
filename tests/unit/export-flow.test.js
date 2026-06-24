@@ -5,8 +5,20 @@ import {
   isExportInProgress,
   isExportRendering,
   recoverStuckExportState,
-  installExportPageLifecycle,
+  forceExportUiReset,
+  getExportPhase,
 } from '../../js/export-flow.js';
+import { installExportPageLifecycle } from '../../js/export-page-lifecycle.js';
+import { isExportOptionsOpen } from '../../js/export-options.js';
+
+function lifecycleAdapters(state, updateActionButtons) {
+  return {
+    forceExportUiReset,
+    isExportInProgress,
+    isExportOptionsOpen,
+    getExportPhase,
+  };
+}
 
 describe('runExport', () => {
   let refs;
@@ -199,7 +211,11 @@ describe('runExport', () => {
     `;
     deps.showExportOptions.mockReturnValue(true);
     await runExport(refs, state, deps);
-    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    const teardown = installExportPageLifecycle(
+      () => state,
+      deps.updateActionButtons,
+      lifecycleAdapters(state, deps.updateActionButtons)
+    );
     Object.defineProperty(document, 'visibilityState', {
       configurable: true,
       value: 'visible',
@@ -219,7 +235,11 @@ describe('runExport', () => {
       return true;
     });
     await runExport(refs, state, deps);
-    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    const teardown = installExportPageLifecycle(
+      () => state,
+      deps.updateActionButtons,
+      lifecycleAdapters(state, deps.updateActionButtons)
+    );
     window.dispatchEvent(new PageTransitionEvent('pagehide'));
     expect(isExportInProgress()).toBe(false);
     expect(document.getElementById('exportOptionsBackdrop').classList.contains('open'))
@@ -227,17 +247,28 @@ describe('runExport', () => {
     teardown();
   });
 
-  it('installExportPageLifecycle clears stuck state on window focus', async () => {
+  it('installExportPageLifecycle clears stuck state on window focus on iOS', async () => {
+    vi.stubGlobal('navigator', {
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
+      platform: 'iPhone',
+      maxTouchPoints: 5,
+    });
     document.body.innerHTML = `
       <div id="exportOptionsBackdrop" class="open"></div>
       <aside id="exportOptionsSheet"></aside>
     `;
     deps.showExportOptions.mockReturnValue(true);
     await runExport(refs, state, deps);
-    const teardown = installExportPageLifecycle(() => state, deps.updateActionButtons);
+    const teardown = installExportPageLifecycle(
+      () => state,
+      deps.updateActionButtons,
+      lifecycleAdapters(state, deps.updateActionButtons)
+    );
     window.dispatchEvent(new Event('focus'));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(isExportInProgress()).toBe(false);
     teardown();
+    vi.unstubAllGlobals();
   });
 
   it('isExportRendering is false while options sheet is open', async () => {
@@ -245,5 +276,92 @@ describe('runExport', () => {
     await runExport(refs, state, deps);
     expect(isExportInProgress()).toBe(true);
     expect(isExportRendering()).toBe(false);
+  });
+
+  it('forceExportUiReset clears orphan backdrop when guard is idle', () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop" class="open"></div>
+      <aside id="exportOptionsSheet" class="open"></aside>
+    `;
+    expect(isExportInProgress()).toBe(false);
+    forceExportUiReset(state, deps.updateActionButtons);
+    expect(document.getElementById('exportOptionsBackdrop').classList.contains('open'))
+      .toBe(false);
+    expect(isExportInProgress()).toBe(false);
+    expect(deps.updateActionButtons).toHaveBeenCalledWith(1, false);
+  });
+
+  it('forceExportUiReset is idempotent', () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    forceExportUiReset(state, deps.updateActionButtons);
+    forceExportUiReset(state, deps.updateActionButtons);
+    expect(isExportInProgress()).toBe(false);
+    expect(deps.updateActionButtons).toHaveBeenCalledTimes(2);
+  });
+
+  it('installExportPageLifecycle double-resets on persisted pageshow', async () => {
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop" class="open"></div>
+      <aside id="exportOptionsSheet"></aside>
+    `;
+    deps.showExportOptions.mockReturnValue(true);
+    await runExport(refs, state, deps);
+    const teardown = installExportPageLifecycle(
+      () => state,
+      deps.updateActionButtons,
+      lifecycleAdapters(state, deps.updateActionButtons)
+    );
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+    expect(isExportInProgress()).toBe(false);
+    document.getElementById('exportOptionsBackdrop').classList.add('open');
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.getElementById('exportOptionsBackdrop').classList.contains('open'))
+      .toBe(false);
+    teardown();
+  });
+
+  it('pagehide during options phase runs onDismiss via notifyDismiss', async () => {
+    const { showExportOptions: realShowExportOptions } = await import(
+      '../../js/export-options.js'
+    );
+    let onDismissCalled = false;
+    document.body.innerHTML = `
+      <div id="exportOptionsBackdrop"></div>
+      <aside id="exportOptionsSheet"></aside>
+      <button id="exportOptionDownload"></button>
+      <button id="exportOptionOpenInNewTab"></button>
+      <button id="exportOptionsCloseBtn"></button>
+    `;
+    deps.showExportOptions.mockImplementation((blob, name, fmt, handlers, opts) => realShowExportOptions(
+      blob,
+      name,
+      fmt,
+      handlers,
+      {
+        ...opts,
+        onDismiss: () => {
+          onDismissCalled = true;
+          opts?.onDismiss?.();
+        },
+      }
+    ));
+    await runExport(refs, state, deps);
+    expect(getExportPhase()).toBe('options');
+    const teardown = installExportPageLifecycle(
+      () => state,
+      deps.updateActionButtons,
+      lifecycleAdapters(state, deps.updateActionButtons)
+    );
+    window.dispatchEvent(new PageTransitionEvent('pagehide'));
+    expect(onDismissCalled).toBe(true);
+    expect(isExportInProgress()).toBe(false);
+    teardown();
   });
 });

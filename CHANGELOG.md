@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [10.2.12] - 2026-06-24
+
+
+### Fixed
+
+- **iOS export orphan UI (Wave 17)**: Added idempotent
+  `forceExportUiReset` and `forceCloseExportOptionsDom` so bfcache can no
+  longer leave the export backdrop stuck when JS guard state was cleared.
+  New `export-page-lifecycle.js` double-resets on `pageshow` persisted,
+  proactively tears down the options sheet on `pagehide`/`freeze`, and
+  debounced iOS `focus`/`resume` recovery. Open-in-new-tab defers
+  `window.open` to `requestAnimationFrame` after dismiss so the sheet can
+  paint closed before navigation.
+- **iOS PWA standalone return**: `markAwaitingPwaExportReturn` tracks
+  open-in-new-tab from home-screen PWA where the in-app preview overlay
+  often skips `pagehide`; recovery runs on `visibilitychange`, `focus`, and
+  `resume` with double-pass DOM reset (`display-mode.js`).
+
+### Tests
+
+- `npm test` (535 passed).
+- `npm run test:e2e` (82 passed).
+
 ## [10.2.11] - 2026-06-24
 
 ### Fixed

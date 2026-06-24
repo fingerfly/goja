@@ -33,6 +33,22 @@ export function isExportOptionsOpen() {
 }
 
 /**
+ * Strip open state from export sheet DOM (bfcache orphan recovery).
+ */
+export function forceCloseExportOptionsDom() {
+  const sheetEl = document.getElementById('exportOptionsSheet');
+  const backdropEl = document.getElementById('exportOptionsBackdrop');
+  if (sheetEl) {
+    sheetEl.classList.remove('open');
+    sheetEl.setAttribute('aria-hidden', 'true');
+  }
+  if (backdropEl) {
+    backdropEl.classList.remove('open');
+    backdropEl.setAttribute('aria-hidden', 'true');
+  }
+}
+
+/**
  * Close the export options sheet and run any pending listener cleanup.
  * @param {boolean} [restoreFocus=true]
  * @param {{ notify?: boolean }} [options]
@@ -161,7 +177,9 @@ export function showExportOptions(blob, filename, format, callbacks, options = {
     event?.stopPropagation?.();
     const openTab = callbacks.onOpenInNewTab;
     handleClose(false);
-    openTab?.();
+    requestAnimationFrame(() => {
+      openTab?.();
+    });
   };
 
   backdropEl.addEventListener('click', () => handleClose());

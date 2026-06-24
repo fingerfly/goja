@@ -1,6 +1,6 @@
 ---
 name: goja-advanced-irregular-edge-rollout-plan
-overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-14, and execute active Wave 15 watermark tile controls UX (rev64..rev68) with source-of-truth governance, function-complexity guardrails, and validated release evidence.
+overview: Implement irregular edge and shape features with TDD-first and fast-build-quick-fail delivery, preserve minimal-surprise fallback, retain historical completion of Waves 1-15, and execute active Wave 17 iOS export recovery (rev69..rev76) with source-of-truth governance, function-complexity guardrails, and validated release evidence.
 todos:
   - id: phase0-modular-baseline
     content: Extract thin adapters/helpers first so each touched JS module can comply with SLOC<100 before feature logic lands.
@@ -291,9 +291,11 @@ isProject: false
 ## Active Execution Window
 
 - Frontmatter `todos` includes historical completed waves for traceability.
-- Current executable window is **Wave 15 only**: `rev64..rev68`.
+- Current executable window is **Wave 17 only**: `rev69..rev76`.
 - Child plan:
-  [goja_watermark_tile_controls_ux_b4e8a1f2.plan.md](goja_watermark_tile_controls_ux_b4e8a1f2.plan.md).
+  [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md).
+- Wave 15 (`rev64..rev68`) is shipped through **10.2.11**; Wave 16 is
+  deferred (production monitoring).
 - Wave 14 (`rev59..rev63`) is completed; supplemental Wave 14 notes are
   reference-only.
 - This master plan remains the sole execution authority.
@@ -301,7 +303,7 @@ isProject: false
 - Wave 12 (`rev49..rev52`) is completed and retained as release evidence history.
 - Wave 11 (`rev44..rev48`) is completed and retained as release evidence history.
 - Wave 10B (`rev40..rev43`) is completed and retained as release evidence history.
-- If any historical todo text conflicts with active Wave 15 policy, Wave 15
+- If any historical todo text conflicts with active Wave 17 policy, Wave 17
   policy takes precedence.
 - Before any new wave execution, synchronize frontmatter todo statuses with latest validated test evidence to avoid stale gating decisions.
 - Any historical mentions of `regular-hexagon`/`regular-nonagon`/`regular-triangle` are archival traceability only and must not be interpreted as active user-facing shape options under Wave 14.
@@ -1646,7 +1648,89 @@ For planning/verification, `rev34` is only considered complete when all items be
   — review findings F1–F4 resolved; 10.2.6 closes export regression from
   split row/column tile spacing; 10.2.7 closes remaining export path bugs.
 
-### Wave 16 Objectives (Next)
+### Wave 16 Objectives (Deferred)
 
 - Monitor tiled-watermark export in production; extend loop-guard pattern if
   new dynamic-step loops are added.
+
+### Wave 17 Objectives (Active)
+
+- Close **iPhone/Safari export orphan UI** after open-in-new-tab and in-app
+  browser return (`<`). PC export is fixed (10.2.6–10.2.8); 10.2.9 and 10.2.11
+  reduced but **real-device iPhone still fails** (user confirmed 2026-06-24).
+- Harden export UI teardown: idempotent hard reset, proactive `pagehide`
+  dismiss, bfcache DOM resync (double-pass on `pageshow` persisted), iOS
+  `freeze`/`resume` and debounced focus recovery.
+- Extend automated tests (unit + Playwright bfcache simulation); **mandatory
+  manual iPhone matrix** before version bump / wave closeout.
+
+**Child plan (executable detail):**
+[goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md)
+
+### Wave 17 Implementation Actions (TDD-first)
+
+- **rev69-tdd-ios-export-recovery-red**
+  - Failing unit tests: bfcache persisted pageshow + orphan backdrop,
+    pagehide-before-navigation teardown, DOM/guard desync, hard reset
+    idempotency.
+- **rev70-export-ui-hard-reset**
+  - `forceExportUiReset()` in export-flow (or thin module); wire into
+    `ensureExportUiIdle` and `runExport` entry.
+- **rev71-pagehide-proactive-teardown**
+  - Dismiss options sheet + `onDismiss` on `pagehide` / hidden visibility
+    during options phase.
+- **rev72-bfcache-dom-resync**
+  - Double-pass reset on `pageshow` persisted (sync + rAF).
+- **rev73-ios-lifecycle-belt**
+  - `freeze`/`resume`; debounced iOS-only focus recovery via
+    `isIosLikeDevice`.
+- **rev74-playwright-bfcache-e2e**
+  - iPhone UA e2e with injected `PageTransitionEvent` persisted.
+- **rev75-manual-iphone-checklist**
+  - Real-device matrix; block closeout until rows 1–2 pass.
+- **rev76-validation-gate-changelog**
+  - Full gates + CHANGELOG; version bump only after user iPhone sign-off.
+
+### Wave 17 Validation Gates
+
+- Targeted:
+  - `npx vitest run tests/unit/export-flow.test.js tests/unit/export-options.test.js tests/unit/preview-updater.test.js`
+  - `npx playwright test tests/e2e/goja.spec.js --grep "export"`
+- Full:
+  - `npm test`
+  - `npm run test:e2e`
+- Manual (required):
+  - iPhone matrix in child plan § Manual iPhone Acceptance Matrix.
+- SLOC:
+  - `cloc --by-file --include-lang=JavaScript js/export-flow.js js/export-options.js`
+
+### Wave 17 Acceptance Criteria
+
+- Open-in-new-tab → in-app `<` back: no orphan backdrop; Export enabled.
+- Three consecutive export cycles succeed on real iPhone.
+- Share/Download return paths do not leave orphan UI.
+- PC export e2e unchanged; full automated gates pass.
+- User confirms iPhone pass before release bump.
+
+### Wave 17 Execution Order
+
+1. `rev69-tdd-ios-export-recovery-red`
+2. `rev70-export-ui-hard-reset`
+3. `rev71-pagehide-proactive-teardown`
+4. `rev72-bfcache-dom-resync`
+5. `rev73-ios-lifecycle-belt`
+6. `rev74-playwright-bfcache-e2e`
+7. `rev75-manual-iphone-checklist`
+8. `rev76-validation-gate-changelog`
+
+### Wave 17 Status
+
+- Status: **Implemented rev69–rev74; awaiting iPhone manual sign-off (rev75)**
+  before version bump (2026-06-24).
+- Child plan:
+  [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md)
+- Automated evidence: `npm test` 531 passed, `npm run test:e2e` 82 passed.
+- Baseline: **10.2.11** shipped prior lifecycle fixes; Wave 17 adds hard reset,
+  `export-page-lifecycle.js`, bfcache double-pass, freeze/resume, rAF open-tab,
+  and **iOS PWA standalone return** via `markAwaitingPwaExportReturn` +
+  `display-mode.js` (primary user repro environment).
