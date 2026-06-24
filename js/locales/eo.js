@@ -12,6 +12,7 @@ export default {
   exportDownload: 'Konservi sur aparato',
   exportCopy: 'Kopii al tondujo',
   exportOpenInNewTab: 'Malfermi en nova langeto',
+  exportPreviewClose: 'Fermi antaŭrigardon',
   exportShareFailed: 'Kunhavado malsukcesis',
   exportCopySuccess: 'Kopiita al tondujo',
   exportCopyFailed: 'Kopio malsukcesis',

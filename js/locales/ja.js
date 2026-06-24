@@ -12,6 +12,7 @@ export default {
   exportDownload: '端末に保存',
   exportCopy: 'クリップボードにコピー',
   exportOpenInNewTab: '新しいタブで開く',
+  exportPreviewClose: 'プレビューを閉じる',
   exportShareFailed: '共有に失敗しました',
   exportCopySuccess: 'クリップボードにコピーしました',
   exportCopyFailed: 'コピーに失敗しました',

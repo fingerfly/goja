@@ -1725,12 +1725,12 @@ For planning/verification, `rev34` is only considered complete when all items be
 
 ### Wave 17 Status
 
-- Status: **Implemented rev69–rev74; awaiting iPhone manual sign-off (rev75)**
-  before version bump (2026-06-24).
+- Status: **10.2.12 lifecycle fixes deployed; pass 3 in-app PWA preview ready
+  locally — user PWA retest pending (rev75) before next deploy**.
 - Child plan:
   [goja_ios_export_recovery_a3f1c2d4.plan.md](goja_ios_export_recovery_a3f1c2d4.plan.md)
-- Automated evidence: `npm test` 531 passed, `npm run test:e2e` 82 passed.
-- Baseline: **10.2.11** shipped prior lifecycle fixes; Wave 17 adds hard reset,
-  `export-page-lifecycle.js`, bfcache double-pass, freeze/resume, rAF open-tab,
-  and **iOS PWA standalone return** via `markAwaitingPwaExportReturn` +
-  `display-mode.js` (primary user repro environment).
+- Automated evidence (pass 3 local): `npm test` 542 passed,
+  `npm run test:e2e` 82 passed.
+- User evidence (2026-06-24): Win11 Chrome OK, iPhone Chrome OK, **iPhone PWA
+  still broken on 10.2.12** — root cause: `window.open` overlay return fires no
+  lifecycle events; fix routes iOS PWA to in-app preview instead.

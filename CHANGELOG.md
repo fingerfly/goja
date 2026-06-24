@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **iOS PWA export stuck (pass 3)**: Home-screen standalone mode no longer
+  uses `window.open` for「在新标签页中打开」— Safari/Chrome iPhone browser
+  tabs were fine, but PWA overlay return never fired lifecycle events, so
+  orphan backdrop recovery never ran. iOS PWA now opens an in-app full-screen
+  preview (`export-pwa-preview.js`) with a close button; export UI resets on
+  close without leaving the webview. Hardened standalone detection
+  (`isIosStandaloneWebApp`) and touch/pointer recovery as fallback when
+  `window.open` is still used.
+
+### Tests
+
+- `npm test` (542 passed).
+- `npm run test:e2e` (82 passed).
+
 ## [10.2.12] - 2026-06-24
 
 

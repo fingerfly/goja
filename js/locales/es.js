@@ -12,6 +12,7 @@ export default {
   exportDownload: 'Guardar en dispositivo',
   exportCopy: 'Copiar al portapapeles',
   exportOpenInNewTab: 'Abrir en nueva pestaña',
+  exportPreviewClose: 'Cerrar vista previa',
   exportShareFailed: 'Error al compartir',
   exportCopySuccess: 'Copiado al portapapeles',
   exportCopyFailed: 'Error al copiar',

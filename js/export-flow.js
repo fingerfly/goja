@@ -5,11 +5,14 @@
 import { EXPORT_URL_REVOKE_DELAY_MS, EXPORT_FILENAME_DEFAULT } from './config.js';
 import { sanitizeFilename } from './utils.js';
 import { markAwaitingPwaExportReturn } from './export-page-lifecycle.js';
+import { shouldUseInAppBlobPreview } from './export-open-target.js';
+import { openExportPwaPreview } from './export-pwa-preview.js';
 import {
   dismissExportOptions,
   isExportOptionsOpen,
   forceCloseExportOptionsDom,
 } from './export-options.js';
+import { closeExportPwaPreview } from './export-pwa-preview.js';
 
 /** Guards concurrent export runs (double-click, frame-clamp await window). */
 let exportInProgress = false;
@@ -44,6 +47,7 @@ export function forceExportUiReset(state, updateActionButtons, options = {}) {
     });
   }
   forceCloseExportOptionsDom();
+  closeExportPwaPreview();
   exportInProgress = false;
   exportPhase = 'idle';
   updateActionButtons(state.photos.length, false);
@@ -135,6 +139,15 @@ export async function runExport(refs, state, deps) {
         );
       },
       onOpenInNewTab: () => {
+        if (shouldUseInAppBlobPreview()) {
+          openExportPwaPreview(blob, {
+            closeLabel: t('exportPreviewClose'),
+            onClose: () => {
+              forceExportUiReset(state, updateActionButtons);
+            },
+          });
+          return;
+        }
         markAwaitingPwaExportReturn();
         const url = URL.createObjectURL(blob);
         const opened = window.open(url, '_blank', 'noopener');

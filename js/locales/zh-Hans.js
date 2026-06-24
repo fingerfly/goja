@@ -12,6 +12,7 @@ export default {
   exportDownload: '保存到本机',
   exportCopy: '复制到剪贴板',
   exportOpenInNewTab: '在新标签页中打开',
+  exportPreviewClose: '关闭预览',
   exportShareFailed: '分享失败',
   exportCopySuccess: '已复制到剪贴板',
   exportCopyFailed: '复制失败',

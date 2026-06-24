@@ -13,6 +13,7 @@ export default {
   exportDownload: 'Save to device',
   exportCopy: 'Copy to clipboard',
   exportOpenInNewTab: 'Open in new tab',
+  exportPreviewClose: 'Close preview',
   exportShareFailed: 'Share failed',
   exportCopySuccess: 'Copied to clipboard',
   exportCopyFailed: 'Copy failed',

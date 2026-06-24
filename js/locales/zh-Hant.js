@@ -12,6 +12,7 @@ export default {
   exportDownload: '保存到本機',
   exportCopy: '複製到剪貼簿',
   exportOpenInNewTab: '在新分頁中開啟',
+  exportPreviewClose: '關閉預覽',
   exportShareFailed: '分享失敗',
   exportCopySuccess: '已複製到剪貼簿',
   exportCopyFailed: '複製失敗',

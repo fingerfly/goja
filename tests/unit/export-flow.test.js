@@ -1,4 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+vi.mock('../../js/export-open-target.js', () => ({
+  shouldUseInAppBlobPreview: vi.fn(() => false),
+}));
+
+import { shouldUseInAppBlobPreview } from '../../js/export-open-target.js';
 import {
   runExport,
   resetExportInProgressForTests,
@@ -27,6 +33,7 @@ describe('runExport', () => {
 
   beforeEach(() => {
     resetExportInProgressForTests();
+    vi.mocked(shouldUseInAppBlobPreview).mockReturnValue(false);
     refs = {
       frameW: { value: '1080' },
       frameH: { value: '720' },
@@ -363,5 +370,19 @@ describe('runExport', () => {
     expect(onDismissCalled).toBe(true);
     expect(isExportInProgress()).toBe(false);
     teardown();
+  });
+
+  it('uses in-app preview instead of window.open on iOS PWA', async () => {
+    vi.mocked(shouldUseInAppBlobPreview).mockReturnValue(true);
+    deps.t = (k) => k;
+    deps.showExportOptions.mockImplementation((blob, filename, format, handlers) => {
+      handlers.onOpenInNewTab?.();
+      return true;
+    });
+    await runExport(refs, state, deps);
+    expect(document.getElementById('exportPwaPreview')).toBeTruthy();
+    document.querySelector('.export-pwa-preview__close')?.click();
+    expect(document.getElementById('exportPwaPreview')).toBeNull();
+    expect(isExportInProgress()).toBe(false);
   });
 });
