@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Security
+
+- Dev dependency audit: bump npm `overrides` for transitive **`postcss`**
+  (`^8.5.26`, GHSA-r28c-9q8g-f849 / GHSA-fxqj-rqcc-2cmp) and **`undici`**
+  (`^7.29.0`, GHSA-8xcm-r25x-g524 and related). `npm audit` reports
+  0 vulnerabilities.
+
+### Tests
+
+- `npm audit` (0 vulnerabilities).
+- `npm test` (541 passed).
+- `npm run test:e2e` (82 passed).
+
 ## [10.2.13] - 2026-06-24
 
 
