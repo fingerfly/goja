@@ -15,7 +15,7 @@
 - `npm test` (541 passed).
 - `npm run test:e2e` (82 passed).
 
-## [10.2.13] - 2026-10-22
+## [10.2.13] - 2026-10-23
 
 
 ### Fixed

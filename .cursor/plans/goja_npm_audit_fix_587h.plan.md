@@ -105,3 +105,13 @@ Skipped lens: runtime/app-code security review — out of scope; npm dependency 
 | 6. Scope | `git status` = package.json, package-lock.json, plan file only; `js/vendor/` untouched. Lockfile diff inspected: only rolldown WASM-binding churn + expected version moves, no unexpected packages. |
 | 7. Commit | `7d4ec3ca` on main (3 files, 286+/264−), pushed; HEAD == origin/main == `7d4ec3ca`. |
 | 8. CI note | goja's GitHub Test workflow lives in the **standalone `fingerfly/goja` repo** (deploy.js clones/copies there; DEFAULT_REMOTE `git@github.com:fingerfly/goja.git`). Monorepo push does not trigger it, and this fix is deliberately no-release — so the local gate run (identical commands) is the verification of record. The standalone CI + weekly sweep will exercise the new tree at the next release deploy. |
+
+### Follow-up same day: shipped to standalone as 10.2.13 (3)
+
+| Step | Result |
+|---|---|
+| Release (2) | `npm run deploy -- build` → standalone `039e5a3` "Release v10.2.13 (2)"; monorepo `781be02a`. Standalone tree had been stale since before Sep 10 (sweeps red every Monday since Sep 14, all failing at the audit step on the stale lockfile). |
+| CI failure (2) | Test run #169: audit ✓, unit ✓, e2e ✗ — `npx playwright install --with-deps chromium` exit 1 in ~1s. First-ever install attempt on the **ubuntu-26 runner rollout** (began 2026-10-19); earlier runs that reached this step were all on 24.04. |
+| Fix | Pinned e2e (test.yml) and sweep (security-sweep.yml) jobs to `runs-on: ubuntu-24.04`; contract tests 6/6 green; monorepo `08a78e15`. |
+| Release (3) | `npm run deploy -- build` → standalone `f424298` "Release v10.2.13 (3)". Test run #170 **success** (audit+unit+e2e), Deploy run #152 **success**, live manifest at fingerfly.github.io/goja reports "10.2.13 (3)". Monorepo `ccbcb676`. |
+| Sweep outlook | Monday 2026-10-26 sweep runs against the clean tree on the pinned image — expected green, ending the red streak. |
