@@ -1,0 +1,22 @@
+{
+  "//": "goja project editor EOL defaults. Mirrors root monorepo policy (LF for all text). Global files.eol covers untyped files; language overrides reinforce JS/HTML/CSS/JSON/Markdown when this folder is opened alone.",
+  "files.eol": "\n",
+  "[javascript]": {
+    "files.eol": "\n"
+  },
+  "[html]": {
+    "files.eol": "\n"
+  },
+  "[css]": {
+    "files.eol": "\n"
+  },
+  "[json]": {
+    "files.eol": "\n"
+  },
+  "[jsonc]": {
+    "files.eol": "\n"
+  },
+  "[markdown]": {
+    "files.eol": "\n"
+  }
+}
