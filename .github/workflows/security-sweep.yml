@@ -7,7 +7,9 @@ on:
 
 jobs:
   security:
-    runs-on: ubuntu-latest
+    # Pinned to match test.yml e2e: playwright install fails on the ubuntu-26
+    # image rollout (see Test workflow e2e job for details).
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

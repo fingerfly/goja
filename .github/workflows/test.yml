@@ -41,7 +41,10 @@ jobs:
       - run: npm run test:unit
 
   e2e:
-    runs-on: ubuntu-latest
+    # Pinned: playwright 1.60 `install --with-deps` exits 1 in ~1s on the
+    # ubuntu-26 image rollout (started 2026-10-19). Unpin once the project's
+    # playwright version supports ubuntu 26.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
